@@ -1,0 +1,26 @@
+ChatGPT 10-Day Cleaner v2 - invariant/property test report
+Generated: 2026-08-30
+
+Syntax checks:
+✓ core.js syntax
+✓ runner.js syntax
+✓ popup.js syntax
+✓ tests.js syntax
+
+Invariant/property tests:
+✓ strict cutoff: one millisecond older is eligible
+✓ strict cutoff: exactly at cutoff is not eligible
+✓ strict cutoff: newer than cutoff is not eligible
+✓ updated basis protects an old chat touched recently
+✓ invalid or missing timestamps fail closed
+✓ candidate builder deduplicates IDs and sorts oldest first
+✓ frozen scan snapshot does not change when wall clock advances
+✓ deletion progress is monotonic and conserved
+✓ randomized eligibility invariant over 25,000 chats
+✓ architecture invariant: popup contains no ChatGPT backend loop
+✓ architecture invariant: persistent content runner is declared in manifest
+✓ default age basis is last-updated
+
+12 invariant/property tests passed.
+
+✓ manifest.json valid JSON
