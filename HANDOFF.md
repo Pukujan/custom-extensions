@@ -6,6 +6,8 @@
 - Repository: `Pukujan/custom-extensions`
 - Purpose: durable collection of small independently loadable Brave/Chromium extensions
 - Repo state before bootstrap: empty repository
+- Current branch: `bootstrap/extension-collection-and-chatgpt-exporter`
+- Draft PR: #1 — `https://github.com/Pukujan/custom-extensions/pull/1`
 - Current work: collection conventions, two imported extensions, ChatGPT transcript exporter
 
 ## Imported source archives
@@ -33,15 +35,17 @@ Long ChatGPT threads can be virtualized, so “full transcript” uses scroll-an
 
 ## Observed bootstrap verification
 
-`node scripts/test-all.mjs` passed all three registered suites: 12 + 16 + 18 = 46 tests. The new exporter remains `LIVE_SMOKE_REQUIRED`.
+`node scripts/test-all.mjs` passed all three registered suites: 12 + 16 + 18 = 46 tests. The GitHub test-exercised bytes were aligned to the tested working tree before PR #1 was opened. The new exporter remains `LIVE_SMOKE_REQUIRED`.
 
 ## Exact next actions
 
-1. Load `extensions/chatgpt-transcript-exporter/` unpacked in Brave.
-2. Smoke-test a short thread and a very long thread.
-3. Verify Markdown and JSON ordering, code blocks, links, user/assistant roles, filename, and partial-warning behavior.
-4. Only then change the exporter registry status to `LIVE_SMOKE_PASSED`.
-5. Future small extensions go in this same repository unless they develop an independent product/release lifecycle.
+1. Check out PR #1 / branch `bootstrap/extension-collection-and-chatgpt-exporter`.
+2. Load `extensions/chatgpt-transcript-exporter/` unpacked in Brave.
+3. Smoke-test a short thread and a very long thread.
+4. Verify Markdown and JSON ordering, code blocks, links, user/assistant roles, filename, and partial-warning behavior.
+5. Record the observed smoke evidence in `docs/STATUS.md` and this handoff.
+6. Only then change the exporter registry status to `LIVE_SMOKE_PASSED` and mark PR #1 ready for review.
+7. Future small extensions go in this same repository unless they develop an independent product/release lifecycle.
 
 ## Do not repeat
 
