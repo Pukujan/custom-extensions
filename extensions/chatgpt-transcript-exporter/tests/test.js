@@ -21,11 +21,15 @@ function test(name, fn) {
 }
 
 function syntax(file) {
-  const result = spawnSync(process.execPath, ["--check", path.join(ROOT, file)], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, ["--check", path.join(ROOT, file)], {
+    encoding: "utf8",
+  });
   assert.equal(result.status, 0, result.stderr || result.stdout);
 }
 
-for (const file of ["core.js", "content.js", "background.js", "popup.js"]) test(`${file} syntax`, () => syntax(file));
+for (const file of ["core.js", "content.js", "background.js", "popup.js"]) {
+  test(`${file} syntax`, () => syntax(file));
+}
 
 test("manifest is valid MV3 with narrow ChatGPT host scope", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8"));
@@ -43,21 +47,45 @@ test("turn index parser is strict enough for conversation turn ids", () => {
 });
 
 test("stable identity prefers turn id over weaker fields", () => {
-  assert.equal(core.stableTurnKey({ role: "assistant", turnId: "abc", testId: "conversation-turn-9", messageId: "m", plainText: "same" }), "turn-id:abc:assistant");
+  const key = core.stableTurnKey({
+    role: "assistant",
+    turnId: "abc",
+    testId: "conversation-turn-9",
+    messageId: "m",
+    plainText: "same",
+  });
+  assert.equal(key, "turn-id:abc:assistant");
 });
 
 test("same turn encountered repeatedly is deduplicated", () => {
   const map = new Map();
-  let counter = core.mergeHarvest(map, [{ role: "user", turnId: "u1", plainText: "hello", markdown: "hello" }], 0);
-  counter = core.mergeHarvest(map, [{ role: "user", turnId: "u1", plainText: "hello", markdown: "hello" }], counter);
+  let counter = 0;
+  counter = core.mergeHarvest(
+    map,
+    [{ role: "user", turnId: "u1", plainText: "hello", markdown: "hello" }],
+    counter,
+  );
+  counter = core.mergeHarvest(
+    map,
+    [{ role: "user", turnId: "u1", plainText: "hello", markdown: "hello" }],
+    counter,
+  );
   assert.equal(map.size, 1);
   assert.equal(counter, 1);
 });
 
 test("richer later render replaces partial render without changing first-seen order", () => {
   const map = new Map();
-  let counter = core.mergeHarvest(map, [{ role: "assistant", turnId: "a1", markdown: "partial", plainText: "partial" }], 0);
-  counter = core.mergeHarvest(map, [{ role: "assistant", turnId: "a1", markdown: "partial plus full content", plainText: "partial plus full content" }], counter);
+  let counter = core.mergeHarvest(
+    map,
+    [{ role: "assistant", turnId: "a1", markdown: "partial", plainText: "partial" }],
+    0,
+  );
+  counter = core.mergeHarvest(
+    map,
+    [{ role: "assistant", turnId: "a1", markdown: "partial plus full content", plainText: "partial plus full content" }],
+    counter,
+  );
   const value = [...map.values()][0];
   assert.equal(value.firstSeen, 0);
   assert.match(value.markdown, /full content/);
@@ -81,8 +109,16 @@ test("completeness requires two identical non-empty sweep key sets", () => {
 
 test("markdown serialization carries completeness warning when not established", () => {
   const text = core.buildMarkdown(
-    { title: "Example", url: "https://chatgpt.com/c/abc", conversationId: "abc", exportedAt: "2026-09-01T00:00:00Z" },
-    [{ role: "user", turnIndex: 1, firstSeen: 0, markdown: "Hi" }, { role: "assistant", turnIndex: 2, firstSeen: 1, markdown: "Hello" }],
+    {
+      title: "Example",
+      url: "https://chatgpt.com/c/abc",
+      conversationId: "abc",
+      exportedAt: "2026-09-01T00:00:00Z",
+    },
+    [
+      { role: "user", turnIndex: 1, firstSeen: 0, markdown: "Hi" },
+      { role: "assistant", turnIndex: 2, firstSeen: 1, markdown: "Hello" },
+    ],
     false,
   );
   assert.match(text, /PARTIAL \/ NOT ESTABLISHED/);
@@ -91,11 +127,20 @@ test("markdown serialization carries completeness warning when not established",
 });
 
 test("JSON serialization preserves ordered roles and explicit completeness state", () => {
-  const parsed = JSON.parse(core.buildJson(
-    { title: "Example", url: "https://chatgpt.com/c/abc", conversationId: "abc", exportedAt: "2026-09-01T00:00:00Z" },
-    [{ role: "assistant", turnIndex: 2, firstSeen: 0, markdown: "B", plainText: "B" }, { role: "user", turnIndex: 1, firstSeen: 1, markdown: "A", plainText: "A" }],
+  const raw = core.buildJson(
+    {
+      title: "Example",
+      url: "https://chatgpt.com/c/abc",
+      conversationId: "abc",
+      exportedAt: "2026-09-01T00:00:00Z",
+    },
+    [
+      { role: "assistant", turnIndex: 2, firstSeen: 0, markdown: "B", plainText: "B" },
+      { role: "user", turnIndex: 1, firstSeen: 1, markdown: "A", plainText: "A" },
+    ],
     true,
-  ));
+  );
+  const parsed = JSON.parse(raw);
   assert.equal(parsed.schema_version, "custom-extensions.chatgpt-transcript.v1");
   assert.equal(parsed.completeness, "stable_full_sweep");
   assert.deepEqual(parsed.messages.map((x) => x.role), ["user", "assistant"]);
@@ -117,9 +162,17 @@ test("randomized dedupe and turn ordering invariant", () => {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
     return seed / 0x100000000;
   };
+
   for (let trial = 0; trial < 500; trial += 1) {
     const count = 5 + Math.floor(random() * 50);
-    const canonical = Array.from({ length: count }, (_, i) => ({ role: i % 2 ? "assistant" : "user", turnId: `turn-${trial}-${i}`, testId: `conversation-turn-${i}`, turnIndex: i, markdown: `message ${i}`, plainText: `message ${i}` }));
+    const canonical = Array.from({ length: count }, (_, i) => ({
+      role: i % 2 ? "assistant" : "user",
+      turnId: `turn-${trial}-${i}`,
+      testId: `conversation-turn-${i}`,
+      turnIndex: i,
+      markdown: `message ${i}`,
+      plainText: `message ${i}`,
+    }));
     const noisy = [];
     for (const item of canonical) {
       noisy.push(item);
@@ -130,10 +183,12 @@ test("randomized dedupe and turn ordering invariant", () => {
       const j = Math.floor(random() * (i + 1));
       [noisy[i], noisy[j]] = [noisy[j], noisy[i]];
     }
+
     const map = new Map();
     core.mergeHarvest(map, noisy, 0);
     assert.equal(map.size, count);
-    assert.deepEqual(core.sortMessages(map.values()).map((x) => x.turnIndex), canonical.map((x) => x.turnIndex));
+    const sorted = core.sortMessages(map.values());
+    assert.deepEqual(sorted.map((x) => x.turnIndex), canonical.map((x) => x.turnIndex));
   }
 });
 
@@ -146,7 +201,9 @@ test("architecture invariant: popup does not contain harvesting loop", () => {
 });
 
 test("privacy invariant: implementation contains no network fetch/XHR/WebSocket", () => {
-  const source = ["core.js", "content.js", "background.js", "popup.js"].map((file) => fs.readFileSync(path.join(ROOT, file), "utf8")).join("\n");
+  const source = ["core.js", "content.js", "background.js", "popup.js"]
+    .map((file) => fs.readFileSync(path.join(ROOT, file), "utf8"))
+    .join("\n");
   assert.doesNotMatch(source, /\bfetch\s*\(/);
   assert.doesNotMatch(source, /XMLHttpRequest|WebSocket/);
 });
