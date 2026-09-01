@@ -1,0 +1,23 @@
+ChatGPT Transcript Exporter v0.1.0 - deterministic/property test report
+Generated: 2026-09-01
+
+Command:
+node tests/test.js
+
+Observed result:
+18 tests passed.
+
+Coverage includes:
+- syntax checks for core/content/background/popup scripts
+- Manifest V3 + narrow chatgpt.com host/permission invariants
+- stable turn identity and numeric ordering
+- repeated-render deduplication and richer-render replacement
+- two-sweep completeness classification
+- Markdown partial-warning serialization
+- JSON schema/order/completeness serialization
+- filename and conversation-id parsing
+- 500 randomized dedupe/order trials
+- popup does not own the harvest loop
+- no fetch/XHR/WebSocket network path in implementation
+
+Live Brave smoke test: NOT RUN / REQUIRED.
