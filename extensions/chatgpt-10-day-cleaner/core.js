@@ -31,10 +31,12 @@
   function buildCandidates(chats, cutoffMs, basis) {
     const field = fieldForBasis(basis);
     const byId = new Map();
+
     for (const chat of Array.isArray(chats) ? chats : []) {
       if (!chat || typeof chat.id !== "string" || !chat.id) continue;
       if (byId.has(chat.id)) continue;
       if (!isEligible(chat, cutoffMs, basis)) continue;
+
       byId.set(chat.id, {
         id: chat.id,
         title: typeof chat.title === "string" && chat.title ? chat.title : "Untitled chat",
@@ -44,6 +46,7 @@
         update_time: chat.update_time || null
       });
     }
+
     return [...byId.values()].sort((a, b) => {
       if (a.timeMs !== b.timeMs) return a.timeMs - b.timeMs;
       return a.id.localeCompare(b.id);
@@ -67,7 +70,14 @@
 
   function makeDeletionProgress(total, scanId) {
     const safeTotal = Number.isInteger(total) && total >= 0 ? total : 0;
-    return { scanId, total: safeTotal, index: 0, deleted: 0, failed: 0, failures: [] };
+    return {
+      scanId,
+      total: safeTotal,
+      index: 0,
+      deleted: 0,
+      failed: 0,
+      failures: []
+    };
   }
 
   function advanceDeletionProgress(progress, success, failureEntry) {
@@ -79,15 +89,27 @@
       failed: progress.failed,
       failures: Array.isArray(progress.failures) ? [...progress.failures] : []
     };
+
     if (p.index >= p.total) return p;
+
     p.index += 1;
-    if (success) p.deleted += 1;
-    else {
+    if (success) {
+      p.deleted += 1;
+    } else {
       p.failed += 1;
       if (failureEntry && p.failures.length < 50) p.failures.push(failureEntry);
     }
     return p;
   }
 
-  return { normalizeBasis, fieldForBasis, parseTime, isEligible, buildCandidates, makeScanSnapshot, makeDeletionProgress, advanceDeletionProgress };
+  return {
+    normalizeBasis,
+    fieldForBasis,
+    parseTime,
+    isEligible,
+    buildCandidates,
+    makeScanSnapshot,
+    makeDeletionProgress,
+    advanceDeletionProgress
+  };
 });
