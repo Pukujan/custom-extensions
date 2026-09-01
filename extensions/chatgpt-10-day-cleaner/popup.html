@@ -24,6 +24,7 @@
           <span>days</span>
         </div>
       </label>
+
       <label class="field">
         <span>Measure age by</span>
         <select id="basis">
@@ -31,28 +32,48 @@
           <option value="updated" selected>Last updated date</option>
         </select>
       </label>
+
       <button id="scanBtn" class="primary">Scan / Dry run</button>
       <button id="cancelBtn" class="secondary hidden">Stop operation</button>
       <p id="status" class="status">Open chatgpt.com, sign in, then scan.</p>
+
       <div id="progressWrap" class="progress-wrap hidden">
         <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
         <span id="progressText" class="muted"></span>
       </div>
-      <p class="persist-note">You can close this popup. The runner continues in the ChatGPT tab and progress is saved.</p>
+
+      <p class="persist-note">
+        You can close this popup. The runner continues in the ChatGPT tab and progress is saved.
+      </p>
     </section>
 
     <section id="resultsCard" class="card hidden">
       <div class="summary">
-        <div><span class="muted">Chats found</span><strong id="totalCount">0</strong></div>
-        <div><span class="muted">Eligible</span><strong id="eligibleCount">0</strong></div>
+        <div>
+          <span class="muted">Chats found</span>
+          <strong id="totalCount">0</strong>
+        </div>
+        <div>
+          <span class="muted">Eligible</span>
+          <strong id="eligibleCount">0</strong>
+        </div>
       </div>
+
       <p id="cutoffText" class="cutoff"></p>
+
       <div class="preview-wrap">
-        <div class="preview-head"><strong>Frozen dry-run snapshot</strong><span id="previewMeta" class="muted"></span></div>
+        <div class="preview-head">
+          <strong>Frozen dry-run snapshot</strong>
+          <span id="previewMeta" class="muted"></span>
+        </div>
         <ul id="previewList"></ul>
       </div>
+
       <div id="dangerZone" class="danger-zone">
-        <p><strong>Permanent action.</strong> Delete uses only the candidate set captured by this dry run; it does not recalculate the cutoff.</p>
+        <p>
+          <strong>Permanent action.</strong>
+          Delete uses only the candidate set captured by this dry run; it does not recalculate the cutoff.
+        </p>
         <label class="field">
           <span>Type <code>DELETE</code> to enable bulk deletion</span>
           <input id="confirmText" type="text" autocomplete="off" placeholder="DELETE">
@@ -60,8 +81,12 @@
         <button id="deleteBtn" class="danger" disabled>Delete eligible chats</button>
       </div>
     </section>
-    <footer>Keep the <strong>ChatGPT tab</strong> open. The popup itself may be closed.</footer>
+
+    <footer>
+      Keep the <strong>ChatGPT tab</strong> open. The popup itself may be closed.
+    </footer>
   </main>
+
   <script src="popup.js"></script>
 </body>
 </html>
