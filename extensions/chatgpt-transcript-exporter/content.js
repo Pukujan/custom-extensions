@@ -64,17 +64,28 @@
   function contentRootFor(turn, roleNode, role) {
     if (!roleNode) return turn;
     if (role === "assistant") {
-      return roleNode.querySelector(".markdown, .prose, [class*='markdown'], [class*='prose']") || roleNode;
+      return (
+        roleNode.querySelector(".markdown, .prose, [class*='markdown'], [class*='prose']") ||
+        roleNode
+      );
     }
     if (role === "user") {
-      return roleNode.querySelector('[data-testid="collapsible-user-message-content"], .whitespace-pre-wrap, [class*="whitespace-pre-wrap"]') || roleNode;
+      return (
+        roleNode.querySelector(
+          '[data-testid="collapsible-user-message-content"], .whitespace-pre-wrap, [class*="whitespace-pre-wrap"]',
+        ) || roleNode
+      );
     }
     return roleNode;
   }
 
   function cloneWithoutUi(root) {
     const clone = root.cloneNode(true);
-    clone.querySelectorAll("script, style, noscript, button, [role='button'], svg, [aria-hidden='true'], [data-testid*='copy'], [data-testid*='edit']").forEach((node) => node.remove());
+    clone
+      .querySelectorAll(
+        "script, style, noscript, button, [role='button'], svg, [aria-hidden='true'], [data-testid*='copy'], [data-testid*='edit']",
+      )
+      .forEach((node) => node.remove());
     return clone;
   }
 
@@ -109,23 +120,28 @@
       const indent = "  ".repeat(depth);
       const bodyLines = body.split("\n");
       lines.push(`${indent}${prefix}${bodyLines[0] || ""}`);
-      for (const continuation of bodyLines.slice(1)) lines.push(`${indent}  ${continuation}`);
+      for (const continuation of bodyLines.slice(1)) {
+        lines.push(`${indent}  ${continuation}`);
+      }
     }
     return `${lines.join("\n")}\n\n`;
   }
 
   function tableMarkdown(table) {
     const rows = [...table.querySelectorAll("tr")].map((row) =>
-      [...row.querySelectorAll("th,td")].map((cell) => core.normalizeText(cell.innerText || cell.textContent).replace(/\|/g, "\\|")),
+      [...row.querySelectorAll("th,td")].map((cell) =>
+        core.normalizeText(cell.innerText || cell.textContent).replace(/\|/g, "\\|"),
+      ),
     );
     if (!rows.length) return "";
     const width = Math.max(...rows.map((row) => row.length));
     for (const row of rows) while (row.length < width) row.push("");
     const header = rows[0];
+    const body = rows.slice(1);
     return [
       `| ${header.join(" | ")} |`,
       `| ${header.map(() => "---").join(" | ")} |`,
-      ...rows.slice(1).map((row) => `| ${row.join(" | ")} |`),
+      ...body.map((row) => `| ${row.join(" | ")} |`),
       "",
       "",
     ].join("\n");
@@ -135,8 +151,12 @@
     if (node.nodeType === Node.TEXT_NODE) return node.nodeValue || "";
     if (node.nodeType !== Node.ELEMENT_NODE) return "";
     const tag = node.tagName;
+
     if (tag === "BR") return "\n";
-    if (/^H[1-6]$/.test(tag)) return `\n\n${"#".repeat(Number(tag[1]))} ${core.normalizeText(childrenMarkdown(node, context))}\n\n`;
+    if (/^H[1-6]$/.test(tag)) {
+      const level = Number(tag[1]);
+      return `\n\n${"#".repeat(level)} ${core.normalizeText(childrenMarkdown(node, context))}\n\n`;
+    }
     if (tag === "P") return `${childrenMarkdown(node, context)}\n\n`;
     if (tag === "STRONG" || tag === "B") return `**${childrenMarkdown(node, context)}**`;
     if (tag === "EM" || tag === "I") return `*${childrenMarkdown(node, context)}*`;
@@ -156,7 +176,10 @@
     if (tag === "OL") return listMarkdown(node, true, context.listDepth || 0);
     if (tag === "BLOCKQUOTE") {
       const body = core.normalizeText(childrenMarkdown(node, context));
-      return `\n\n${body.split("\n").map((line) => `> ${line}`).join("\n")}\n\n`;
+      return `\n\n${body
+        .split("\n")
+        .map((line) => `> ${line}`)
+        .join("\n")}\n\n`;
     }
     if (tag === "A") {
       const label = core.normalizeText(childrenMarkdown(node, context)) || node.getAttribute("href") || "link";
@@ -170,6 +193,9 @@
     }
     if (tag === "HR") return "\n\n---\n\n";
     if (tag === "TABLE") return tableMarkdown(node);
+    if (tag === "DIV" || tag === "SECTION" || tag === "ARTICLE") {
+      return childrenMarkdown(node, context);
+    }
     return childrenMarkdown(node, context);
   }
 
@@ -177,15 +203,30 @@
     const roleNode = roleNodeFor(turn);
     const role = roleFor(turn, roleNode);
     if (role !== "user" && role !== "assistant") return null;
-    const cleaned = cloneWithoutUi(contentRootFor(turn, roleNode, role));
+    const root = contentRootFor(turn, roleNode, role);
+    const cleaned = cloneWithoutUi(root);
     const markdown = core.normalizeText(nodeToMarkdown(cleaned));
     const plainText = textContent(cleaned);
     if (!markdown && !plainText && !cleaned.querySelector("img")) return null;
+
     const testId = turn.getAttribute?.("data-testid") || "";
     const turnId = turn.getAttribute?.("data-turn-id") || null;
-    const messageContainer = roleNode?.closest?.("[data-message-id],[data-message-uuid]");
-    const messageId = roleNode?.getAttribute("data-message-id") || roleNode?.getAttribute("data-message-uuid") || messageContainer?.getAttribute("data-message-id") || messageContainer?.getAttribute("data-message-uuid") || null;
-    return { role, turnId, messageId, testId, turnIndex: core.parseTurnIndex(testId), markdown, plainText };
+    const messageId =
+      roleNode?.getAttribute("data-message-id") ||
+      roleNode?.getAttribute("data-message-uuid") ||
+      roleNode?.closest?.("[data-message-id],[data-message-uuid]")?.getAttribute("data-message-id") ||
+      roleNode?.closest?.("[data-message-id],[data-message-uuid]")?.getAttribute("data-message-uuid") ||
+      null;
+
+    return {
+      role,
+      turnId,
+      messageId,
+      testId,
+      turnIndex: core.parseTurnIndex(testId),
+      markdown,
+      plainText,
+    };
   }
 
   function harvestVisible() {
@@ -195,14 +236,21 @@
   function scrollableAncestor(node) {
     for (let current = node?.parentElement; current; current = current.parentElement) {
       const style = getComputedStyle(current);
-      if (/(auto|scroll|overlay)/.test(style.overflowY) && current.scrollHeight > current.clientHeight + 120) return current;
+      if (
+        /(auto|scroll|overlay)/.test(style.overflowY) &&
+        current.scrollHeight > current.clientHeight + 120
+      ) {
+        return current;
+      }
     }
     return null;
   }
 
   function findScrollContainer() {
-    const ancestor = scrollableAncestor(candidateTurns()[0]);
+    const firstTurn = candidateTurns()[0];
+    const ancestor = scrollableAncestor(firstTurn);
     if (ancestor) return ancestor;
+
     const candidates = [...document.querySelectorAll("main, main *")].filter((node) => {
       if (!(node instanceof HTMLElement)) return false;
       const style = getComputedStyle(node);
@@ -212,38 +260,59 @@
     return candidates[0] || document.scrollingElement || document.documentElement;
   }
 
-  function isDocumentScroller(container) {
-    return container === document.scrollingElement || container === document.documentElement;
-  }
   function scrollTopOf(container) {
-    return isDocumentScroller(container) ? window.scrollY || document.documentElement.scrollTop || 0 : container.scrollTop;
+    if (container === document.scrollingElement || container === document.documentElement) {
+      return window.scrollY || document.documentElement.scrollTop || 0;
+    }
+    return container.scrollTop;
   }
+
   function setScrollTop(container, value) {
-    if (isDocumentScroller(container)) window.scrollTo(0, value);
-    else container.scrollTop = value;
+    if (container === document.scrollingElement || container === document.documentElement) {
+      window.scrollTo(0, value);
+    } else {
+      container.scrollTop = value;
+    }
   }
+
   function viewportHeight(container) {
-    return isDocumentScroller(container) ? window.innerHeight : container.clientHeight;
+    if (container === document.scrollingElement || container === document.documentElement) {
+      return window.innerHeight;
+    }
+    return container.clientHeight;
   }
+
   function maxScrollTop(container) {
-    return isDocumentScroller(container)
-      ? Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
-      : Math.max(0, container.scrollHeight - container.clientHeight);
+    if (container === document.scrollingElement || container === document.documentElement) {
+      return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    }
+    return Math.max(0, container.scrollHeight - container.clientHeight);
   }
 
   async function harvestPass(container, pass, collected, firstSeenCounter) {
     const passSeen = new Set();
     setScrollTop(container, 0);
     await sleep(SETTLE_MS * 2);
+
     let steps = 0;
     let previousPosition = -1;
     while (steps < 1400) {
       const records = harvestVisible();
       for (const record of records) passSeen.add(core.stableTurnKey(record));
       firstSeenCounter = core.mergeHarvest(collected, records, firstSeenCounter);
+
       const position = scrollTopOf(container);
       const maximum = maxScrollTop(container);
-      await publishProgress({ status: "running", phase: "harvesting", pass, step: steps, capturedTurns: collected.size, currentScroll: Math.round(position), maxScroll: Math.round(maximum) });
+      await publishProgress({
+        status: "running",
+        phase: "harvesting",
+        pass,
+        step: steps,
+        capturedTurns: collected.size,
+        currentScroll: Math.round(position),
+        maxScroll: Math.round(maximum),
+      });
+
       if (position >= maximum - 2) break;
       const step = Math.max(220, Math.floor(viewportHeight(container) * STEP_FRACTION));
       const next = Math.min(maximum, position + step);
@@ -253,6 +322,7 @@
       await sleep(SETTLE_MS);
       steps += 1;
     }
+
     await sleep(SETTLE_MS * 2);
     const finalRecords = harvestVisible();
     for (const record of finalRecords) passSeen.add(core.stableTurnKey(record));
@@ -266,40 +336,96 @@
 
   async function runExport(format) {
     running = true;
-    await setState({ status: "running", phase: "starting", format, capturedTurns: 0, pass: 0, startedAt: new Date().toISOString(), completedAt: null, error: null, warning: null });
+    const startedAt = new Date().toISOString();
+    await setState({
+      status: "running",
+      phase: "starting",
+      format,
+      capturedTurns: 0,
+      pass: 0,
+      startedAt,
+      completedAt: null,
+      error: null,
+      warning: null,
+    });
+
     try {
       if (location.hostname !== "chatgpt.com") throw new Error("Open a chatgpt.com conversation first.");
       if (isStreaming()) throw new Error("Wait for the current ChatGPT response to finish streaming, then export.");
       if (!candidateTurns().length) throw new Error("No rendered ChatGPT conversation turns were found on this page.");
+
       const container = findScrollContainer();
       const originalScroll = scrollTopOf(container);
       const collected = new Map();
       const passKeySets = [];
       let firstSeenCounter = 0;
       let complete = false;
+
       try {
         for (let pass = 1; pass <= MAX_PASSES; pass += 1) {
           const result = await harvestPass(container, pass, collected, firstSeenCounter);
           firstSeenCounter = result.firstSeenCounter;
           passKeySets.push(result.passSeen);
           complete = core.evaluateSweepCompleteness(passKeySets);
-          await publishProgress({ status: "running", phase: complete ? "stable" : "sweep-complete", pass, capturedTurns: collected.size, stable: complete }, true);
+          await publishProgress(
+            {
+              status: "running",
+              phase: complete ? "stable" : "sweep-complete",
+              pass,
+              capturedTurns: collected.size,
+              stable: complete,
+            },
+            true,
+          );
           if (complete) break;
         }
       } finally {
         setScrollTop(container, originalScroll);
       }
+
       const messages = core.sortMessages(collected.values());
       if (!messages.length) throw new Error("No non-empty user/assistant turns were extracted.");
-      const meta = { title: pageTitle(), url: location.href, conversationId: core.conversationIdFromUrl(location.href), exportedAt: new Date().toISOString() };
+
+      const exportedAt = new Date().toISOString();
+      const meta = {
+        title: pageTitle(),
+        url: location.href,
+        conversationId: core.conversationIdFromUrl(location.href),
+        exportedAt,
+      };
+      const base = core.sanitizeFilename(meta.title);
       const isJson = format === "json";
-      const content = isJson ? core.buildJson(meta, messages, complete) : core.buildMarkdown(meta, messages, complete);
-      const filename = `${core.sanitizeFilename(meta.title)}.${isJson ? "json" : "md"}`;
-      const response = await chrome.runtime.sendMessage({ type: "DOWNLOAD_TEXT_EXPORT", filename, mime: isJson ? "application/json" : "text/markdown", content });
+      const content = isJson
+        ? core.buildJson(meta, messages, complete)
+        : core.buildMarkdown(meta, messages, complete);
+      const filename = `${base}.${isJson ? "json" : "md"}`;
+      const response = await chrome.runtime.sendMessage({
+        type: "DOWNLOAD_TEXT_EXPORT",
+        filename,
+        mime: isJson ? "application/json" : "text/markdown",
+        content,
+      });
       if (!response?.ok) throw new Error(response?.error || "Browser download failed.");
-      await setState({ status: "done", phase: "downloaded", format, capturedTurns: messages.length, complete, warning: complete ? null : "Repeated sweeps did not establish a stable full turn set; file is marked partial.", filename, downloadId: response.downloadId ?? null, completedAt: new Date().toISOString(), error: null });
+
+      await setState({
+        status: "done",
+        phase: "downloaded",
+        format,
+        capturedTurns: messages.length,
+        complete,
+        warning: complete ? null : "Repeated sweeps did not establish a stable full turn set; file is marked partial.",
+        filename,
+        downloadId: response.downloadId ?? null,
+        completedAt: new Date().toISOString(),
+        error: null,
+      });
     } catch (error) {
-      await setState({ status: "error", phase: "failed", error: error instanceof Error ? error.message : String(error), completedAt: new Date().toISOString() });
+      await setState({
+        status: "error",
+        phase: "failed",
+        error: error instanceof Error ? error.message : String(error),
+        completedAt: new Date().toISOString(),
+      });
     } finally {
       running = false;
     }
@@ -311,7 +437,8 @@
       sendResponse({ ok: false, error: "An export is already running in this tab." });
       return false;
     }
-    runExport(message.format === "json" ? "json" : "markdown");
+    const format = message.format === "json" ? "json" : "markdown";
+    runExport(format);
     sendResponse({ ok: true });
     return false;
   });
