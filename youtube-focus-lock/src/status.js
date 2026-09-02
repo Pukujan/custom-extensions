@@ -2,6 +2,11 @@ import { CONFIG } from "../lib/config.mjs";
 import { isAllowedAt, formatWindow } from "../lib/schedule.mjs";
 import { burnInStatus } from "../lib/burnin.mjs";
 
+const maintenanceButton = document.querySelector("#maintenance");
+maintenanceButton.addEventListener("click", () => {
+  chrome.tabs.create({ url: "http://127.0.0.1:43871/" });
+});
+
 async function render() {
   const now = new Date();
   document.querySelector("#state").textContent = isAllowedAt(now, CONFIG)
@@ -21,9 +26,12 @@ async function render() {
   });
 
   const el = document.querySelector("#burnin");
+  const lockVerified = !self.mayDisable;
   const lockState = self.mayDisable
     ? "Browser lock policy: NOT VERIFIED (extension is removable)."
     : "Browser lock policy: VERIFIED (Brave reports this extension cannot be disabled).";
+
+  maintenanceButton.style.display = lockVerified ? "block" : "none";
 
   if (status.reason === "health-failure") {
     el.textContent = `Burn-in failed: extension recorded an enforcement error. Do not arm. ${lockState}`;
