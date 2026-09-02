@@ -34,6 +34,14 @@ bash macos/install-dev.sh
 
 Then load this directory from `brave://extensions` using **Load unpacked**. Burn-in mode remains normally removable.
 
+You can preview the full editor/save/resume/compile/hidden-test experience **before locking anything**:
+
+```bash
+python3 macos/challenge_ui.py serve
+```
+
+Then open `http://127.0.0.1:43871/`. Preview mode can run the five-problem judge, but it cannot change Brave lock state because the privileged locked helper has not been installed yet.
+
 ## Before locked mode
 
 Read:
