@@ -12,6 +12,8 @@ HOST, PORT, SESSION_SECONDS = "127.0.0.1", 43871, 3600
 ACTIVE = gate.STATE_DIR / "active-challenge.json"
 PROGRESS = "progress.json"
 INSTALL = Path("/Library/Application Support/YouTubeFocusLock")
+SOURCE = Path(__file__).resolve().parent
+ASSETS = INSTALL if (INSTALL / "challenge_ui.html").exists() else SOURCE
 MAX_CODE = 128 * 1024
 
 
@@ -137,6 +139,8 @@ def all_pass(root: Path, p: dict[str, Any]) -> bool:
 
 
 def privileged(root: Path, action: str) -> None:
+    if not (INSTALL / "challenge_gate.py").exists():
+        raise RuntimeError("Locked helper is not installed yet. Preview mode can test the editor/judge, but cannot change browser lock state.")
     user = pwd.getpwuid(os.getuid()).pw_name
     verify = f"/usr/bin/python3 {shlex.quote(str(INSTALL/'challenge_gate.py'))} unlock {shlex.quote(str(root))} --user {shlex.quote(user)}"
     command = verify if action == "maintenance" else f"{verify} && {shlex.quote(str(INSTALL/'uninstall-locked.sh'))} {shlex.quote(user)}"
@@ -178,7 +182,7 @@ class Handler(BaseHTTPRequestHandler):
         path = urllib.parse.urlparse(self.path).path
         if path == "/":
             root, p = page_session()
-            page = (INSTALL/"challenge_ui.html").read_text(encoding="utf-8").replace("__TOKEN__", json.dumps(p["token"]))
+            page = (ASSETS/"challenge_ui.html").read_text(encoding="utf-8").replace("__TOKEN__", json.dumps(p["token"]))
             self.headers(200, "text/html; charset=utf-8")
             self.wfile.write(page.encode())
             return
@@ -186,7 +190,7 @@ class Handler(BaseHTTPRequestHandler):
             name = "challenge_ui.js" if path.endswith("js") else "challenge_ui.css"
             kind = "text/javascript; charset=utf-8" if path.endswith("js") else "text/css; charset=utf-8"
             self.headers(200, kind)
-            self.wfile.write((INSTALL/name).read_bytes())
+            self.wfile.write((ASSETS/name).read_bytes())
             return
         if path == "/api/state":
             root, p = self.session()
