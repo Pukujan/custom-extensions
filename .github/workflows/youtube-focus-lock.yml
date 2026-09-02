@@ -36,3 +36,11 @@ jobs:
         run: bash -n macos/*.sh
       - name: Validate manifest JSON
         run: python3 -m json.tool manifest.json >/dev/null
+      - name: Package tested build
+        run: cd .. && /usr/bin/zip -qr YouTube-Focus-Lock-Latest.zip youtube-focus-lock
+      - name: Upload tested build
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouTube-Focus-Lock-Latest
+          path: YouTube-Focus-Lock-Latest.zip
+          if-no-files-found: error
