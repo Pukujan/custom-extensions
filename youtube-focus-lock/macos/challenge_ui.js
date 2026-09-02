@@ -1,4 +1,4 @@
-(()=>{const token=window.YFL_TOKEN,$=s=>document.querySelector(s);let state,selected=0,dirty=false,timer;
+(()=>{const token=document.querySelector('meta[name="yfl-token"]').content,$=s=>document.querySelector(s);let state,selected=0,dirty=false,timer;
 async function api(path,method='GET',body){const o={method,headers:{'X-YFL-Token':token}};if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}const r=await fetch(path,o),d=await r.json().catch(()=>({error:'Bad server response'}));if(!r.ok){const e=new Error(d.error||'Request failed');e.status=r.status;throw e}return d}
 const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 function nav(){const n=$('#nav');n.textContent='';state.problems.forEach((p,i)=>{const b=document.createElement('button');b.className='navbtn'+(i===selected?' active':'')+(p.passed?' pass':'');b.textContent=`${p.passed?'✓ ':''}Problem ${i+1} · ${p.difficulty}`;b.onclick=async()=>{if(dirty)await save(false);selected=i;await api('/api/select','POST',{index:i}).catch(()=>{});problem()};n.appendChild(b)})}
