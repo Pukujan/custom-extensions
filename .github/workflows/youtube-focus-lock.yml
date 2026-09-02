@@ -1,0 +1,46 @@
+name: YouTube Focus Lock CI
+
+on:
+  push:
+    branches: [youtube-focus-lock]
+    paths:
+      - "youtube-focus-lock/**"
+      - ".github/workflows/youtube-focus-lock.yml"
+  pull_request:
+    paths:
+      - "youtube-focus-lock/**"
+      - ".github/workflows/youtube-focus-lock.yml"
+
+jobs:
+  validate:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: youtube-focus-lock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Node unit tests
+        run: npm test
+      - name: Challenge gate self-test
+        run: python3 macos/challenge_gate.py self-test
+      - name: Challenge UI self-test
+        run: python3 macos/challenge_ui.py self-test
+      - name: Compile Python components
+        run: python3 -m py_compile macos/challenge_gate.py macos/challenge_ui.py
+      - name: Validate challenge UI JavaScript
+        run: node --check macos/challenge_ui.js
+      - name: Shell syntax
+        run: bash -n macos/*.sh
+      - name: Validate manifest JSON
+        run: python3 -m json.tool manifest.json >/dev/null
+      - name: Package tested build
+        run: cd .. && /usr/bin/zip -qr YouTube-Focus-Lock-Latest.zip youtube-focus-lock
+      - name: Upload tested build
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouTube-Focus-Lock-Latest
+          path: YouTube-Focus-Lock-Latest.zip
+          if-no-files-found: error

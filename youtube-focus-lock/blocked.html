@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouTube is locked</title>
+  <style>
+    :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: Canvas; color: CanvasText; }
+    main { width: min(42rem, calc(100vw - 3rem)); text-align: center; }
+    h1 { font-size: clamp(2rem, 7vw, 4rem); margin-bottom: .75rem; }
+    p { font-size: 1.1rem; line-height: 1.6; opacity: .8; }
+    #countdown { font-variant-numeric: tabular-nums; font-size: 1.3rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>YouTube is locked.</h1>
+    <p>Your daily YouTube window is <strong id="window"></strong>.</p>
+    <p id="countdown"></p>
+    <p>This extension has no pause or snooze button.</p>
+  </main>
+  <script type="module" src="src/blocked.js"></script>
+</body>
+</html>
