@@ -5,17 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>YouTube Focus Lock</title>
   <style>
-    body { width: 320px; padding: 18px; font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, sans-serif; }
-    strong { display: block; margin-bottom: 8px; font-size: 16px; }
-    #state { font-weight: 700; }
-    #maintenance { display: none; width: 100%; margin-top: 14px; min-height: 40px; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    body{width:340px;padding:18px;font:14px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif}strong{display:block;margin-bottom:8px;font-size:16px}#state{font-weight:700}.muted{opacity:.72;margin-top:5px}button{width:100%;margin-top:14px;min-height:42px;border:0;border-radius:8px;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
   </style>
 </head>
 <body>
   <strong>YouTube Focus Lock</strong>
   <div id="state">Checking…</div>
-  <div id="burnin"></div>
-  <button id="maintenance" type="button">Disable / uninstall…</button>
+  <div id="burnin" class="muted"></div>
+  <div id="judge" class="muted">Coding judge: checking…</div>
+  <button id="challenge" type="button" disabled>Test coding challenge</button>
   <script type="module" src="src/status.js"></script>
 </body>
 </html>

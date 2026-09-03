@@ -1,55 +1,121 @@
-# Software Design Document — YouTube Focus Lock
+# Software Design Document — YouTube Focus Lock v2
 
-## Components
+## 1. Components
 
-### Brave extension (Manifest V3)
-- `src/service-worker.js`: owns dynamic Declarative Net Request rules and alarms.
-- `src/content-guard.js`: second enforcement path for already-open YouTube documents; checks once per second and redirects after the access window closes.
-- `blocked.html`: local block page with countdown to the next access boundary.
-- `status.html`: shows current block state, burn-in status, and whether Brave reports that the extension may be disabled.
-- `lib/schedule.mjs`: pure timezone-aware schedule logic.
-- `lib/urls.mjs`: YouTube domain classification and DNR rule generation.
-- `lib/burnin.mjs`: pure burn-in eligibility logic.
+### Brave extension
+- `src/service-worker.js` — timezone-aware Declarative Net Request enforcement, alarms, fail-closed fallback.
+- `src/content-guard.js` — second enforcement path for already-open YouTube pages.
+- `status.html` / `src/status.js` — blocker state, burn-in state, policy-verification state, localhost judge health, and challenge button.
+- The extension is allowed to contact only loopback HTTP (`http://127.0.0.1/*` / `http://localhost/*`) in addition to YouTube hosts. Chrome host-permission match patterns do not encode the port; the popup itself still connects only to port 43871.
 
-The service worker is fail-closed: if enforcement throws, it attempts to install blocking rules and redirect open YouTube tabs before recording a health failure.
+### Problem bank
+`macos/problem_bank.py` defines:
+- 24 algorithm families;
+- 5 variants per family = 120 unique problem IDs;
+- difficulty, title, function signature, prompt, conceptual hints, and reference implementation;
+- deterministic randomized test generation from `(problem_id, seed)`;
+- balanced challenge selection: 3 Medium + 2 Hard, all distinct families.
 
-### macOS soft-lock stage
-`macos/prepare-lock.sh` writes Brave policy values using the documented macOS Brave preference domain. It does **not** install persistent enforcement. The operator must verify `brave://policy` and the extension popup before arming.
+### Challenge gate
+`macos/challenge_gate.py` owns:
+- challenge directory creation;
+- syntax compilation diagnostics;
+- fresh subprocess candidate execution with CPU/memory/file-size limits;
+- outcome taxonomy: compile/runtime/timeout/wrong/pass;
+- runtime and conceptual hint selection;
+- privileged independent 5/5 re-verification;
+- HMAC-SHA256 maintenance-token signing/verification.
 
-### macOS persistent policy watchdog
-`macos/arm.sh` installs a transparent root-owned LaunchDaemon. Every 30 seconds it reapplies:
-- the extension force-install policy;
-- private-window disable policy.
+Candidate code is never intentionally executed as root. The privileged verifier starts a fresh worker process; that worker clears supplementary groups and drops to the target user's UID/GID before loading candidate code. This avoids forking from the multithreaded HTTP server.
 
-The daemon is intentionally visible and documented. A user with administrator/root access can unload it deliberately.
+### Local challenge UI
+`macos/challenge_ui.py` is a localhost-only HTTP server. Static assets are `challenge_ui.html`, `.css`, and `.js`.
 
-### Distribution constraint
-For a personal macOS device, the locked deployment should use an **unlisted Chrome Web Store version** of the extension. Chromium documents that self-hosted extensions on macOS require an enterprise-managed environment for force installation. Development and burn-in use Brave's unpacked-extension flow.
+Server properties:
+- binds only to `127.0.0.1`;
+- per-session random API token embedded into the served page;
+- same-origin POST checks;
+- CSP, `X-Frame-Options: DENY`, no-store caching;
+- disk-backed state;
+- separate `preview` and `locked` modes.
 
-### Coding challenge gate
-`macos/challenge_gate.py` contains an original problem bank (not scraped/copied LeetCode prompts). Each challenge randomly selects 5 of 8 problem types and generates randomized hidden cases from per-problem seeds.
+### macOS burn-in LaunchAgent
+`macos/install-dev.sh` installs a **user-level**, removable LaunchAgent using the user's discovered Python 3.9+ interpreter:
 
-Workflow:
-1. Normal user runs `challenge_gate.py start`.
-2. Five directories containing prompts and `solution.py` stubs are created.
-3. Normal user can run `check` for feedback.
-4. Final `unlock` is run with `sudo`.
-5. The privileged verifier forks a child for each problem, clears supplementary groups, drops UID/GID to the target normal user, then imports and tests the solution.
-6. If every problem passes, root signs a 10-minute token with HMAC-SHA256 using a root-owned 256-bit secret.
-7. `uninstall-locked.sh` validates signature and expiry before removing the LaunchDaemon and Brave policies.
+`challenge_ui.py serve --mode preview --port 43871`
 
-The resource limits around candidate Python protect mainly against accidental runaway code; they are not presented as a sandbox for hostile programs.
+This makes the coding UI testable immediately during burn-in. `stop-preview.sh` removes only this preview service.
 
-## Security model
-Protected against casual/impulsive actions:
-- Remove/Disable in Brave after policy verification.
-- Private-window bypass.
-- Simple deletion of the maintenance token or forging its JSON contents.
-- Accidental extension service-worker suspension (content script + alarm/DNR defense in depth).
+### Soft lock
+`prepare-lock.sh` verifies:
+- 60 minutes elapsed;
+- the preview judge was run during the current burn-in;
+- extension ID format.
 
-Not protected against a determined administrator:
-- `sudo` removal/modification of the LaunchDaemon, root-owned helper, or policy preferences.
-- Booting/reinstalling macOS or modifying the browser installation/profile offline.
-- Reading source code and intentionally engineering a bypass.
+It then writes Brave policies but does not install the persistent watchdog.
 
-This limitation is intrinsic to keeping the everyday account as a macOS administrator.
+### Armed mode
+`arm.sh`:
+- installs root-owned enforcement/helper files under `/Library/Application Support/YouTubeFocusLock`;
+- installs the root LaunchDaemon policy watchdog;
+- replaces the preview LaunchAgent with `challenge_ui.py serve --mode locked`;
+- captures the actual Python interpreter path instead of assuming `/usr/bin/python3`.
+
+### Policy watchdog
+Every 30 seconds:
+- if no valid signed maintenance token exists, re-apply Brave force-install and private-window policies;
+- if a valid token exists, temporarily remove those two policies;
+- after expiry, restore them automatically.
+
+## 2. Session state
+
+Per challenge:
+- `challenge.json`: ID, mode, createdAt, expiresAt, five selected problem IDs/seeds/directories.
+- `progress.json`: UI token, selected index, per-problem saved hash, pass hash, attempts, hint level, last result.
+- `solution.py` per problem.
+
+Pointers are mode-specific:
+- `active-challenge-preview.json`
+- `active-challenge-locked.json`
+
+Therefore preview work cannot be reused as a locked unlock session.
+
+## 3. Exact-code pass binding
+A problem is considered passed only when:
+
+`passed == true && passedHash == SHA256(current solution.py)`
+
+Any subsequent save with a different hash clears the pass state. The privileged unlock verifier ignores the UI's pass flag and re-runs the current files.
+
+## 4. Judge diagnostics
+
+### Compile
+Parent process calls Python `compile()` first and returns line, column, source line, message, and a heuristic syntax hint.
+
+### Runtime
+Candidate exceptions are returned only by category/message. The UI maps common exceptions (`NameError`, `TypeError`, `IndexError`, etc.) to practical diagnostic hints.
+
+### Timeout
+Candidate process is resource-limited and externally time-bounded. Timeout hints point toward complexity classes/techniques rather than giving an answer.
+
+### Wrong answer
+Hidden inputs are not shown. The hint escalates from the problem family's first conceptual hint to its second after repeated attempts.
+
+## 5. Problem-bank model
+The bank intentionally favors breadth over cosmetic duplication. A challenge cannot select two variants from the same family. Families span:
+- prefix sums, sliding windows, sweep lines, counting/sorting, intervals;
+- graphs, union-find, topological sorting;
+- dynamic programming, LIS, heaps, monotonic stacks;
+- BFS with expanded state, binary-search-on-answer, weighted scheduling;
+- string DP/windowing, matrix DFS/Dijkstra, palindrome DP, subsequence counting.
+
+## 6. Security / threat model
+Designed to resist casual/impulsive bypass:
+- ordinary browser Remove/Disable after policy verification;
+- private-window bypass;
+- simple token-file editing;
+- service-worker suspension;
+- preview-session reuse for locked maintenance;
+- stale PASS after editing code.
+
+Not an absolute defense against a determined administrator who deliberately uses `sudo`, modifies source/policies, boots another environment, or reverse engineers the local judge. This limitation follows directly from retaining administrator control of the Mac.

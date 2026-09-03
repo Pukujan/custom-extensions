@@ -1,68 +1,58 @@
-# YouTube Focus Lock
+# YouTube Focus Lock v2
 
-Brave/macOS focus extension that blocks YouTube except **11:00 AM–12:00 PM America/New_York**.
+A Brave + macOS focus blocker that allows YouTube only **11:00 AM–12:00 PM America/New_York** and uses a five-problem Python challenge for locked-mode maintenance/uninstall.
 
-The rollout is deliberately staged so an untested build is never made difficult to remove:
+## What changed in v2
+- The coding judge is testable **during the removable 60-minute burn-in**.
+- The popup shows judge health and **Test coding challenge** before lock mode.
+- Challenge pool is **120 original objective problems** (24 algorithm families × 5 variants).
+- Each challenge contains 5 different families: **3 Medium + 2 Hard**.
+- Editor autosaves to disk and survives tab/window/Brave/judge-process restarts for a fixed 60-minute session.
+- Compile/run results distinguish syntax errors, runtime exceptions, timeout, wrong answer, and PASS.
+- Syntax/runtime failures get diagnostic hints; wrong answers get progressive conceptual hints.
+- Preview and locked challenge sessions are separate; preview can never disable/uninstall the blocker.
 
-**unpacked development → 60-minute burn-in → soft policy lock → verify in Brave → arm watchdog**
-
-## Locked-mode maintenance
-
-After arming, the extension popup shows **Disable / uninstall…**. It opens a local-only coding judge at `http://127.0.0.1:43871/`.
-
-The maintenance challenge:
-- selects 5 randomized original Python Medium/Hard algorithm problems;
-- provides a browser code editor with Save and Run buttons;
-- autosaves code to disk;
-- reports Python syntax/compile errors separately from hidden-test failures;
-- saves which exact solutions passed;
-- survives tab changes, window changes, Brave quit/reopen, and local UI process restarts;
-- expires exactly 60 minutes after the challenge starts (activity does not extend it);
-- invalidates a problem's PASS state if its saved code changes;
-- independently re-runs all 5 solutions under the privileged verifier before maintenance/uninstall.
-
-Passing all five can open a signed **10-minute maintenance window**. While that signed token is valid, the policy watchdog keeps running but temporarily relaxes the Brave force-install/private-window policies. When the token expires, the watchdog restores them. Permanent uninstall also requires all five solutions to pass the privileged re-check.
-
-## Development / burn-in
+## Burn-in / preview setup
 
 ```bash
 npm test
+python3 macos/problem_bank.py
 python3 macos/challenge_gate.py self-test
 python3 macos/challenge_ui.py self-test
+(cd macos && python3 -m unittest -v test_challenge_system.py)
 bash macos/install-dev.sh
 ```
 
-Then load this directory from `brave://extensions` using **Load unpacked**. Burn-in mode remains normally removable.
+Then load this directory from `brave://extensions` using **Load unpacked**. The preview judge starts automatically as a removable user LaunchAgent at:
 
-You can preview the full editor/save/resume/compile/hidden-test experience **before locking anything**:
+`http://127.0.0.1:43871/`
+
+Open the extension popup and choose **Test coding challenge**. This works during burn-in and cannot change the blocker.
+
+To stop only the preview service:
 
 ```bash
-python3 macos/challenge_ui.py serve
+bash macos/stop-preview.sh
 ```
 
-Then open `http://127.0.0.1:43871/`. Preview mode can run the five-problem judge, but it cannot change Brave lock state because the privileged locked helper has not been installed yet.
-
-## Before locked mode
-
-Read:
-- `docs/PDD.md`
-- `docs/SDD.md`
-- `docs/VALIDATION.md`
-
-For a personal macOS machine, the reliable force-install path is an **unlisted Chrome Web Store publication**. Once you have the extension ID and the 60-minute burn-in is complete:
+## Locking later
+Locked Brave force-install on a personal Mac should use an **unlisted Chrome Web Store** version. After a clean 60-minute burn-in and after exercising the preview judge:
 
 ```bash
 bash macos/prepare-lock.sh <32-character-extension-id>
 ```
 
-Verify `brave://policy` and the extension popup. Only then:
+Verify `brave://policy`, restart Brave, verify the popup says the browser lock policy is VERIFIED, and retest blocking. Only then:
 
 ```bash
 bash macos/arm.sh
 ```
 
-After arming, use the extension popup's **Disable / uninstall…** button for the supported maintenance path.
+Arming replaces the preview judge with a fresh **locked** challenge namespace. Passing all five current saved solutions can grant a signed 10-minute maintenance window or allow the supported permanent uninstall path, after an independent privileged re-check.
 
 ## Important limitation
+This is designed as strong productive friction, not an absolute security boundary. If your everyday macOS account remains an administrator, you retain the technical ability to deliberately dismantle local enforcement using root-level administration.
 
-This is strong **friction**, not an absolute security boundary. If your everyday macOS account remains an administrator, you retain the technical ability to use root-level macOS controls to deliberately dismantle local enforcement. The project does not hide or disable those administration paths.
+## Validation source of truth
+
+The checked-out repository source at a specific commit is canonical. CI packages the source after deterministic checks. Do not use a binary ZIP checked into Git as the authoritative candidate. Cross-platform agents may run Stage A in `docs/LOCAL-AGENT-VALIDATION.md`; final pre-arm PASS still requires Stage B on the actual macOS/Brave machine.

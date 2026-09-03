@@ -10,7 +10,6 @@ if [[ $EUID -ne 0 ]]; then
   echo "Run with administrator authorization after completing the coding challenge." >&2
   exit 1
 fi
-
 TARGET_USER="${1:-${SUDO_USER:-}}"
 if [[ -z "$TARGET_USER" || "$TARGET_USER" == "root" ]]; then
   echo "Target macOS username is required: uninstall-locked.sh <username>" >&2
@@ -20,11 +19,15 @@ TARGET_UID="$(/usr/bin/id -u "$TARGET_USER")"
 TARGET_HOME="$(/usr/bin/dscl . -read "/Users/$TARGET_USER" NFSHomeDirectory | /usr/bin/awk '{print $2}')"
 TOKEN="$TARGET_HOME/.youtube-focus-lock/maintenance-token.json"
 UI_PLIST="$TARGET_HOME/Library/LaunchAgents/$UI_LABEL.plist"
-
-if ! /usr/bin/python3 "$INSTALL_DIR/challenge_gate.py" token-valid --token "$TOKEN"; then
+PYTHON_BIN="$(cat "$INSTALL_DIR/python-path" 2>/dev/null || true)"
+if [[ -z "$PYTHON_BIN" || ! -x "$PYTHON_BIN" ]]; then
+  echo "Stored Python interpreter is unavailable; refusing automatic uninstall." >&2
+  exit 2
+fi
+if ! "$PYTHON_BIN" "$INSTALL_DIR/challenge_gate.py" token-valid --token "$TOKEN"; then
   cat >&2 <<MSG
 No valid maintenance token.
-Open the extension popup and choose "Disable / uninstall…", then complete all five Python problems.
+Open the extension popup and complete the current five-problem locked challenge.
 MSG
   exit 1
 fi

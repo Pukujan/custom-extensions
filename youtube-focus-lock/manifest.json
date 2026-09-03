@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Focus Lock",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Blocks YouTube except during a fixed daily access window.",
   "permissions": [
     "alarms",
@@ -13,7 +13,9 @@
   "host_permissions": [
     "*://*.youtube.com/*",
     "*://youtu.be/*",
-    "*://*.youtube-nocookie.com/*"
+    "*://*.youtube-nocookie.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
   ],
   "background": {
     "service_worker": "src/service-worker.js",
