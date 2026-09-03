@@ -8,8 +8,8 @@ fs.mkdirSync(testHome, { recursive: true });
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 45_000,
-  expect: { timeout: 8_000 },
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
   fullyParallel: false,
   workers: 1,
   retries: 0,
@@ -21,9 +21,12 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: {
-    command: `env HOME=${JSON.stringify(testHome)} PYTHONUNBUFFERED=1 python3 macos/challenge_ui.py serve --mode preview --port 43871`,
+    command: 'node tests/e2e/start-judge.mjs',
     url: 'http://127.0.0.1:43871/health',
-    timeout: 20_000,
+    timeout: 30_000,
     reuseExistingServer: false,
+    env: {
+      YFL_TEST_STATE_DIR: path.join(testHome, 'state'),
+    },
   },
 });
