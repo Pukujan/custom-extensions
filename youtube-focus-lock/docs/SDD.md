@@ -1,121 +1,133 @@
-# Software Design Document — YouTube Focus Lock v2
+# Software Design Document — YouTube Focus Lock 0.3
 
-## 1. Components
+## 1. Architecture
 
-### Brave extension
-- `src/service-worker.js` — timezone-aware Declarative Net Request enforcement, alarms, fail-closed fallback.
-- `src/content-guard.js` — second enforcement path for already-open YouTube pages.
-- `status.html` / `src/status.js` — blocker state, burn-in state, policy-verification state, localhost judge health, and challenge button.
-- The extension is allowed to contact only loopback HTTP (`http://127.0.0.1/*` / `http://localhost/*`) in addition to YouTube hosts. Chrome host-permission match patterns do not encode the port; the popup itself still connects only to port 43871.
+The application is split into three layers:
 
-### Problem bank
-`macos/problem_bank.py` defines:
-- 24 algorithm families;
-- 5 variants per family = 120 unique problem IDs;
-- difficulty, title, function signature, prompt, conceptual hints, and reference implementation;
-- deterministic randomized test generation from `(problem_id, seed)`;
-- balanced challenge selection: 3 Medium + 2 Hard, all distinct families.
+1. **Brave extension** — identical on Windows and macOS.
+2. **Shared runtime (`runtime/`)** — identical Python problem bank, judge, persistence server, and browser UI on both supported OSes.
+3. **Platform adapters (`windows/`, `macos/`)** — startup/service management, elevation, Brave policy storage, watchdog, rollback, and uninstall.
 
-### Challenge gate
-`macos/challenge_gate.py` owns:
-- challenge directory creation;
-- syntax compilation diagnostics;
-- fresh subprocess candidate execution with CPU/memory/file-size limits;
-- outcome taxonomy: compile/runtime/timeout/wrong/pass;
-- runtime and conceptual hint selection;
-- privileged independent 5/5 re-verification;
-- HMAC-SHA256 maintenance-token signing/verification.
+No problem-selection or judging logic belongs in a platform adapter.
 
-Candidate code is never intentionally executed as root. The privileged verifier starts a fresh worker process; that worker clears supplementary groups and drops to the target user's UID/GID before loading candidate code. This avoids forking from the multithreaded HTTP server.
+## 2. Brave extension
 
-### Local challenge UI
-`macos/challenge_ui.py` is a localhost-only HTTP server. Static assets are `challenge_ui.html`, `.css`, and `.js`.
+- `src/service-worker.js`: timezone-aware DNR enforcement, alarms, fail-closed fallback.
+- `src/content-guard.js`: second enforcement path for already-open YouTube documents.
+- `status.html` / `src/status.js`: block state, burn-in status, browser-policy verification, localhost judge health, test/maintenance button.
+- Loopback host permissions are `http://127.0.0.1/*` and `http://localhost/*`; the popup itself connects only to port 43871.
 
-Server properties:
-- binds only to `127.0.0.1`;
-- per-session random API token embedded into the served page;
-- same-origin POST checks;
-- CSP, `X-Frame-Options: DENY`, no-store caching;
-- disk-backed state;
-- separate `preview` and `locked` modes.
+## 3. Shared runtime
 
-### macOS burn-in LaunchAgent
-`macos/install-dev.sh` installs a **user-level**, removable LaunchAgent using the user's discovered Python 3.9+ interpreter:
+### `runtime/problem_bank.py`
 
-`challenge_ui.py serve --mode preview --port 43871`
+Defines 24 algorithm families × 5 variants = 120 selectable problem IDs. Each spec contains difficulty/title/function/prompt/hints/reference implementation and deterministic randomized case generation from `(problem_id, seed)`. Selection chooses five distinct families with exactly three Medium and two Hard problems.
 
-This makes the coding UI testable immediately during burn-in. `stop-preview.sh` removes only this preview service.
+### `runtime/challenge_gate.py`
 
-### Soft lock
-`prepare-lock.sh` verifies:
-- 60 minutes elapsed;
-- the preview judge was run during the current burn-in;
-- extension ID format.
+Cross-platform responsibilities:
 
-It then writes Brave policies but does not install the persistent watchdog.
+- challenge creation;
+- Python compile diagnostics;
+- candidate execution in a fresh subprocess;
+- compile/runtime/timeout/wrong/pass classification;
+- hints;
+- token signing/validation;
+- Windows pre-UAC proof creation/validation;
+- POSIX UID/GID drop for privileged macOS re-verification.
 
-### Armed mode
-`arm.sh`:
-- installs root-owned enforcement/helper files under `/Library/Application Support/YouTubeFocusLock`;
-- installs the root LaunchDaemon policy watchdog;
-- replaces the preview LaunchAgent with `challenge_ui.py serve --mode locked`;
-- captures the actual Python interpreter path instead of assuming `/usr/bin/python3`.
+On all OSes the parent uses an external timeout. On POSIX, `resource`/`signal` limits add CPU/address-space/file-size constraints. On Windows, `CREATE_NO_WINDOW` is used for worker processes and the external timeout remains the hard runaway guard.
 
-### Policy watchdog
-Every 30 seconds:
-- if no valid signed maintenance token exists, re-apply Brave force-install and private-window policies;
-- if a valid token exists, temporarily remove those two policies;
-- after expiry, restore them automatically.
+### `runtime/challenge_ui.py`
 
-## 2. Session state
+Localhost-only threaded HTTP server:
+
+- binds `127.0.0.1:43871`;
+- random per-session API token;
+- same-origin POST validation;
+- CSP, X-Frame-Options DENY, no-store;
+- preview/locked namespaces;
+- disk-backed code/progress;
+- platform-specific elevated action dispatch only after 5/5.
+
+Static assets are `runtime/challenge_ui.html`, `.css`, and `.js`.
+
+The server accepts `--state-dir`, enabling deterministic isolated tests on both Windows and macOS.
+
+## 4. State model
+
+User state is `~/.youtube-focus-lock` (`%USERPROFILE%\.youtube-focus-lock` on Windows).
 
 Per challenge:
-- `challenge.json`: ID, mode, createdAt, expiresAt, five selected problem IDs/seeds/directories.
-- `progress.json`: UI token, selected index, per-problem saved hash, pass hash, attempts, hint level, last result.
-- `solution.py` per problem.
 
-Pointers are mode-specific:
-- `active-challenge-preview.json`
-- `active-challenge-locked.json`
+- `challenge.json`: schema, ID, mode, creation/expiry, selected IDs/seeds/directories;
+- `progress.json`: API token, selected index, saved/pass hashes, attempts, hint level, last result;
+- five `solution.py` files.
 
-Therefore preview work cannot be reused as a locked unlock session.
+Mode pointers are `active-challenge-preview.json` and `active-challenge-locked.json`.
 
-## 3. Exact-code pass binding
-A problem is considered passed only when:
+PASS requires `passed == true` and `passedHash == SHA256(current solution.py)`. Editing code clears it. Session expiry is immutable.
 
-`passed == true && passedHash == SHA256(current solution.py)`
+## 5. Windows adapter
 
-Any subsequent save with a different hash clears the pass state. The privileged unlock verifier ignores the UI's pass flag and re-runs the current files.
+### Burn-in
 
-## 4. Judge diagnostics
+`windows/install-dev.ps1` discovers Python 3.9+ and Brave, starts the shared runtime in preview mode, creates an easy-to-remove user Startup entry, and opens `brave://extensions`. It does not write machine policy.
 
-### Compile
-Parent process calls Python `compile()` first and returns line, column, source line, message, and a heuristic syntax hint.
+### Soft lock
 
-### Runtime
-Candidate exceptions are returned only by category/message. The UI maps common exceptions (`NameError`, `TypeError`, `IndexError`, etc.) to practical diagnostic hints.
+`windows/prepare-lock.ps1` requires Administrator authorization, 60 elapsed burn-in minutes, and a preview run marker from the current burn-in. It writes Brave policy under:
 
-### Timeout
-Candidate process is resource-limited and externally time-bounded. Timeout hints point toward complexity classes/techniques rather than giving an answer.
+`HKLM\SOFTWARE\Policies\BraveSoftware\Brave`
 
-### Wrong answer
-Hidden inputs are not shown. The hint escalates from the problem family's first conceptual hint to its second after repeated attempts.
+`ExtensionInstallForcelist` is a numbered string-list subkey and `IncognitoModeAvailability` is a DWORD.
 
-## 5. Problem-bank model
-The bank intentionally favors breadth over cosmetic duplication. A challenge cannot select two variants from the same family. Families span:
-- prefix sums, sliding windows, sweep lines, counting/sorting, intervals;
-- graphs, union-find, topological sorting;
-- dynamic programming, LIS, heaps, monotonic stacks;
-- BFS with expanded state, binary-search-on-answer, weighted scheduling;
-- string DP/windowing, matrix DFS/Dijkstra, palindrome DP, subsequence counting.
+### Armed mode
 
-## 6. Security / threat model
-Designed to resist casual/impulsive bypass:
-- ordinary browser Remove/Disable after policy verification;
-- private-window bypass;
-- simple token-file editing;
-- service-worker suspension;
-- preview-session reuse for locked maintenance;
-- stale PASS after editing code.
+`windows/arm.ps1` copies runtime/adapter files to `%ProgramData%\YouTubeFocusLock`, creates a root maintenance secret restricted to SYSTEM/Administrators, replaces the preview Startup entry with locked mode, and creates `YouTubeFocusLockPolicyWatchdog` as a SYSTEM Scheduled Task every minute.
 
-Not an absolute defense against a determined administrator who deliberately uses `sudo`, modifies source/policies, boots another environment, or reverse engineers the local judge. This limitation follows directly from retaining administrator control of the Mac.
+### Windows final verification
+
+Candidate Python is **not** executed after UAC elevation. When 5/5 is complete, the normal-user runtime immediately re-runs all five in fresh worker subprocesses and creates `maintenance-proof.json`, valid for at most two minutes and HMAC/hash-bound to the exact five solution files. `windows/maintenance.ps1` is then elevated. The elevated `unlock --platform windows` validates the proof and hashes and signs the 10-minute machine maintenance token.
+
+Because the owner retains Administrator rights, this is productive friction rather than an adversarial security boundary.
+
+### Watchdog
+
+`windows/policy-watchdog.ps1` runs as SYSTEM. A valid signed maintenance token temporarily removes force-install/incognito policy; otherwise it restores them. It uses the exact Python interpreter captured during arming to validate the HMAC token.
+
+## 6. macOS adapter
+
+### Burn-in
+
+`macos/install-dev.sh` creates a removable user LaunchAgent that runs `runtime/challenge_ui.py --mode preview`.
+
+### Soft lock
+
+`macos/prepare-lock.sh` checks burn-in + preview marker, then writes Brave preference policy. The watchdog is not installed yet.
+
+### Armed mode
+
+`macos/arm.sh` installs the shared runtime under `/Library/Application Support/YouTubeFocusLock/runtime`, platform scripts under `/Library/Application Support/YouTubeFocusLock/macos`, a user locked-mode LaunchAgent, and a root LaunchDaemon watchdog.
+
+### macOS final verification
+
+The root verifier re-runs every solution in a fresh child process configured to drop supplementary groups/GID/UID to the normal user before importing candidate code, then signs the token.
+
+## 7. Diagnostics
+
+Compile errors include line/offset/source text and heuristic syntax hints. Runtime exceptions map common categories to practical hints. Timeouts suggest complexity directions. Wrong answers reveal no hidden inputs and escalate conceptual hints on repeated attempts.
+
+## 8. Browser E2E
+
+`playwright.config.mjs` starts the shared preview server through a cross-platform Node launcher. `tests/e2e/brave-popup.spec.mjs` selects the real Brave executable on Windows or macOS, derives the unpacked extension ID from its service worker, confirms the popup reaches READY, and clicks **Test coding challenge** into localhost.
+
+## 9. CI
+
+GitHub Actions uses a Windows/macOS matrix. Both OSes run the same shared runtime self-tests, integration/persistence suite, source checks, JavaScript checks, and manifest checks. Platform-script syntax is validated on the matching runner. Packaging occurs only after both jobs pass.
+
+## 10. Threat model
+
+Designed against casual/impulsive browser disable/remove, private-window bypass, stale PASS reuse, simple maintenance-token editing, preview-progress reuse, and service-worker suspension.
+
+Not designed to defeat a deliberate Administrator/root owner who edits registry/preferences, scheduled tasks/LaunchDaemons, source files, browser installation, or OS recovery state.
