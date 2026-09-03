@@ -1,4 +1,4 @@
-name: YouTube Focus Lock v2 CI
+name: YouTube Focus Lock Cross-Platform CI
 
 on:
   push:
@@ -12,8 +12,12 @@ on:
       - ".github/workflows/youtube-focus-lock.yml"
 
 jobs:
-  validate:
-    runs-on: macos-latest
+  runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         working-directory: youtube-focus-lock
@@ -22,34 +26,54 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Install JS test dependencies
         run: npm install
-      - name: Node unit tests
+      - name: Extension unit tests
         run: npm test
-      - name: Problem-bank integrity
-        run: python3 macos/problem_bank.py
-      - name: Challenge gate self-test
-        run: python3 macos/challenge_gate.py self-test
-      - name: Challenge UI self-test
-        run: python3 macos/challenge_ui.py self-test
-      - name: Challenge integration tests
-        run: cd macos && python3 -m unittest -v test_challenge_system.py
+      - name: 120-problem bank integrity
+        run: python runtime/problem_bank.py
+      - name: Shared challenge gate self-test
+        run: python runtime/challenge_gate.py self-test
+      - name: Shared challenge UI self-test
+        run: python runtime/challenge_ui.py self-test
+      - name: Shared persistence/integration tests
+        run: python runtime/test_challenge_system.py -v
       - name: Source/provenance checks
-        run: python3 tests/prearm_source_check.py
+        run: python tests/prearm_source_check.py
       - name: Compile Python components
-        run: python3 -m py_compile macos/problem_bank.py macos/challenge_gate.py macos/challenge_ui.py macos/test_challenge_system.py tests/prearm_source_check.py
+        run: python -m py_compile runtime/problem_bank.py runtime/challenge_gate.py runtime/challenge_ui.py runtime/test_challenge_system.py tests/prearm_source_check.py
       - name: Validate JavaScript
         run: |
-          node --check macos/challenge_ui.js
+          node --check runtime/challenge_ui.js
           node --check src/status.js
+          node --check tests/e2e/start-judge.mjs
           node --check tests/e2e/judge-ui.spec.mjs
           node --check tests/e2e/brave-popup.spec.mjs
-      - name: Shell syntax
-        run: bash -n macos/*.sh tests/macos/*.sh
       - name: Validate manifest JSON
-        run: python3 -m json.tool manifest.json >/dev/null
-      - name: Package exact tested commit
-        run: cd .. && /usr/bin/zip -qr "YouTube-Focus-Lock-${GITHUB_SHA}.zip" youtube-focus-lock -x 'youtube-focus-lock/node_modules/*' 'youtube-focus-lock/test-results/*' 'youtube-focus-lock/playwright-report/*'
+        run: python -m json.tool manifest.json
+      - name: macOS shell syntax
+        if: runner.os == 'macOS'
+        shell: bash
+        run: bash -n macos/*.sh tests/macos/*.sh
+      - name: Windows PowerShell syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem windows/*.ps1,tests/windows/*.ps1 | ForEach-Object {
+            [void][scriptblock]::Create((Get-Content $_.FullName -Raw))
+          }
+
+  package:
+    needs: runtime
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package exact cross-platform tested commit
+        shell: bash
+        run: git archive --format=zip --prefix=youtube-focus-lock/ -o "YouTube-Focus-Lock-${GITHUB_SHA}.zip" "${GITHUB_SHA}:youtube-focus-lock"
       - name: Upload exact tested build
         uses: actions/upload-artifact@v4
         with:
