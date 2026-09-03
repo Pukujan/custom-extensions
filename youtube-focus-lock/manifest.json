@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "YouTube Focus Lock",
-  "version": "0.2.1",
-  "description": "Blocks YouTube except during a fixed daily access window.",
+  "version": "0.3.0",
+  "description": "Cross-platform YouTube focus lock with a local Python maintenance challenge.",
   "permissions": [
     "alarms",
     "declarativeNetRequest",
@@ -28,9 +28,7 @@
         "*://youtu.be/*",
         "*://*.youtube-nocookie.com/*"
       ],
-      "js": [
-        "src/content-guard.js"
-      ],
+      "js": ["src/content-guard.js"],
       "run_at": "document_start",
       "all_frames": true
     }
@@ -41,15 +39,8 @@
   },
   "web_accessible_resources": [
     {
-      "resources": [
-        "blocked.html",
-        "src/blocked.js",
-        "lib/schedule.mjs",
-        "lib/config.mjs"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["blocked.html", "src/blocked.js", "lib/schedule.mjs", "lib/config.mjs"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
