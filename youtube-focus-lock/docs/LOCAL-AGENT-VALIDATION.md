@@ -1,76 +1,95 @@
 # Local Agent Validation — Mandatory Before Arming
 
-The repository source tree at the checked-out commit is the canonical candidate. Do **not** substitute a chat attachment, an older ZIP, or another branch. GitHub CI packages this exact source tree after deterministic checks.
+The repository source at the checked-out commit is canonical. Do **not** substitute a chat ZIP, older branch, or unrelated artifact. CI packages this exact source only after Windows and macOS jobs pass.
 
 ## Safety rule
 
-Validate the **removable preview build only**. Do not run `macos/prepare-lock.sh` and do not run `macos/arm.sh`. Any failed assertion, missing dependency, broken button, visual defect, persistence failure, or unexpected policy change is a release blocker.
+Validate **removable preview mode only**. Do not run `windows/prepare-lock.ps1`, `windows/arm.ps1`, `macos/prepare-lock.sh`, or `macos/arm.sh` during pre-arm acceptance. Any failed assertion, broken button, visual defect, persistence failure, or unexpected policy change is a release blocker.
 
-## Stage A — portable source/provenance validation
+## Identify the target OS
 
-This part may run on Windows, macOS, or Linux. From `youtube-focus-lock/`:
+The product supports **Windows 10/11 and macOS**. Run the deterministic suite for the host you are actually validating.
 
-```bash
-npm install
-npm test
-python macos/problem_bank.py
-python tests/prearm_source_check.py
-python -m py_compile macos/problem_bank.py macos/challenge_gate.py macos/challenge_ui.py macos/test_challenge_system.py tests/prearm_source_check.py
-node --check macos/challenge_ui.js
-node --check src/status.js
+### Windows target
+
+From `youtube-focus-lock/`:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows/prearm-acceptance.ps1
 ```
 
-Use `python3` or `py -3` instead of `python` when appropriate for the host. `challenge_gate.py` and `challenge_ui.py` intentionally use Unix/macOS modules such as `pwd` and `resource`; **do not execute their self-tests on Windows**. Stage A proves portable source structure, JavaScript/manifest regressions, the 120-problem bank, and Python syntax. It can never issue final pre-arm PASS.
+This is an official full deterministic acceptance path, not a partial source check. It must run the shared Python runtime on Windows, Playwright against the actual Windows Brave executable, and the actual Windows burn-in helper.
 
-On a Unix/macOS host, also run the engine/integration layer:
+### macOS target
 
-```bash
-python3 macos/challenge_gate.py self-test
-python3 macos/challenge_ui.py self-test
-(cd macos && python3 -m unittest -v test_challenge_system.py)
-```
-
-## Stage B — mandatory macOS + real Brave acceptance
-
-This must run on the **actual Mac that will use Brave**. From `youtube-focus-lock/`:
+From `youtube-focus-lock/`:
 
 ```bash
-npm install
 bash tests/macos/prearm-acceptance.sh
 ```
 
-The deterministic macOS script must exit 0. Then perform the real-UI/vision rubric below.
+It must run the same shared runtime plus the actual macOS LaunchAgent/Brave path.
 
-## Vision + computer-use pass
+## Vision + computer-use pass — both platforms
 
-Use the actual Brave UI and real clicks/typing. Do not infer behavior from source. Inspect screenshots in `test-results/`.
+After the deterministic script exits 0, use the **actual Brave UI**, real mouse/keyboard interaction, and screenshot/vision inspection. Do not infer success from source code or HTTP responses alone.
 
-1. Open `brave://extensions`; confirm **YouTube Focus Lock v0.2.x** is loaded unpacked and remains removable.
-2. Open the extension popup and wait a few seconds. It must show **Coding judge: READY · preview · 120-problem pool**.
-3. Click **Test coding challenge** with the mouse. It must open the localhost coding UI.
-4. Enter invalid Python and click **Compile & Run**. Verify a compile error plus a useful hint.
-5. Request Hint twice. Hints must progress without revealing hidden inputs or a complete answer.
-6. Enter a unique marker, wait for **Saved on disk**, change tabs/windows, return, and confirm it remains.
-7. Quit Brave fully, reopen it, reopen the challenge, and confirm the same unexpired five-problem set, marker, progress, and original countdown remain.
-8. Run `bash macos/stop-preview.sh`; confirm the popup reports the judge unavailable/starting and disables the challenge button.
-9. Run `bash macos/install-dev.sh`; without reloading the extension, confirm the popup recovers to READY and the button becomes clickable.
-10. Disconnect networking and confirm the local judge and blocker still function outside the allowed window.
-11. Confirm burn-in did **not** add `ExtensionInstallForcelist` or change `IncognitoModeAvailability`.
+1. Open `brave://extensions`. Confirm **YouTube Focus Lock v0.3.x** is loaded unpacked and remains removable.
+2. Open the extension popup and wait a few seconds. It must visibly show **Coding judge: READY · preview · 120-problem pool**.
+3. Click **Test coding challenge** with the mouse. It must open `http://127.0.0.1:43871/`.
+4. Confirm five problem buttons, the visible 60-minute countdown, editable Python area, Save, Compile & Run, and Hint.
+5. Enter invalid Python and click **Compile & Run**. Verify Compile error, line information, and a useful diagnostic hint.
+6. Request Hint twice. Hints must progress without revealing hidden test inputs or a complete solution.
+7. Enter a unique marker, wait for **Saved on disk**, switch tabs/windows, return, and confirm it remains.
+8. Fully quit Brave (not just close the challenge tab), reopen Brave, reopen the challenge, and confirm the same unexpired five-problem set, marker/code, pass state, and original expiry remain.
+9. Stop the preview service using the platform command below. Confirm popup changes to unavailable/starting and **Test coding challenge** becomes disabled.
+10. Restart the preview service using the platform command below. Without reloading the extension, confirm popup returns to READY and the button becomes clickable.
+11. Disconnect networking and confirm the localhost judge still runs and YouTube blocking outside the access window does not depend on network access.
+12. Confirm preview/burn-in did not apply anti-removal policy.
 
-Capture/inspect screenshots for popup READY, challenge opened, compile error, persistence after Brave restart, preview stopped, and preview recovered. Fail for clipped/overlapped text, ambiguous controls, invisible timer, unclear editor affordance, or missing preview-mode warning.
+### Windows service commands
+
+```powershell
+powershell -ExecutionPolicy Bypass -File windows/stop-preview.ps1
+powershell -ExecutionPolicy Bypass -File windows/install-dev.ps1
+```
+
+For policy evidence, compare `HKLM\SOFTWARE\Policies\BraveSoftware\Brave` before and after burn-in setup. The dev installer must not add/change the lock policies.
+
+### macOS service commands
+
+```bash
+bash macos/stop-preview.sh
+bash macos/install-dev.sh
+```
+
+Compare `ExtensionInstallForcelist` and `IncognitoModeAvailability` before/after burn-in setup.
+
+## Required screenshots/evidence
+
+Capture at minimum:
+
+- popup READY;
+- challenge opened from a real popup click;
+- compile error + hint;
+- persistence after full Brave restart;
+- preview stopped / button disabled;
+- preview restarted / button enabled.
+
+Fail if controls are clipped/overlapped, the timer is not obvious, the editor is not clearly editable, preview/locked state is ambiguous, or the service cannot recover without reloading the extension.
 
 ## Required report
 
-Return a table with: test ID, PASS/FAIL, observed result, screenshot/evidence path, and defect if any.
+Return a table with: test ID, PASS/FAIL, observed result, evidence/screenshot path, defect if any.
 
-If the host is not macOS, Stage A may be reported as PASS, but the overall report must end with exactly:
+A Windows machine may produce the final PASS when the **Windows deterministic suite + Windows real-UI rubric** pass. A Mac may do the same with the macOS suite/rubric. Do not require a Mac to validate a Windows installation or vice versa.
 
-`PRE-ARM ACCEPTANCE: FAIL — DO NOT ARM`
-
-and state that Stage B was not executable on the required platform.
-
-Only after **Stage A + Stage B + the vision/computer-use rubric** pass on the target Mac may the final report end with:
+End with exactly one of:
 
 `PRE-ARM ACCEPTANCE: PASS`
 
-A PASS is required before any soft-lock or arming work.
+or
+
+`PRE-ARM ACCEPTANCE: FAIL — DO NOT ARM`
+
+A PASS is required before any soft-lock or arming work on that machine.
