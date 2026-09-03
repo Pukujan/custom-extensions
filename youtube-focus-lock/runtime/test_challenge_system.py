@@ -12,6 +12,7 @@ import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
 from pathlib import Path
+from unittest import mock
 
 import challenge_gate as gate
 import challenge_ui as ui
@@ -22,11 +23,7 @@ class ChallengeSystemTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.old_state = gate.STATE_DIR
-        self.old_root = gate.CHALLENGE_ROOT
-        self.old_token = gate.TOKEN_PATH
-        gate.STATE_DIR = Path(self.tmp.name) / "state"
-        gate.CHALLENGE_ROOT = gate.STATE_DIR / "challenges"
-        gate.TOKEN_PATH = gate.STATE_DIR / "maintenance-token.json"
+        gate.configure_state_dir(Path(self.tmp.name) / "state")
         self.servers = []
 
     def tearDown(self):
@@ -34,9 +31,7 @@ class ChallengeSystemTests(unittest.TestCase):
             server.shutdown()
             server.server_close()
             thread.join(timeout=2)
-        gate.STATE_DIR = self.old_state
-        gate.CHALLENGE_ROOT = self.old_root
-        gate.TOKEN_PATH = self.old_token
+        gate.configure_state_dir(self.old_state)
         self.tmp.cleanup()
 
     def start_server(self, mode="preview"):
@@ -95,7 +90,6 @@ class ChallengeSystemTests(unittest.TestCase):
         self.assertEqual(result["status"], "compile")
         self.assertTrue(result.get("hint"))
 
-        # Save valid text, then restart the service and confirm disk-backed resume.
         saved = "def %s(*args):\n    return None\n" % fn
         self.api(base1, token1, "/api/save", {"index": 0, "code": saved})
         server, thread = self.servers.pop()
@@ -107,7 +101,6 @@ class ChallengeSystemTests(unittest.TestCase):
         self.assertEqual(ids1, [p["id"] for p in state2["problems"]])
         self.assertEqual(state2["problems"][0]["code"], saved)
 
-        # Preview can exercise the judge but can never trigger privileged maintenance.
         with self.assertRaises(urllib.error.HTTPError) as ctx:
             self.api(base2, token2, "/api/action", {"action": "uninstall"})
         self.assertEqual(ctx.exception.code, 409)
@@ -143,6 +136,33 @@ class ChallengeSystemTests(unittest.TestCase):
         source = Path(gate.__file__).read_text(encoding="utf-8")
         self.assertNotIn("os.fork(", source)
         self.assertIn("subprocess.run(", source)
+
+    def test_windows_proof_is_short_lived_and_bound_to_exact_five_files(self):
+        root = gate.write_challenge(mode="locked", rng=random.Random(11))
+        with mock.patch.object(gate, "evaluate_problem", return_value={"status": "pass"}) as judge:
+            proof_path = gate.create_windows_proof(root)
+        self.assertTrue(proof_path.exists())
+        self.assertEqual(judge.call_count, 5)
+        self.assertTrue(gate.verify_windows_proof(root))
+
+        meta = json.loads((root / "challenge.json").read_text(encoding="utf-8"))
+        first = root / meta["problems"][0]["dir"] / "solution.py"
+        first.write_text(first.read_text(encoding="utf-8") + "\n# edit after proof\n", encoding="utf-8")
+        self.assertFalse(gate.verify_windows_proof(root))
+
+    def test_windows_proof_rejects_expired_timestamp(self):
+        root = gate.write_challenge(mode="locked", rng=random.Random(12))
+        with mock.patch.object(gate, "evaluate_problem", return_value={"status": "pass"}):
+            proof_path = gate.create_windows_proof(root)
+        proof = json.loads(proof_path.read_text(encoding="utf-8"))
+        proof["expiresAt"] = int(time.time()) - 1
+        unsigned = dict(proof)
+        unsigned.pop("signature", None)
+        proof["signature"] = __import__("hmac").new(
+            gate._proof_secret(create=False), gate._proof_payload(unsigned), __import__("hashlib").sha256
+        ).hexdigest()
+        gate.write_json(proof_path, proof)
+        self.assertFalse(gate.verify_windows_proof(root))
 
 
 if __name__ == "__main__":
