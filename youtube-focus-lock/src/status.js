@@ -5,10 +5,19 @@ import { burnInStatus } from "../lib/burnin.mjs";
 const challengeButton = document.querySelector("#challenge");
 const judgeElement = document.querySelector("#judge");
 let lastHealth = null;
+let lastLockVerified = false;
 
 challengeButton.addEventListener("click", () => {
   chrome.tabs.create({ url: "http://127.0.0.1:43871/" });
 });
+
+function renderChallengeButton() {
+  const lockedRuntime = lastLockVerified && lastHealth?.mode === "locked";
+  challengeButton.textContent = lockedRuntime ? "Disable / uninstall…" : "Test coding challenge";
+  if (lastHealth && lastLockVerified && lastHealth.mode !== "locked") {
+    judgeElement.textContent = `Coding judge: READY · ${lastHealth.mode} · ${lastHealth.bankSize}-problem pool · soft-lock verification only; maintenance is not armed`;
+  }
+}
 
 async function judgeHealth() {
   try {
@@ -18,11 +27,13 @@ async function judgeHealth() {
     lastHealth = health;
     judgeElement.textContent = `Coding judge: READY · ${health.mode} · ${health.bankSize}-problem pool`;
     challengeButton.disabled = false;
+    renderChallengeButton();
     return health;
   } catch {
     lastHealth = null;
-    judgeElement.textContent = "Coding judge: STARTING / NOT RUNNING · preview helper will be retried automatically";
+    judgeElement.textContent = "Coding judge: STARTING / NOT RUNNING · local helper will be retried automatically";
     challengeButton.disabled = true;
+    renderChallengeButton();
     return null;
   }
 }
@@ -46,15 +57,11 @@ async function render() {
   });
 
   const el = document.querySelector("#burnin");
-  const lockVerified = !self.mayDisable;
-  const lockState = lockVerified
+  lastLockVerified = !self.mayDisable;
+  const lockState = lastLockVerified
     ? "Browser lock policy: VERIFIED."
     : "Browser lock policy: NOT VERIFIED (extension is removable).";
-
-  challengeButton.textContent = lockVerified ? "Disable / uninstall…" : "Test coding challenge";
-  if (lastHealth && lockVerified && lastHealth.mode !== "locked") {
-    judgeElement.textContent = `Coding judge: READY · ${lastHealth.mode} · ${lastHealth.bankSize}-problem pool · WARNING: expected locked mode`;
-  }
+  renderChallengeButton();
 
   if (status.reason === "health-failure") {
     el.textContent = `Burn-in failed: an enforcement error was recorded. Do not arm. ${lockState}`;
