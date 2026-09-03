@@ -24,7 +24,7 @@ if [[ -z "$PYTHON_BIN" || ! -x "$PYTHON_BIN" ]]; then
   echo "Stored Python interpreter is unavailable; refusing automatic uninstall." >&2
   exit 2
 fi
-if ! "$PYTHON_BIN" "$INSTALL_DIR/challenge_gate.py" token-valid --token "$TOKEN"; then
+if ! "$PYTHON_BIN" "$INSTALL_DIR/runtime/challenge_gate.py" token-valid --token "$TOKEN"; then
   cat >&2 <<MSG
 No valid maintenance token.
 Open the extension popup and complete the current five-problem locked challenge.
