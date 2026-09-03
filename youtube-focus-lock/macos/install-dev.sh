@@ -25,7 +25,6 @@ if [[ ! -d "/Applications/Brave Browser.app" ]]; then
 fi
 
 mkdir -p "$STATE_DIR" "$HOME/Library/LaunchAgents"
-# Do not silently reset an existing burn-in just because the preview helper is restarted.
 if [[ ! -f "$STATE_DIR/burnin-started-at" ]]; then
   date +%s > "$STATE_DIR/burnin-started-at"
 fi
@@ -39,10 +38,11 @@ cat > "$PLIST" <<PLIST
   <key>ProgramArguments</key>
   <array>
     <string>$PYTHON_BIN</string>
-    <string>$ROOT_DIR/macos/challenge_ui.py</string>
+    <string>$ROOT_DIR/runtime/challenge_ui.py</string>
     <string>serve</string>
     <string>--mode</string><string>preview</string>
     <string>--port</string><string>43871</string>
+    <string>--state-dir</string><string>$STATE_DIR</string>
   </array>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
@@ -57,7 +57,6 @@ launchctl bootout "gui/$UID_VALUE" "$PLIST" 2>/dev/null || true
 launchctl bootstrap "gui/$UID_VALUE" "$PLIST"
 launchctl kickstart -k "gui/$UID_VALUE/$LABEL"
 
-# Do not tell the user the preview is ready until the actual HTTP health check works.
 HEALTH_OK=0
 for _ in $(seq 1 30); do
   if /usr/bin/curl -fsS --max-time 1 "http://127.0.0.1:43871/health" >/dev/null 2>&1; then
@@ -68,28 +67,26 @@ for _ in $(seq 1 30); do
 done
 if [[ "$HEALTH_OK" -ne 1 ]]; then
   echo "Coding challenge preview failed to become healthy." >&2
-  echo "LaunchAgent stderr:" >&2
   tail -n 30 "$STATE_DIR/challenge-ui.err" >&2 2>/dev/null || true
   exit 1
 fi
 
 cat <<MSG
-Burn-in/dev mode is ready.
+Burn-in/dev mode is ready on macOS.
 
 Coding challenge preview:
   http://127.0.0.1:43871/
 
-It is available DURING burn-in and uses the same 120-problem editor/judge flow,
-but preview sessions can never disable or uninstall the blocker.
+This is the same shared 120-problem runtime used on Windows and in locked mode.
+Preview sessions can never disable or uninstall the blocker.
 
 Brave extension setup:
   1. Enable Developer mode at brave://extensions
   2. Load unpacked and select:
      $ROOT_DIR
-  3. The popup should show "Test coding challenge" and judge status READY.
+  3. The popup should show Test coding challenge and judge status READY.
 
-Nothing anti-removal is installed in this stage. The extension and preview
-LaunchAgent remain easy to remove. To stop only the preview service:
+Nothing anti-removal has been installed. To stop only the preview service:
   bash "$ROOT_DIR/macos/stop-preview.sh"
 MSG
 open -a "Brave Browser" "brave://extensions"
