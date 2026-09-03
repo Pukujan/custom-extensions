@@ -6,6 +6,7 @@
   let dirty = false;
   let timer = null;
   let autosave = null;
+  let hintRequestId = 0;
 
   async function api(path, method = 'GET', body = null) {
     const options = { method, headers: { 'X-YFL-Token': token } };
@@ -230,11 +231,17 @@
   }
 
   async function requestHint() {
+    const button = $('#hint');
+    if (button.disabled) return;
+    const requestId = ++hintRequestId;
+    button.disabled = true;
     try {
       const result = await api('/api/hint', 'POST', { index: selected });
-      setHint(`Hint ${result.level}/${result.max}: ${result.hint}`);
+      if (requestId === hintRequestId) setHint(`Hint ${result.level}/${result.max}: ${result.hint}`);
     } catch (error) {
-      setHint(error.message);
+      if (requestId === hintRequestId) setHint(error.message);
+    } finally {
+      if (requestId === hintRequestId) button.disabled = false;
     }
   }
 

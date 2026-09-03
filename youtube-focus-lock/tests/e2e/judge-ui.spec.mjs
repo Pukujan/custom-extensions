@@ -60,6 +60,7 @@ test('manual hint is progressive and does not reveal hidden input', async ({ pag
   await expect(page.locator('#hintBox')).toContainText('Hint 1/');
   const first = await page.locator('#hintBox').textContent();
   await page.getByRole('button', { name: 'Hint' }).click();
+  await expect(page.locator('#hintBox')).not.toHaveText(first);
   const second = await page.locator('#hintBox').textContent();
   expect(second).not.toBe(first);
   expect(second).not.toMatch(/hidden input|test case:\s*\[/i);

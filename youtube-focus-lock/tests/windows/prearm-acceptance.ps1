@@ -16,9 +16,9 @@ function Invoke-YflPy([string[]]$Arguments) {
 }
 
 function Get-PolicySnapshot {
-    $text = & reg.exe query 'HKLM\SOFTWARE\Policies\BraveSoftware\Brave' /s 2>&1
-    if ($LASTEXITCODE -ne 0) { return '<absent>' }
-    return ($text -join "`n")
+    $key = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\BraveSoftware\Brave'
+    if (-not (Test-Path -LiteralPath $key)) { return '<absent>' }
+    return (Get-ItemProperty -LiteralPath $key | Out-String).Trim()
 }
 
 Write-Host '=== Windows deterministic pre-arm acceptance ==='
