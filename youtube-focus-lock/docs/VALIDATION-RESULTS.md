@@ -1,73 +1,68 @@
-# Validation Results — v2.1 pre-arm baseline
+# Validation Status — YouTube Focus Lock 0.3
 
-This records what has actually been executed against this package. It deliberately separates tests that passed in the build environment from tests that still require the target Mac/Brave installation.
+This file records the validation boundary, not a promise that a particular workstation has passed. The checked-out Git commit is canonical; GitHub Actions and the target-OS local acceptance report are the authoritative evidence.
 
-## Defects found by validation and fixed
+## Defects discovered in earlier rounds
 
-### Popup challenge button stayed disabled
-Root cause: the popup calls `fetch("http://127.0.0.1:43871/health")`, but the prior manifest used a port-bearing host-permission pattern. Chrome extension host permissions use URL match patterns whose host portion does not include a port. v2.1 uses the valid narrow permissions `http://127.0.0.1/*` and `http://localhost/*` and has regression tests for this condition.
+### Popup challenge button disabled
 
-### Threaded HTTP judge used `os.fork()`
-Root cause: candidate evaluation forked from a multithreaded HTTP process. Python 3.13 warns that this can deadlock. v2.1 executes each candidate through a fresh subprocess worker; privileged verification drops UID/GID in that fresh worker before importing candidate code. A regression test asserts that `os.fork(` is absent from the judge implementation.
+The popup health request needed valid loopback host permissions. Chromium extension match patterns do not put a port in `host_permissions`. The manifest now grants `http://127.0.0.1/*` and `http://localhost/*`; code still contacts only port 43871. Source/unit and real-Brave Playwright regressions cover the button.
 
-## Round A — blocker/manifest regression
-- Node tests: **18/18 PASS**.
-- Includes schedule boundaries, DST fall-back, URL scope, burn-in eligibility, localhost popup permission, and invalid port-bearing permission rejection.
+### Threaded judge used `os.fork()`
 
-## Round B — problem-bank integrity
-- Bank: **120 problem IDs**.
-- Structure: **24 algorithm families × 5 randomized wording/constraint variants**.
-- Reference solvers execute against generated objective cases across the full bank: **PASS**.
-- Challenge selection across deterministic seeds: **5 distinct families, exactly 3 Medium + 2 Hard**: **PASS**.
+Candidate evaluation was moved to a fresh subprocess worker. The shared runtime has no `os.fork()` path. macOS can drop UID/GID in the worker; Windows uses a normal-user subprocess plus a short-lived proof before UAC.
 
-Important: this is 120 selectable problem IDs but 24 underlying algorithm families. It should not be represented as 120 unrelated algorithms.
+### Windows was treated as partial support
 
-## Round C — judge engine
-- Challenge-engine self-test: **PASS**.
-- Known-correct candidate accepted through fresh subprocess evaluator: **PASS**.
-- Known-wrong candidate classified as wrong answer: **PASS**.
-- Syntax diagnostics/hints: **PASS**.
-- Runtime hint mapping: **PASS**.
-- Thread-unsafe `os.fork()` regression: **PASS**.
+This violated the product requirement. Version 0.3 moved the bank/judge/UI into shared `runtime/`, added Windows burn-in/soft-lock/arm/watchdog/maintenance/uninstall adapters, added Windows real-Brave Playwright acceptance, and changed CI to a Windows + macOS matrix. Windows and macOS are now first-class supported targets.
 
-## Round D — persistence / HTTP integration
-Python integration suite: **6/6 PASS**.
-- preview server exposes the objective challenge;
-- compile errors return a hint;
-- code survives local-server restart;
-- same unexpired challenge resumes after restart;
-- preview mode rejects maintenance/uninstall;
-- changing saved code invalidates PASS;
-- save/run activity does not extend fixed expiration;
-- judge implementation uses the subprocess worker path.
+### Binary artifact was incorrectly made canonical
 
-## Round E — static validation
-- Python compilation: **PASS**.
-- challenge UI JavaScript syntax: **PASS**.
-- Brave popup JavaScript syntax: **PASS**.
-- Playwright test source syntax: **PASS**.
-- macOS shell syntax: **PASS**.
-- manifest JSON: **PASS**.
+The source Git commit is now canonical. CI creates the downloadable ZIP from that exact commit only after both platform jobs pass. No checked-in ZIP is an authority.
 
-## Round F — real browser automation
-A Playwright suite is included for:
-- editor rendering and five-problem balance;
-- compile-error UI + hint;
-- autosave/reopen persistence;
-- progressive hints;
-- preview-action rejection;
-- real Brave popup health/button click on macOS.
+## Automated requirements
 
-This hosted build environment could not execute that suite: `@playwright/test` is not preinstalled, package installation is network-limited, and the host-managed Chromium blocks loopback navigation. Therefore **no claim of a real popup click-through pass is made here**.
+A release candidate must pass the same shared-runtime suite on both Windows and macOS:
 
-## Round G — target Mac / Brave acceptance — REQUIRED
-Run:
+- extension Node tests;
+- 120 problem IDs / 24 families objective-bank validation;
+- balanced 5-problem selection (3 Medium + 2 Hard, distinct families);
+- shared challenge-gate self-test;
+- shared challenge-UI self-test;
+- persistence/HTTP integration tests;
+- Windows proof/hash-binding/expiry tests;
+- source/provenance checks;
+- Python/JavaScript/manifest validation;
+- matching platform-adapter syntax checks.
+
+Packaging is downstream of both OS jobs, so a failure on either OS blocks the artifact.
+
+## Real workstation requirements
+
+CI is necessary but insufficient because hosted runners do not certify the user's installed Brave, startup integration, or real desktop interactions.
+
+On a Windows target run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows/prearm-acceptance.ps1
+```
+
+On a macOS target run:
 
 ```bash
-npm install
 bash tests/macos/prearm-acceptance.sh
 ```
 
-Then complete `docs/LOCAL-AGENT-VALIDATION.md` with Playwright + visual/computer-use evidence on the actual Mac.
+Then complete `docs/LOCAL-AGENT-VALIDATION.md` using the actual Brave UI, real clicks/typing, screenshots/vision, full Brave restart, service stop/restart, offline behavior, and no-policy-mutation checks.
 
-**Do not run `prepare-lock.sh` or `arm.sh` until Round G ends with `PRE-ARM ACCEPTANCE: PASS`.**
+A **Windows** workstation may produce `PRE-ARM ACCEPTANCE: PASS` from the Windows suite + Windows real-UI rubric. A **Mac** may do the same with the macOS suite + macOS real-UI rubric. Neither platform is subordinate to the other.
+
+## Locking rule
+
+Do not execute any `prepare-lock` or `arm` script until the target machine itself ends its pre-arm report with exactly:
+
+`PRE-ARM ACCEPTANCE: PASS`
+
+Anything else means:
+
+`PRE-ARM ACCEPTANCE: FAIL — DO NOT ARM`
