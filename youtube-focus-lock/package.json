@@ -1,13 +1,15 @@
 {
   "name": "youtube-focus-lock",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "test:playwright": "playwright test tests/e2e/judge-ui.spec.mjs",
+    "test:playwright": "playwright test tests/e2e/judge-ui.spec.mjs tests/e2e/brave-popup.spec.mjs",
+    "test:judge-ui": "playwright test tests/e2e/judge-ui.spec.mjs",
     "test:brave": "playwright test tests/e2e/brave-popup.spec.mjs",
-    "test:prearm": "bash tests/macos/prearm-acceptance.sh"
+    "test:prearm:macos": "bash tests/macos/prearm-acceptance.sh",
+    "test:prearm:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows/prearm-acceptance.ps1"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1"
