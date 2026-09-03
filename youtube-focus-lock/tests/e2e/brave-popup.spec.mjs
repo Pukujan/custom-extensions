@@ -3,11 +3,27 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const bravePath = process.env.BRAVE_PATH || '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
+function braveExecutable() {
+  if (process.env.BRAVE_PATH) return process.env.BRAVE_PATH;
+  if (process.platform === 'darwin') {
+    return '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser';
+  }
+  if (process.platform === 'win32') {
+    const candidates = [
+      process.env.PROGRAMFILES && path.join(process.env.PROGRAMFILES, 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe'),
+      process.env['PROGRAMFILES(X86)'] && path.join(process.env['PROGRAMFILES(X86)'], 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe'),
+      process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe'),
+    ].filter(Boolean);
+    return candidates.find((candidate) => fs.existsSync(candidate)) || candidates[0];
+  }
+  return '';
+}
+
+const bravePath = braveExecutable();
 
 test('real Brave popup sees the preview judge and opens it', async () => {
-  test.skip(process.platform !== 'darwin', 'This acceptance test is intentionally macOS-only.');
-  expect(fs.existsSync(bravePath), `Brave executable missing at ${bravePath}`).toBeTruthy();
+  test.skip(!['darwin', 'win32'].includes(process.platform), 'Real Brave acceptance is supported on Windows and macOS.');
+  expect(bravePath && fs.existsSync(bravePath), `Brave executable missing at ${bravePath}`).toBeTruthy();
 
   const extensionPath = path.resolve('.');
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'yfl-brave-playwright-'));
@@ -34,7 +50,7 @@ test('real Brave popup sees the preview judge and opens it', async () => {
     await expect(popup.locator('#judge')).toContainText('120-problem pool');
     await expect(popup.locator('#challenge')).toBeEnabled();
     await expect(popup.locator('#challenge')).toHaveText('Test coding challenge');
-    await popup.screenshot({ path: 'test-results/brave-popup-ready.png' });
+    await popup.screenshot({ path: `test-results/brave-popup-ready-${process.platform}.png` });
 
     const newPage = context.waitForEvent('page');
     await popup.locator('#challenge').click();
@@ -42,7 +58,7 @@ test('real Brave popup sees the preview judge and opens it', async () => {
     await challenge.waitForLoadState('domcontentloaded');
     await expect(challenge).toHaveURL(/^http:\/\/127\.0\.0\.1:43871\//);
     await expect(challenge.getByText('Python maintenance challenge')).toBeVisible();
-    await challenge.screenshot({ path: 'test-results/brave-challenge-opened.png', fullPage: true });
+    await challenge.screenshot({ path: `test-results/brave-challenge-opened-${process.platform}.png`, fullPage: true });
   } finally {
     await context.close();
     fs.rmSync(profile, { recursive: true, force: true });
