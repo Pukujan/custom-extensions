@@ -1,0 +1,22 @@
+{
+  "schema_version": "custom-extensions.release.v1",
+  "tag": "extensions-2026.09.03",
+  "title": "Custom Extensions — 2026-09-03",
+  "extensions": [
+    {
+      "id": "chatgpt-10-day-cleaner",
+      "version": "2.0.0",
+      "asset": "chatgpt-10-day-cleaner-v2.0.0.zip"
+    },
+    {
+      "id": "chatgpt-transcript-exporter",
+      "version": "0.1.0",
+      "asset": "chatgpt-transcript-exporter-v0.1.0.zip"
+    },
+    {
+      "id": "linkedin-connection-exporter",
+      "version": "1.1.0",
+      "asset": "linkedin-connection-exporter-v1.1.0.zip"
+    }
+  ]
+}
