@@ -2,56 +2,74 @@
 
 ## Checkpoint
 
-- Date: 2026-09-01
+- Date: 2026-09-03
 - Repository: `Pukujan/custom-extensions`
 - Purpose: durable collection of small independently loadable Brave/Chromium extensions
-- Repo state before bootstrap: empty repository
-- Current branch: `bootstrap/extension-collection-and-chatgpt-exporter`
-- Draft PR: #1 — `https://github.com/Pukujan/custom-extensions/pull/1`
-- Current work: collection conventions, two imported extensions, ChatGPT transcript exporter
+- Bootstrap PR #1: merged to `main`
+- Current branch: `release/package-current-extensions`
+- Current PR: #3 — `https://github.com/Pukujan/custom-extensions/pull/3`
+- Current work: packaged GitHub Release assets and Brave/Chromium download/install documentation for all registered extensions
 
-## Imported source archives
+## Current extension inventory
 
-### ChatGPT 10-Day Cleaner v2
+### ChatGPT 10-Day Cleaner v2.0.0
 
-- original archive: `chatgpt-10-day-cleaner-v2(1).zip`
-- SHA-256: `9bf72f8a8c2fd1843d02ebc77258ff51a7ed69139e3a417c655435d65d4f19cc`
-- destination: `extensions/chatgpt-10-day-cleaner/`
-- imported archive includes a 2026-08-30 report claiming 12 invariant/property tests passed
-- current collection rerun observed: 12/12 tests passed; status `LOCAL_TESTED`
+- directory: `extensions/chatgpt-10-day-cleaner/`
+- release asset: `chatgpt-10-day-cleaner-v2.0.0.zip`
+- risk class: destructive
+- imported archive provenance remains recorded in `extensions/registry.json`
+- deterministic/property status: `LOCAL_TESTED`
 
-### LinkedIn Connection Exporter v1.1
+### LinkedIn Connection Exporter v1.1.0
 
-- original archive: `linkedin_connection_exporter_v1.1_tested(2).zip`
-- SHA-256: `9bd6b97a7325edd3880902bf3c6bd0f913330b7e0b3aed70d4844a40e10f70a2`
-- destination: `extensions/linkedin-connection-exporter/`
-- current collection rerun observed: 16/16 tests passed; status `LOCAL_TESTED`
+- directory: `extensions/linkedin-connection-exporter/`
+- release asset: `linkedin-connection-exporter-v1.1.0.zip`
+- risk class: read-export
+- imported archive provenance remains recorded in `extensions/registry.json`
+- deterministic status: `LOCAL_TESTED`
 
-## New extension
+### ChatGPT Transcript Exporter v0.1.0
 
-`extensions/chatgpt-transcript-exporter/` exports the active ChatGPT conversation as Markdown or structured JSON without manual select-all/copy.
+- directory: `extensions/chatgpt-transcript-exporter/`
+- release asset: `chatgpt-transcript-exporter-v0.1.0.zip`
+- risk class: read-export
+- deterministic/property status: `LOCAL_TESTED`
+- live-site status remains `LIVE_SMOKE_REQUIRED`
 
-Long ChatGPT threads can be virtualized, so “full transcript” uses scroll-and-harvest rather than a one-shot DOM scrape. It deduplicates stable turn identities, performs repeated sweeps, restores the user's scroll position, and warns when stability/completeness was not established.
+## Packaged release design
 
-## Observed bootstrap verification
+`release/current.json` defines bundle tag `extensions-2026.09.03` / title `Custom Extensions — 2026-09-03`.
 
-`node scripts/test-all.mjs` passed all three registered suites: 12 + 16 + 18 = 46 tests. The GitHub test-exercised bytes were aligned to the tested working tree before PR #1 was opened. The new exporter remains `LIVE_SMOKE_REQUIRED`.
+`scripts/package-extensions.sh` packages every registry entry, requires registry/manifest version agreement, excludes conventional repository-only tests/specs/reports, verifies `manifest.json` is at ZIP root, and writes `SHA256SUMS.txt`.
+
+`.github/workflows/package-release.yml` runs the existing collection tests before packaging and publishing the GitHub Release. It creates the release on first run and refreshes assets idempotently on rerun.
+
+## Evidence state
+
+Bootstrap deterministic verification remains the last observed test run recorded in repository state:
+
+- ChatGPT 10-Day Cleaner: 12/12 passed;
+- LinkedIn Connection Exporter: 16/16 passed;
+- ChatGPT Transcript Exporter: 18/18 passed;
+- total: 46 tests passed.
+
+The new packaging/release workflow has not yet been claimed as passed in this checkpoint. Its first authoritative run should occur from `main` after PR #3 merges.
 
 ## Exact next actions
 
-1. Check out PR #1 / branch `bootstrap/extension-collection-and-chatgpt-exporter`.
-2. Load `extensions/chatgpt-transcript-exporter/` unpacked in Brave.
-3. Smoke-test a short thread and a very long thread.
-4. Verify Markdown and JSON ordering, code blocks, links, user/assistant roles, filename, and partial-warning behavior.
-5. Record the observed smoke evidence in `docs/STATUS.md` and this handoff.
-6. Only then change the exporter registry status to `LIVE_SMOKE_PASSED` and mark PR #1 ready for review.
-7. Future small extensions go in this same repository unless they develop an independent product/release lifecycle.
+1. Merge PR #3.
+2. Confirm the `Package extension release` GitHub Actions run passes all registered tests and packaging checks.
+3. Confirm GitHub Release `extensions-2026.09.03` exists with all three versioned ZIPs plus `SHA256SUMS.txt`.
+4. Record the workflow/release evidence in `docs/STATUS.md` and this handoff.
+5. Download `chatgpt-transcript-exporter-v0.1.0.zip`, extract it, and load it in Brave with **Load unpacked**.
+6. Smoke-test a short ChatGPT thread and a genuinely long/virtualized thread, including Markdown and JSON downloads and partial-warning behavior.
+7. Only after observed live browser evidence should the transcript exporter move from `LIVE_SMOKE_REQUIRED` to `LIVE_SMOKE_PASSED`.
 
 ## Do not repeat
 
-- no one-repo-per-tiny-extension by default;
-- no monolithic manifest or shared background process across unrelated extensions;
-- no premature shared library;
-- no broad host permissions for convenience;
-- no “full export” claim from a single DOM snapshot on virtualized threads;
-- no chat-only design decisions without updating repo docs/specs/handoff.
+- do not commit generated ZIP binaries to the Git tree; publish them as release assets;
+- do not package all utilities into one browser manifest;
+- do not create cross-extension runtime dependencies for release convenience;
+- do not broaden extension permissions for packaging;
+- do not treat successful packaging as a live-site smoke test;
+- do not reuse a collection release tag for materially different source; bump `release/current.json` instead.
