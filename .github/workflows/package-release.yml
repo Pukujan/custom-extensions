@@ -1,0 +1,72 @@
+name: Package extension release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - release/current.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: package-extension-release
+  cancel-in-progress: false
+
+jobs:
+  package-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run extension tests
+        run: node scripts/test-all.mjs
+
+      - name: Build extension ZIPs
+        run: bash scripts/package-extensions.sh
+
+      - name: Read release metadata
+        id: release
+        shell: bash
+        run: |
+          tag="$(jq -r '.tag // empty' release/current.json)"
+          title="$(jq -r '.title // empty' release/current.json)"
+          if [[ -z "$tag" || -z "$title" ]]; then
+            echo "release/current.json must contain non-empty tag and title fields" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "title=$title" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_TITLE: ${{ steps.release.outputs.title }}
+        shell: bash
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt --clobber
+            gh release edit "$RELEASE_TAG" --title "$RELEASE_TITLE" --notes-file release/RELEASE_NOTES.md
+          else
+            gh release create "$RELEASE_TAG" \
+              dist/*.zip dist/SHA256SUMS.txt \
+              --title "$RELEASE_TITLE" \
+              --notes-file release/RELEASE_NOTES.md \
+              --target "${{ github.sha }}"
+          fi
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-release-assets
+          path: dist/*
+          if-no-files-found: error
