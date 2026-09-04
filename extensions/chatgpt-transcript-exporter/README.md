@@ -2,6 +2,10 @@
 
 Exports the active ChatGPT conversation to Markdown or structured JSON without manual select-all/copy.
 
+## Packaged download
+
+For the current repository release, download `chatgpt-transcript-exporter-v0.1.0.zip` from GitHub Releases, extract it, and select the extracted folder with Brave's **Load unpacked** flow. The archive places `manifest.json` at its root.
+
 ## Why this implementation scrolls the conversation
 
 Long ChatGPT conversations can be virtualized: older/off-screen turns may not all exist in the DOM at the same instant. A one-shot selector can therefore produce a convincing but truncated export.
@@ -12,10 +16,11 @@ It does not claim access to regenerated alternative branches or content the Chat
 
 ## Install in Brave
 
-1. Open `brave://extensions/`.
-2. Enable **Developer mode**.
-3. Choose **Load unpacked**.
-4. Select this `chatgpt-transcript-exporter` directory.
+1. Extract the release ZIP, or use this directory from a repository checkout.
+2. Open `brave://extensions/`.
+3. Enable **Developer mode**.
+4. Choose **Load unpacked**.
+5. Select the folder containing this extension's `manifest.json`.
 
 ## Use
 

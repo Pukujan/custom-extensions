@@ -1,5 +1,21 @@
 # Status
 
+## Release packaging — 2026-09-03
+
+### Implemented on `release/package-current-extensions`
+
+- reproducible `scripts/package-extensions.sh` packager for every extension registered in `extensions/registry.json`;
+- registry/manifest version consistency check before packaging;
+- one Brave/Chromium Developer-mode ZIP per extension with `manifest.json` at archive root;
+- SHA-256 checksum generation;
+- `release/current.json` bundle descriptor and release notes;
+- GitHub Actions workflow that runs all extension tests, builds ZIPs, and creates/refreshes the GitHub Release;
+- root, per-extension, contributor, release, and architecture documentation for packaged downloads.
+
+### Verification state
+
+The packaging workflow is intentionally not recorded as passed until its GitHub Actions run has executed from `main`. Existing deterministic/live evidence states below are unchanged by packaging.
+
 ## Collection bootstrap — 2026-09-01
 
 ### Implemented
