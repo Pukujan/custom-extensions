@@ -2,6 +2,10 @@
 
 Version 2 fixes the popup-lifecycle problem.
 
+## Packaged download
+
+For the current repository release, download `chatgpt-10-day-cleaner-v2.0.0.zip` from GitHub Releases, extract it, and select the extracted folder with Brave's **Load unpacked** flow. This extension is destructive: always inspect the dry-run candidate set before confirming deletion.
+
 ## What changed
 
 The old build performed the actual scan/delete loop inside the extension popup. Chromium popups are ephemeral: clicking elsewhere closes the popup and destroys its JavaScript context.
@@ -20,12 +24,13 @@ That means:
 
 ## Install / upgrade in Brave
 
-1. Open `brave://extensions/`.
-2. Enable **Developer mode**.
-3. Click **Load unpacked** and select this extension directory.
-4. Keep a signed-in `https://chatgpt.com` tab open.
-5. Open the extension and click **Scan / Dry run**.
-6. Reopen it, inspect the frozen snapshot, type `DELETE`, and start deletion.
+1. Extract the release ZIP, or use this directory from a repository checkout.
+2. Open `brave://extensions/`.
+3. Enable **Developer mode**.
+4. Click **Load unpacked** and select the folder containing this extension's `manifest.json`.
+5. Keep a signed-in `https://chatgpt.com` tab open.
+6. Open the extension and click **Scan / Dry run**.
+7. Reopen it, inspect the frozen snapshot, type `DELETE`, and start deletion.
 
 ## Safety invariants
 
