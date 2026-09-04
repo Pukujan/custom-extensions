@@ -1,0 +1,51 @@
+{
+  "schema_version": "custom-extensions.registry.v1",
+  "updated_at": "2026-09-01",
+  "extensions": [
+    {
+      "id": "chatgpt-10-day-cleaner",
+      "name": "ChatGPT 10-Day Cleaner",
+      "directory": "extensions/chatgpt-10-day-cleaner",
+      "version": "2.0.0",
+      "risk_class": "destructive",
+      "hosts": ["https://chatgpt.com/*"],
+      "purpose": "Preview and bulk-delete ChatGPT conversations older than a chosen age.",
+      "test_command": "node tests.js",
+      "status": ["IMPORTED_TEST_REPORT", "LOCAL_TESTED"],
+      "provenance": {
+        "source_archive": "chatgpt-10-day-cleaner-v2(1).zip",
+        "sha256": "9bf72f8a8c2fd1843d02ebc77258ff51a7ed69139e3a417c655435d65d4f19cc"
+      }
+    },
+    {
+      "id": "linkedin-connection-exporter",
+      "name": "Connection List Exporter",
+      "directory": "extensions/linkedin-connection-exporter",
+      "version": "1.1.0",
+      "risk_class": "read-export",
+      "hosts": ["https://www.linkedin.com/*"],
+      "purpose": "Collect visible LinkedIn connection-list entries and export CSV/TSV.",
+      "test_command": "node tests/test.js",
+      "status": ["IMPORTED_TEST_REPORT", "LOCAL_TESTED"],
+      "provenance": {
+        "source_archive": "linkedin_connection_exporter_v1.1_tested(2).zip",
+        "sha256": "9bd6b97a7325edd3880902bf3c6bd0f913330b7e0b3aed70d4844a40e10f70a2"
+      }
+    },
+    {
+      "id": "chatgpt-transcript-exporter",
+      "name": "ChatGPT Transcript Exporter",
+      "directory": "extensions/chatgpt-transcript-exporter",
+      "version": "0.1.0",
+      "risk_class": "read-export",
+      "hosts": ["https://chatgpt.com/*"],
+      "purpose": "Capture the active ChatGPT conversation, including virtualized long threads, and export Markdown or JSON locally.",
+      "test_command": "node tests/test.js",
+      "status": ["LOCAL_TESTED", "LIVE_SMOKE_REQUIRED"],
+      "provenance": {
+        "source": "designed in custom-extensions bootstrap session",
+        "date": "2026-09-01"
+      }
+    }
+  ]
+}

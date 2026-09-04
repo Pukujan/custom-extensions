@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChatGPT Transcript Exporter</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Transcript Exporter</h1>
+      <p class="lead">Capture the active ChatGPT thread, including long virtualized conversations.</p>
+      <div class="actions">
+        <button id="export-md" type="button">Export Markdown</button>
+        <button id="export-json" type="button">Export JSON</button>
+      </div>
+      <section class="status-card" aria-live="polite">
+        <strong id="status">Ready</strong>
+        <p id="details">Open a ChatGPT conversation and choose an export format.</p>
+      </section>
+      <p class="fine">The export stays local. The page may scroll while harvesting, then returns to your previous position. If completeness cannot be established, the file is marked partial.</p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
