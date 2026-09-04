@@ -4,13 +4,17 @@ A small Manifest V3 extension that collects profile rows visible in a LinkedIn
 connection-list style page, stores them locally, optionally advances with the
 visible "Next" control, and exports CSV/TSV.
 
+## Packaged download
+
+For the current repository release, download `linkedin-connection-exporter-v1.1.0.zip` from GitHub Releases, extract it, and select the extracted folder with Brave's **Load unpacked** flow.
+
 ## Install in Brave
 
-1. Unzip this folder.
-2. Open `brave://extensions`.
+1. Extract the release ZIP, or use this directory from a repository checkout.
+2. Open `brave://extensions/`.
 3. Enable **Developer mode**.
 4. Click **Load unpacked**.
-5. Select the `linkedin_connection_exporter` folder.
+5. Select the folder containing this extension's `manifest.json`.
 
 ## Use
 
