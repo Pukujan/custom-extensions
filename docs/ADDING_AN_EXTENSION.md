@@ -22,12 +22,24 @@ Prefer dependency-free Node tests for small extensions. At minimum: syntax-check
 
 ## 6. Register it
 
-Add the extension to `extensions/registry.json` with id, display name, directory, version, risk class, hosts, purpose, test command, status, and provenance for imported archives when applicable.
+Add the extension to `extensions/registry.json` with id, display name, directory, version, risk class, hosts, purpose, test command, status, and provenance for imported archives when applicable. The registry version must match `manifest.json` because the release packager fails closed on version drift.
 
-## 7. Record live smoke separately
+## 7. Verify packaging
 
-DOM-based extensions are not live-verified merely because fixtures pass. Record real target-site/browser smoke evidence separately from deterministic tests.
+Run:
 
-## 8. Handoff
+```bash
+bash scripts/package-extensions.sh
+```
+
+Confirm the new ZIP is written under `dist/`, contains `manifest.json` at archive root, and can be extracted into a folder Brave accepts with **Load unpacked**. Repository-only tests/specs/reports are excluded from published ZIPs by the packaging script.
+
+For a collection release, update `release/current.json` to a new bundle tag/title after the extension versions are final. See `docs/RELEASES.md`.
+
+## 8. Record live smoke separately
+
+DOM-based extensions are not live-verified merely because fixtures or packaging checks pass. Record real target-site/browser smoke evidence separately from deterministic tests.
+
+## 9. Handoff
 
 Update `HANDOFF.md` before leaving the task so the next session can continue from repository state without reconstructing decisions from chat history.
