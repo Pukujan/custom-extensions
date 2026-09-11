@@ -1,5 +1,5 @@
 import { UNLOCK_MS, STORAGE_KEYS } from "./lib/config.mjs";
-import { BLOCK_RULE_IDS, buildBlockingRules, computeUnlockUntil, isUnlockActive } from "./lib/lock.mjs";
+import { BLOCK_RULE_IDS, buildBlockingRules, computeUnlockUntil, isUnlockActive, isUnlockExpired } from "./lib/lock.mjs";
 
 const EXPIRY_ALARM = "youtube-dsa-unlock-expiry";
 
@@ -13,9 +13,11 @@ async function setLocked(locked) {
 async function status() {
   const stored = await chrome.storage.local.get(STORAGE_KEYS.unlockUntil);
   const unlockUntil = stored[STORAGE_KEYS.unlockUntil];
+  const now = Date.now();
   return {
-    unlocked: isUnlockActive(unlockUntil),
-    unlockUntil: isUnlockActive(unlockUntil) ? unlockUntil : null
+    unlocked: isUnlockActive(unlockUntil, now),
+    expired: isUnlockExpired(unlockUntil, now),
+    unlockUntil: isUnlockActive(unlockUntil, now) ? unlockUntil : null
   };
 }
 
@@ -27,13 +29,19 @@ async function lockAndResetChallenge() {
 
 async function reconcile() {
   const current = await status();
-  if (!current.unlocked) {
-    await lockAndResetChallenge();
+  if (current.unlocked) {
+    await setLocked(false);
+    chrome.alarms.create(EXPIRY_ALARM, { when: current.unlockUntil });
     return current;
   }
-  await setLocked(false);
-  chrome.alarms.create(EXPIRY_ALARM, { when: current.unlockUntil });
-  return current;
+
+  if (current.expired) {
+    await lockAndResetChallenge();
+  } else {
+    await chrome.alarms.clear(EXPIRY_ALARM);
+    await setLocked(true);
+  }
+  return { unlocked: false, expired: current.expired, unlockUntil: null };
 }
 
 async function unlock() {
