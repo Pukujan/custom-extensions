@@ -1,10 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BLOCK_RULE_IDS, buildBlockingRules, computeUnlockUntil, isUnlockActive } from "../src/lib/lock.mjs";
+import { BLOCK_RULE_IDS, buildBlockingRules, computeUnlockUntil, isUnlockActive, isUnlockExpired } from "../src/lib/lock.mjs";
 
 test("unlock state respects expiry", () => {
   assert.equal(isUnlockActive(2_000, 1_999), true);
   assert.equal(isUnlockActive(2_000, 2_000), false);
+  assert.equal(isUnlockExpired(2_000, 2_000), true);
+  assert.equal(isUnlockExpired(undefined, 2_000), false);
   assert.equal(isUnlockActive(undefined, 1_000), false);
 });
 
