@@ -84,9 +84,16 @@ async function renderStatus() {
     const minutes = Math.max(1, Math.ceil((state.unlockUntil - Date.now()) / 60_000));
     els.statusText.textContent = `YouTube unlocked for about ${minutes} more minute(s).`;
     els.statusBadge.textContent = "UNLOCKED";
-  } else {
-    els.statusText.textContent = "YouTube is blocked. Pass all 10 problems to unlock it for one hour.";
-    els.statusBadge.textContent = "LOCKED";
+    return;
+  }
+
+  els.statusText.textContent = "YouTube is blocked. Pass all 10 problems to unlock it for one hour.";
+  els.statusBadge.textContent = "LOCKED";
+
+  if (challengeState?.passedIds?.length === REQUIRED_SOLVES) {
+    await chrome.storage.local.remove(STORAGE_KEYS.challenge);
+    challengeState = undefined;
+    if (!els.challenge.hidden) await loadChallenge();
   }
 }
 
