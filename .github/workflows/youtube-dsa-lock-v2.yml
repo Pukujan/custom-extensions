@@ -1,0 +1,43 @@
+name: YouTube DSA Lock v2
+
+on:
+  push:
+    branches: [youtube-dsa-lock-v2]
+    paths:
+      - "extensions/youtube-dsa-lock/**"
+      - ".github/workflows/youtube-dsa-lock-v2.yml"
+  pull_request:
+    paths:
+      - "extensions/youtube-dsa-lock/**"
+      - ".github/workflows/youtube-dsa-lock-v2.yml"
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: extensions/youtube-dsa-lock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned runtime
+        run: npm install --ignore-scripts
+      - name: Unit and Pyodide integration tests
+        run: npm test
+      - name: Build unpacked extension
+        run: npm run build
+      - name: Validate packaged runtime
+        run: npm run validate
+      - name: Upload unpacked extension
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouTube-DSA-Lock-v2
+          path: extensions/youtube-dsa-lock/dist
+          if-no-files-found: error

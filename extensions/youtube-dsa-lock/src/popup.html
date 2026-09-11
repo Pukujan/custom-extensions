@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouTube DSA Lock</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>YouTube DSA Lock</h1>
+        <p id="statusText">Checking lock…</p>
+      </div>
+      <span id="statusBadge" class="badge">…</span>
+    </header>
+
+    <section class="controls">
+      <button id="toggleChallenge" type="button">Solve 10 problems</button>
+      <button id="openTab" class="secondary" type="button">Open in tab</button>
+    </section>
+
+    <section id="challenge" hidden>
+      <div class="progress-row">
+        <strong id="progressText">0 / 10 passed</strong>
+        <select id="problemSelect" aria-label="Problem"></select>
+      </div>
+      <div class="problem-meta">
+        <span id="difficulty" class="badge"></span>
+        <h2 id="problemTitle"></h2>
+      </div>
+      <p id="problemPrompt"></p>
+      <textarea id="code" spellcheck="false" aria-label="Python solution"></textarea>
+      <div class="actions">
+        <button id="runSamples" class="secondary" type="button">Run samples</button>
+        <button id="submit" type="button">Submit</button>
+      </div>
+      <pre id="result" aria-live="polite">Python runtime loads on first run.</pre>
+    </section>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
