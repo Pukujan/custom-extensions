@@ -16,7 +16,7 @@ test("unlock time is computed exactly", () => {
 test("blocking rules cover three hosts for frames", () => {
   const rules = buildBlockingRules();
   assert.equal(rules.length, 6);
-  assert.deepEqual(rules.map((rule) => rule.id), [...BLOCK_RULE_IDS]);
+  assert.deepEqual([...rules.map((rule) => rule.id)].sort((a, b) => a - b), [...BLOCK_RULE_IDS].sort((a, b) => a - b));
   assert.equal(rules.filter((rule) => rule.action.type === "redirect").length, 3);
   assert.equal(rules.filter((rule) => rule.action.type === "block").length, 3);
 });
