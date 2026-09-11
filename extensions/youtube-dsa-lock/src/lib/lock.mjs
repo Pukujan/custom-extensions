@@ -10,6 +10,10 @@ export function isUnlockActive(unlockUntil, now = Date.now()) {
   return Number.isFinite(unlockUntil) && unlockUntil > now;
 }
 
+export function isUnlockExpired(unlockUntil, now = Date.now()) {
+  return Number.isFinite(unlockUntil) && unlockUntil <= now;
+}
+
 export function computeUnlockUntil(now, durationMs) {
   if (!Number.isFinite(now) || !Number.isFinite(durationMs) || durationMs <= 0) {
     throw new TypeError("now and positive durationMs are required");
