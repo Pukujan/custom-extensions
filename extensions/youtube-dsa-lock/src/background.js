@@ -52,7 +52,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "get-status") {
-    status().then(sendResponse, (error) => sendResponse({ error: String(error) }));
+    reconcile().then(sendResponse, (error) => sendResponse({ error: String(error) }));
     return true;
   }
   if (message?.type === "unlock") {
