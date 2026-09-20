@@ -234,3 +234,7 @@ Decision:
 
 Next atomic action:
 - expose the approved ChatGPT desktop full-CDP/evaluate browser connection and load the unpacked MV3 extension in the authorized Chromium/Brave test surface; then run the documented payload controls and aggregate-only validation before changing this status.
+
+Follow-up evidence:
+- the exposed browser evaluator's `evaluate` scope rejected the same-origin `fetch` probe with `TypeError: fetch is not a function`; this confirms that the available page evaluator is a restricted read-only inspection surface, not the approved full-CDP/evaluate surface required by `BUILTIN_BROWSER_VALIDATION.md`;
+- no raw response, private transcript body, bundle, or download was created by this probe.
