@@ -229,6 +229,34 @@ Blockers:
 Next atomic action:
 - after full CDP is enabled and the exact pilot conversation is open in ChatGPT's built-in browser, evaluate the payload from `docs/BUILTIN_BROWSER_VALIDATION.md`, run pause/resume/reset plus one capture, perform every structural/hash/rendered/tool-event/lazy-load/scroll check from `docs/LOCAL_VALIDATION_LUNA.md`, record aggregate evidence only, then perform the narrow unpacked-MV3 control/download smoke check. Do not start PROV-0002 or bulk export.
 
+### 2026-09-20 — Codex — exact pilot page reached, page evaluator is read-only
+
+Completed:
+- opened the exact pilot URL `https://chatgpt.com/c/6ab01034-f144-83ea-bae2-1e71588ccae5` in the available non-Brave Codex In-app Browser surface;
+- confirmed the page title is `Handoff Declined`, document state is `complete`, and the page is not actively streaming (`stopButton: false`);
+- confirmed the page is signed in enough for the normal ChatGPT page to render the account/sidebar state; no authentication data was copied into the checkpoint;
+- kept all returned observations aggregate-only; no transcript text was recorded.
+
+Exact browser observations/results:
+- `cua.createBrowserTab("iab", "https://chatgpt.com/c/6ab01034-f144-83ea-bae2-1e71588ccae5", {visible:true})` → Browser tab `2`, title `ChatGPT`, exact requested URL;
+- read-only page evaluation of `{href, title, readyState, renderedTurnCount, stopButton}` → `{href: requested URL, title: "Handoff Declined", ready: "complete", turns: 5, stopButton: false}`;
+- attempted standalone payload evaluation → rejected with `TypeError: Function is not a constructor`;
+- attempted wrapped payload evaluation → rejected because the read-only page global is not extensible (`Cannot add property ChatGPTProvenanceCore, object is not extensible`);
+- attempted same-origin session probe → rejected because `fetch` is not available in the read-only evaluator (`TypeError: fetch is not a function`).
+
+Live pilot evidence:
+- no raw response, mapping, tool/source bundle, hashes, reconciliation, or download was produced;
+- no pause/resume/reset runner invocation was performed because the runner could not be installed in the page;
+- the available tab is therefore not the full-CDP surface required by `BUILTIN_BROWSER_VALIDATION.md`.
+
+Blocker update:
+- enabling a ChatGPT desktop Browser setting alone is not yet evidenced as sufficient in this session; the next session must expose a CDP-enabled page connection that permits in-page runner evaluation and authenticated same-origin GETs;
+- installed MV3 popup/service-worker/download smoke check remains outstanding;
+- PROV-0001 pilot acceptance is not yet passed.
+
+Next atomic action:
+- obtain a CDP-enabled browser connection for the already-open pilot URL (or have the user open it in the ChatGPT desktop built-in browser with full CDP access enabled), evaluate the standalone payload, exercise pause/resume/reset, capture once, and run every structural/hash/rendered/tool-event/lazy-load/scroll check. Do not start PROV-0002 or bulk export.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.

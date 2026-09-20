@@ -39,8 +39,8 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 
 ## Current verification state
 
-Not yet live validated. Deterministic validation remains the correctness gate; the built-in browser route is prepared but requires a ChatGPT desktop session with full CDP access enabled and the selected pilot conversation open.
+Not yet live validated. Deterministic validation remains the correctness gate; the exact pilot URL is open in the available non-Brave in-app browser, but its page evaluator is read-only and lacks `fetch`/page mutation. The built-in route still requires a CDP-enabled page connection capable of same-origin GET and in-page runner evaluation.
 
 ## Next atomic action
 
-Run the updated deterministic/repository-wide suites, then use `docs/BUILTIN_BROWSER_VALIDATION.md` on the selected large tool-heavy ChatGPT conversation, record exact structural/hash/rendered/tool-event evidence, and finish the one unpacked-extension control/download smoke check. Do not start PROV-0002 or bulk export before the pilot checkpoint is complete.
+With a CDP-enabled page connection, use `docs/BUILTIN_BROWSER_VALIDATION.md` on the open pilot conversation, record exact structural/hash/rendered/tool-event evidence, and finish the one unpacked-extension control/download smoke check. Do not start PROV-0002 or bulk export before the pilot checkpoint is complete.
