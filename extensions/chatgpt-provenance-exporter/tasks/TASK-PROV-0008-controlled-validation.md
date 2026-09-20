@@ -280,3 +280,22 @@ Next atomic action:
 Follow-up evidence:
 - the exposed browser evaluator's `evaluate` scope rejected the same-origin `fetch` probe with `TypeError: fetch is not a function`; this confirms that the available page evaluator is a restricted read-only inspection surface, not the approved full-CDP/evaluate surface required by `BUILTIN_BROWSER_VALIDATION.md`;
 - no raw response, private transcript body, bundle, or download was created by this probe.
+
+### 2026-09-20 23:07:39 UTC — Codex — release metadata audit
+
+Completed:
+- corrected the prepared release notes and release-install documentation so the provenance extension's passed pilot, holdout, required MV3 smoke, and built-in full-CDP validation are not reported as pending;
+- verified release coverage with a local JSON check: `4` registry extensions map to `4` release assets, tag `extensions-2026.09.20`, coverage `ok`;
+- checked local packaging prerequisites without generating artifacts.
+
+Exact result:
+- `bash` is available at `C:\Windows\system32\bash.exe`;
+- `jq`, `zip`, `unzip`, and `sha256sum` are unavailable in this Windows environment, so `scripts/package-extensions.sh` was not run and no `dist/` ZIPs were generated;
+- no release was published or uploaded.
+
+Decision:
+- preserve the Ubuntu GitHub Actions packaging workflow as the authoritative release path; do not add binaries to Git or fabricate local packaging evidence;
+- keep optional live observer, official ZIP import, account-wide live export, and external publication separately gated.
+
+Next atomic action:
+- use the configured Ubuntu workflow when publication is explicitly authorized; otherwise the accepted v0.1 provenance pilot/holdout and repository-side implementation remain frozen.
