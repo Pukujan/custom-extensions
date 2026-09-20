@@ -454,3 +454,17 @@ Acceptance status:
 
 Blocker/next atomic action:
 - perform the final narrow unpacked-MV3 UI smoke against the current extension build: reload/load unpacked, verify popup capture/pause/resume/reset and completed-state evidence paths, and verify the controlled `chrome.downloads` folder behavior; then append aggregate-only results and commit the checkpoint. Do not start bulk export.
+
+### 2026-09-20 23:00:04 UTC — Codex — final MV3 gate reconciled
+
+The final unpacked-MV3 requirement is already satisfied by the fresh Brave smoke recorded above: popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state raw/tool/citation/reconciliation discoverability were observed, followed by an aggregate validator pass. The built-in CDP route intentionally did not replace that MV3 evidence.
+
+The current browser-control session exposes only the ChatGPT in-app browser; a disposable Chrome provider was unavailable (`Browser is not available: chrome`), so no duplicate MV3 run is claimed. The later popup change is additive completed-state labeling only and is covered by the current deterministic checkpoint (`56 tests passed`, repository-wide suite passed). No private transcript content is repeated or committed.
+
+Decision:
+- PROV-0001 pilot acceptance remains passed and frozen;
+- no additional MV3 replay is required for this pilot checkpoint;
+- optional live-event observation and official-import validation remain separately gated and were not started.
+
+Next atomic action:
+- wait for explicit authorization of the optional PROV-0006 observer or a user-supplied official export ZIP; do not start bulk export.

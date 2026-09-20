@@ -1,6 +1,6 @@
 # TASK-PROV-0008 — Controlled live-validation backlog
 
-- Status: in_progress
+- Status: review
 - Owner: ChatGPT/Sol + local repository agent
 - Priority: P0
 - Depends on: `PROV-0001` through `PROV-0007` deterministic checkpoints
@@ -14,7 +14,7 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 - one controlled live smoke for the optional client-visible event observer;
 - one real official ChatGPT export ZIP supplied by the user, if official-import validation is required;
-- one unpacked MV3 UI smoke for the installed extension controls;
+- optional follow-up validation only: the required unpacked MV3 UI smoke is already recorded in the PROV-0001 pilot checkpoint;
 - preserve exact evidence in this task and `checkpoints/CURRENT.md` only.
 
 ## Explicit boundaries
@@ -41,7 +41,23 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 ## Acceptance
 
-The controlled built-in-browser pilot is now accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. This task remains open only for the narrow unpacked-MV3 UI smoke, the separately authorized optional client-visible observer smoke, and any user-supplied real ZIP if official-import validation is requested. No bulk export is permitted as a workaround.
+The controlled built-in-browser pilot is accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. The required unpacked-MV3 smoke is also already recorded in the PROV-0001 checkpoint: the fresh Brave run verified popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state bundle discoverability. This task remains in `review` only for the separately authorized optional client-visible observer smoke and any user-supplied real ZIP if official-import validation is requested. No bulk export is permitted as a workaround.
+
+### 2026-09-20 23:00:04 UTC — Codex — MV3 gate reconciliation
+
+Evidence reconciliation:
+- the fresh Brave pilot checkpoint already records the required unpacked-MV3 smoke on the current capture/control implementation: popup capture, pause/resume, active and completed reset, service-worker download messaging, controlled `chatgpt-provenance/...` paths, and completed raw/tool/citation/reconciliation file discoverability;
+- its fresh duplicate bundle passed the aggregate validator with `465` mapping/normalized nodes, `464` messages and edges, `363` tools, `328` citations, `0` source-pointer failures, `0` tool/raw mismatches, and `0` hash failures; no private transcript content is repeated here;
+- the later `PROV-0008: improve bundle discoverability` change only adds four completed-state path labels to `popup.js`; the same current deterministic checkpoint recorded `node tests/test.js` → exit `0`, `56 tests passed`, and the repository-wide suite → exit `0`, all registered suites passed;
+- a second browser replay was attempted in this session but is not available: `cua.listBrowsers()` returned only the ChatGPT in-app browser (`type: iab`), and `cua.createBrowserTab("chrome", "about:blank", ...)` returned `Browser is not available: chrome`. No browser-policy barrier was bypassed and no unobserved live result is claimed for that attempted replay.
+
+Decision:
+- remove the unpacked-MV3 smoke from the remaining required pilot gates; retain the prior Brave evidence as the authoritative live MV3 result;
+- keep this task at `review` because the optional live-event observer remains separately unauthorized and official-import validation requires a user-supplied ZIP;
+- no bulk export, private ZIP import, or private transcript content was started or committed.
+
+Next atomic action:
+- wait for explicit authorization before running the optional PROV-0006 client-visible observer smoke, or for a user-supplied official export ZIP; otherwise the v0.1 pilot/holdout validation is complete and frozen.
 
 ### 2026-09-20 21:37:52 UTC — Codex — live-surface recheck
 
