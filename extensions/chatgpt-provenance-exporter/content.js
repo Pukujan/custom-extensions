@@ -536,7 +536,7 @@
       ) + "\n",
     });
 
-    return { files, graph, tools, reconciliation };
+    return { files, graph, tools, citations, reconciliation };
   }
 
   async function runCapture(run) {
@@ -553,6 +553,7 @@
         conversationId,
         sourceNodes: 0,
         toolEvents: 0,
+        citationRecords: 0,
         renderedTurns: 0,
         renderedStable: false,
         error: null,
@@ -586,6 +587,7 @@
         phase: "downloading",
         sourceNodes: bundle.graph.nodes.length,
         toolEvents: bundle.tools.length,
+        citationRecords: bundle.citations.length,
         renderedTurns: renderedCapture.records.length,
         renderedStable: renderedCapture.stable,
         baseDirectory,
@@ -606,6 +608,7 @@
         conversationId,
         sourceNodes: bundle.graph.nodes.length,
         toolEvents: bundle.tools.length,
+        citationRecords: bundle.citations.length,
         renderedTurns: renderedCapture.records.length,
         renderedStable: renderedCapture.stable,
         reconciliationStatus: bundle.reconciliation.status,
@@ -670,6 +673,7 @@
       conversationId: null,
       sourceNodes: 0,
       toolEvents: 0,
+      citationRecords: 0,
       renderedTurns: 0,
       renderedStable: false,
       reconciliationStatus: null,

@@ -268,6 +268,26 @@ Additional page-HTML aggregate observation:
 - the page contained `pre: 130` and `code: 120` elements;
 - these counts may include hidden application state and are not treated as raw API evidence. They do indicate that the page contains tool-call/citation-related serialized markers even though the semantic rendered marker probe did not expose clear conversation-level labels, strengthening the case for raw-source validation before classifier edits.
 
+### 2026-09-20 — Codex — make citation visibility explicit
+
+Completed:
+- kept the conservative tool/source classifier unchanged because raw API evidence is still unavailable;
+- added `citationRecords` to persisted capture progress and completed-state reporting;
+- returned derived citations from bundle construction so the popup can report an explicit citation count, including zero;
+- reset now clears the citation count with the other progress fields;
+- extended the deterministic control test to cover citation visibility.
+
+Commands/results:
+- `node tests/test.js` from `extensions/chatgpt-provenance-exporter/` → exit `0`, **24 tests passed**;
+- `node scripts/test-all.mjs` from repository root → exit `0`; all registered suites passed, including provenance `24 tests passed`;
+- `git diff --check` → exit `0`; only normal LF/CRLF warnings were reported.
+
+Observed defects/fixes:
+- confirmed observability defect: a capture could produce a citation artifact without exposing its count in popup status → fixed by reporting `citationRecords` explicitly;
+- no raw-source evidence yet proves that tool events or citations are being incorrectly classified, so no classifier rule was changed.
+
+Blockers and next atomic action remain unchanged: obtain a CDP-enabled page connection, run the real capture and validation, then perform the narrow unpacked-MV3 smoke check before declaring PROV-0001 accepted.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.

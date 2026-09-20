@@ -256,6 +256,8 @@ test("capture exposes pause, resume, and cancellation-safe reset controls", () =
   assert.match(content, /AbortController/);
   assert.match(content, /activeRun = null/);
   assert.match(content, /CaptureCancelledError/);
+  assert.match(content, /citationRecords/);
+  assert.match(popup, /Citation records/);
 });
 
 console.log(`\n${passed} tests passed.`);

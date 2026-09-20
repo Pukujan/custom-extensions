@@ -27,6 +27,7 @@ function render(state) {
   const details = [];
   if (Number.isFinite(state.sourceNodes)) details.push(`Source nodes: ${state.sourceNodes}`);
   if (Number.isFinite(state.toolEvents)) details.push(`Tool events: ${state.toolEvents}`);
+  if (Number.isFinite(state.citationRecords)) details.push(`Citation records: ${state.citationRecords}`);
   if (Number.isFinite(state.renderedTurns)) details.push(`Rendered turns: ${state.renderedTurns}`);
   if (typeof state.renderedStable === "boolean") details.push(`Rendered stable: ${state.renderedStable}`);
   if (state.baseDirectory) details.push(`Download folder: ${state.baseDirectory}`);
