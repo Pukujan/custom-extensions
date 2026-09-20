@@ -288,6 +288,68 @@ Observed defects/fixes:
 
 Blockers and next atomic action remain unchanged: obtain a CDP-enabled page connection, run the real capture and validation, then perform the narrow unpacked-MV3 smoke check before declaring PROV-0001 accepted.
 
+### 2026-09-20 — Codex — Brave pilot capture and control retest
+
+Completed:
+- opened the exact pilot conversation in Brave at `https://chatgpt.com/c/6ab01034-f144-83ea-bae2-1e71588ccae5`;
+- verified the installed `ChatGPT Provenance Exporter` is enabled in Brave's extension manager;
+- captured one large tool-heavy conversation without copying transcript contents into this checkpoint;
+- validated the downloaded bundle structurally and cryptographically using aggregate-only checks;
+- tested Reset from the popup both after a completed capture and while a new capture was active; both returned the popup to `Ready` and the active run was stopped before download;
+- used Brave's extension-manager Reload control after the control mismatch was observed, but the browser-control session stopped before a post-reload page retest could be completed.
+
+Environment:
+- OS: Microsoft Windows 11 Home, version `10.0.26200`, build `26200`, 64-bit;
+- Brave: `153.1.95.102`;
+- Node: `v24.14.1`;
+- repository branch: `feature/chatgpt-provenance-exporter`.
+
+Exact commands/results:
+- `node scripts/test-all.mjs` from repository root → exit `0`; all registered suites passed, including provenance `24 tests passed`; final output `All registered extension test suites passed.`
+- prior deterministic extension-local checkpoint remains unchanged; it recorded `node tests/test.js` → exit `0`, `23/23 passed` before the later citation-status test was added;
+- post-change extension-local validation previously recorded `node tests/test.js` → exit `0`, `24 tests passed`;
+- `node --check dev/build-browser-payload.mjs` → exit `0`;
+- `node --check dev/standalone-browser-bootstrap.js` → exit `0`;
+- `git diff --check` → exit `0` with only normal LF/CRLF warnings.
+
+Bundle location and capture aggregates:
+- download folder: `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance\20260920-Handoff Declined-6ab01034-f144-83ea-bae2-1e71588ccae5`;
+- capture ID: `d2d197cc-4bc1-4d1c-914a-7cb4cc9e6a90`;
+- raw response bytes preserved before parsing: `1,490,216`;
+- mapping keys / normalized nodes: `465 / 465`;
+- messages: `464`;
+- edges: `464` (explicit parent/child relations checked: `928`);
+- tool events: `363` (`127` `tool.call`, `236` `tool.result`);
+- citations: `328`;
+- rendered turns: `22`; rendered stability: `true`;
+- reconciliation: `differences_observed`; comparable rendered/source message IDs: `21/21`; rendered role counts user/assistant `14/8`; source role counts user/assistant `13/215`, tool `236`, none `1`; discrepancies were preserved as role-count mismatches rather than hidden.
+
+Validation results:
+- raw response was present and parsed only after the raw text was retained;
+- every mapping key had one normalized node and every node source pointer resolved back to its mapping ID;
+- all explicit parent/child relations reconciled to the deduplicated edge set;
+- all `363` tool records were checked against their corresponding raw mapping node with deep structural equality; representative tool-call records contained assistant/code/recipient and tool metadata, and representative tool-result records contained tool author/content and result metadata;
+- tool record class distribution was `tool.call=127`, `tool.result=236`; content types were `code=221`, `execution_output=2`, `multimodal_text=112`, `text=28`;
+- the bundle's `integrity/SHA256SUMS.json` contained `12` file hashes; recomputation verified all `12` hashes;
+- rendered first/middle/final spot checks completed using aggregate role metadata: first `user`, middle `assistant`, final `user`; rendered stability remained `true`;
+- lazy-load sweep completed with `22` stable rendered turns;
+- rendered reconciliation completed and recorded the discrepancies above;
+- scroll restoration is not accepted yet: the implementation restores the numeric scroll offset, but this run did not produce a sufficiently isolated before/after anchor proof, so no pass is claimed.
+
+Observed defects/fixes:
+- the original report that no tool calls or sources were captured was not reproduced for this pilot bundle: `363` tool events and `328` citations were present, including `tool-events.jsonl` and `citations.jsonl`; the popup instance used during this run did not display the newer citation-count line, which is a loaded-build/version observability issue rather than evidence that the records were absent;
+- Reset is visibly functional and cancellation-safe in the tested instance;
+- Pause remains unresolved in the installed-instance smoke test: after starting a fresh capture, clicking `Pause capture` left the popup at `Capturing… rendered-sweep` and rendered-turn progress continued from `7` to `9`; the subsequent Reset returned `Ready`;
+- the pause test was performed before the extension-manager Reload and before the required post-reload page retest, so the current evidence does not distinguish a stale/mixed loaded extension instance from a repository defect; no parser/classifier change was made.
+
+Blockers:
+- browser-control safety stopped the Brave session immediately after the extension-manager Reload, before the exact pilot page could be reloaded and the pause/resume control path could be retested against the refreshed extension instance;
+- scroll-position restoration still lacks an isolated acceptance proof;
+- PROV-0001 pilot acceptance is not yet passed.
+
+Next atomic action:
+- in a fresh supervised Brave session, reload the unpacked extension and then reload the exact pilot page; start capture, verify `Pause capture` changes the persisted status to `Capture paused` and freezes counts, verify `Resume capture` restarts progress, and verify Reset aborts without later stale writes; then perform an isolated scroll-anchor before/after check and append only aggregate evidence. Do not start PROV-0002 or bulk export.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.

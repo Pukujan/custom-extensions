@@ -39,8 +39,8 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 
 ## Current verification state
 
-Not yet live validated. Deterministic validation remains the correctness gate; the exact pilot URL is open in the available non-Brave in-app browser, but its page evaluator is read-only and lacks `fetch`/page mutation. The built-in route still requires a CDP-enabled page connection capable of same-origin GET and in-page runner evaluation.
+The exact pilot URL has now produced one real Brave bundle with preserved raw response, conserved mapping/nodes, resolved source pointers, reconciled parent/edge evidence, `363` tool events, `328` citations, stable rendered sweeps, discrepancy-preserving reconciliation, and verified SHA-256 hashes. Deterministic validation remains green. PROV-0001 is still pending the refreshed unpacked-instance pause/resume smoke test and an isolated scroll-anchor restoration proof. The built-in in-app browser remains read-only and is not being treated as the live acceptance surface.
 
 ## Next atomic action
 
-With a CDP-enabled page connection, use `docs/BUILTIN_BROWSER_VALIDATION.md` on the open pilot conversation, record exact structural/hash/rendered/tool-event evidence, and finish the one unpacked-extension control/download smoke check. Do not start PROV-0002 or bulk export before the pilot checkpoint is complete.
+In a fresh supervised Brave session, reload the unpacked extension and the exact pilot page, retest pause/resume/reset with persisted progress checks, then perform the isolated scroll-anchor restoration check and append aggregate evidence. Do not start PROV-0002 or bulk export before the pilot checkpoint is complete.
