@@ -102,6 +102,27 @@ Blocked/uncertain:
 Next:
 - reopen the authorized Brave ChatGPT session, select one independent tool-heavy conversation (not the pilot), and run the pre-capture deterministic/live smoke sequence.
 
+### 2026-09-20 20:31:14 UTC — Codex — deterministic holdout gate
+
+Completed:
+- verified the frozen implementation before resuming live holdout work;
+- retained the browser-control interruption as an explicit blocker rather than inferring a conversation selection or capture.
+
+Evidence:
+- `node tests/test.js` from `extensions/chatgpt-provenance-exporter/` → exit `0`; `24 tests passed`;
+- `node scripts/test-all.mjs` from repository root → exit `0`; all registered suites passed, including provenance `24 tests passed`; final output: `All registered extension test suites passed.`;
+- the holdout branch remained clean before this checkpoint append; no live bundle was created and no private transcript content was added.
+
+Changed:
+- `extensions/chatgpt-provenance-exporter/tasks/TASK-PROV-0002-holdout.md` only.
+
+Blocked/uncertain:
+- Computer Use reported: `Computer Use was stopped by the user with the physical Escape key.` No further browser input was issued in that turn;
+- an independent holdout conversation has not yet been opened, selected, or captured.
+
+Next:
+- in a fresh supervised browser-control turn, select the independent holdout conversation and run the frozen capture/validation sequence; do not start bulk export.
+
 ## Handoff
 
 Read `PROJECT.md → checkpoints/CURRENT.md → TASK-PROV-0002-holdout.md → specs/TDD.md` before continuing. Do not start bulk export or tune the pilot classifier.
