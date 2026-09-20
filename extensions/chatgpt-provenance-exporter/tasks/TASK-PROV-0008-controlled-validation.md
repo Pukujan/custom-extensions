@@ -43,6 +43,21 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 The controlled built-in-browser pilot is accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. The required unpacked-MV3 smoke is also recorded in the PROV-0001 checkpoint: the fresh Brave run verified popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state bundle discoverability. The authorized PROV-0006 observer smoke is complete for one persisted conversation fetch, with no streaming/SSE claim. This task remains in `review` only for any user-supplied real ZIP if official-import validation is requested; account-wide live export remains a separate explicitly authorized task. No bulk export is permitted as a workaround.
 
+### 2026-09-20 23:38:57 UTC — Codex — cross-platform release-packaging checkpoint
+
+- Added `scripts/package-extensions.mjs` as the canonical local/CI packager; it uses only Node.js built-ins, validates registry/manifest versions, emits deterministic stored ZIPs, and writes `SHA256SUMS.txt`.
+- Updated the release workflow to call the Node packager, while retaining the legacy Bash wrapper for Unix environments.
+- Exact verification: `node --check scripts/package-extensions.mjs` → exit `0`; `node scripts/package-extensions.mjs --help` → exit `0`; two independent `node scripts/package-extensions.mjs --out <controlled-temp-dir>` runs → four expected archives each, identical SHA-256 values; checksum recomputation, root `manifest.json`, and exclusion of `tests/`/`specs/` → passed; `node scripts/test-all.mjs` → exit `0`, all registered suites passed (`102` tests total).
+- Temporary packaging directories were removed. No release was published and no private data was involved.
+
+Blockers:
+
+- official-import validation still requires a user-supplied ZIP;
+- account-wide export and streaming/SSE validation remain separately authorized actions;
+- no native external Eval Lab schema/validator is pinned.
+
+Next atomic action: wait for one of those explicitly authorized external inputs/actions; otherwise keep the accepted v0.1 baseline frozen and do not start bulk export.
+
 ### 2026-09-20 23:00:04 UTC — Codex — MV3 gate reconciliation
 
 Evidence reconciliation:
