@@ -34,14 +34,14 @@ The project needs evaluation-friendly traces without sacrificing immutable sourc
 
 ## Acceptance criteria
 
-- [ ] portable trace schema and claim boundary are documented;
-- [ ] source nodes/edges/tools convert deterministically to trace spans;
-- [ ] source pointers, parent spans, unknown classes, and raw-source references are retained;
-- [ ] optional live-only events remain explicit unmatched spans;
-- [ ] validator covers node/span/tool/parent conservation and deterministic ordering;
-- [ ] local CLI exports a trace from a redacted structural fixture without network access;
-- [ ] deterministic tests and repository-wide tests pass;
-- [ ] checkpoint records exact commands/results, blockers, and next atomic action.
+- [x] portable trace schema and claim boundary are documented;
+- [x] source nodes/edges/tools convert deterministically to trace spans;
+- [x] source pointers, parent spans, unknown classes, and raw-source references are retained;
+- [x] optional live-only events remain explicit unmatched spans;
+- [x] validator covers node/span/tool/parent conservation and deterministic ordering;
+- [x] local CLI exports a trace from a redacted structural fixture without network access;
+- [x] deterministic tests and repository-wide tests pass;
+- [x] checkpoint records exact commands/results, blockers, and next atomic action.
 
 ## Planned commands
 

@@ -32,15 +32,15 @@ The pilot and independent holdout expose real tool/content variants. The ontolog
 
 ## Acceptance criteria
 
-- [ ] ontology is versioned at `v0.1.0`;
-- [ ] classes, rules, schema, and structural examples are present;
-- [ ] observed classes/content types from both accepted captures are represented without transcript content;
-- [ ] each class states whether it is evidence-preserving, interpretive, or fallback/unknown;
-- [ ] tool.call and tool.result rules preserve source pointers and raw-node retention requirements;
-- [ ] unknown/future structures have an explicit fallback rule;
-- [ ] deterministic tests validate ontology file shape and version consistency;
-- [ ] full repository test suite passes;
-- [ ] checkpoint records distributions, decisions, commands, blockers, and one next atomic action.
+- [x] ontology is versioned at `v0.1.0`;
+- [x] classes, rules, schema, and structural examples are present;
+- [x] observed classes/content types from both accepted captures are represented without transcript content;
+- [x] each class states whether it is evidence-preserving, interpretive, or fallback/unknown;
+- [x] tool.call and tool.result rules preserve source pointers and raw-node retention requirements;
+- [x] unknown/future structures have an explicit fallback rule;
+- [x] deterministic tests validate ontology file shape and version consistency;
+- [x] full repository test suite passes;
+- [x] checkpoint records distributions, decisions, commands, blockers, and one next atomic action.
 
 ## Observed input summary
 

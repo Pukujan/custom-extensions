@@ -41,17 +41,17 @@ The existing popup remains the single-capture UI in this task. Account-wide live
 
 ## Acceptance criteria
 
-- [ ] design contract is recorded in `specs/ACCOUNT_EXPORT_DESIGN.md`;
-- [ ] account-core deterministic functions cover queue, pagination, checkpoint, path, and conservation invariants;
-- [ ] account runner is read-only, same-origin, retry-bounded, pause/resume/reset capable, and persists checkpoints;
-- [ ] per-conversation output retains raw response text and source-preserving derived files;
-- [ ] storage never receives raw response bodies, access tokens, or transcript text;
-- [ ] account downloads use deterministic overwrite paths under `chatgpt-provenance-account/<run-id>/`;
-- [ ] manifest/integrity reconciliation is deterministic;
-- [ ] extension-local tests pass;
-- [ ] repository-wide tests pass;
-- [ ] no live account-wide run is performed until a later checkpoint explicitly authorizes it;
-- [ ] checkpoint records exact commands/results, design decisions, blockers, and one next atomic action.
+- [x] design contract is recorded in `specs/ACCOUNT_EXPORT_DESIGN.md`;
+- [x] account-core deterministic functions cover queue, pagination, checkpoint, path, and conservation invariants;
+- [x] account runner is read-only, same-origin, retry-bounded, pause/resume/reset capable, and persists checkpoints;
+- [x] per-conversation output retains raw response text and source-preserving derived files;
+- [x] storage never receives raw response bodies, access tokens, or transcript text;
+- [x] account downloads use deterministic overwrite paths under `chatgpt-provenance-account/<run-id>/`;
+- [x] manifest/integrity reconciliation is deterministic;
+- [x] extension-local tests pass;
+- [x] repository-wide tests pass;
+- [x] no live account-wide run is performed until a later checkpoint explicitly authorizes it;
+- [x] checkpoint records exact commands/results, design decisions, blockers, and one next atomic action.
 
 ## Planned commands
 

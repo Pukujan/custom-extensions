@@ -60,6 +60,7 @@ custom-extensions/
 │   ├── PDD.md
 │   └── SDD.md
 ├── scripts/
+│   ├── package-extensions.mjs
 │   ├── package-extensions.sh
 │   └── test-all.mjs
 └── extensions/
@@ -77,7 +78,7 @@ custom-extensions/
 | `chatgpt-10-day-cleaner` | Dry-run and delete old ChatGPT conversations | destructive | imported + local tests passed |
 | `linkedin-connection-exporter` | Export visible LinkedIn connection rows to CSV/TSV | read/export | imported + local tests passed |
 | `chatgpt-transcript-exporter` | Export the active ChatGPT thread to Markdown or JSON, including long virtualized threads | read/export | local deterministic/property tests passed; live Brave smoke test required |
-| `chatgpt-provenance-exporter` | Capture a source-preserving provenance bundle for the current ChatGPT conversation | read/export | PROV-0001 pilot and PROV-0002 holdout passed; built-in-browser full-CDP/live-event validation pending |
+| `chatgpt-provenance-exporter` | Capture a source-preserving provenance bundle for the current ChatGPT conversation | read/export | PROV-0001 pilot and PROV-0002 holdout passed; built-in-browser full-CDP and authorized persisted-fetch validation passed; streaming/SSE and account-wide export remain gated |
 
 Machine-readable details live in `extensions/registry.json`.
 
@@ -97,7 +98,13 @@ Run all available local tests with:
 node scripts/test-all.mjs
 ```
 
-Build release ZIPs locally with:
+Build release ZIPs locally with Node.js on any supported desktop OS:
+
+```bash
+node scripts/package-extensions.mjs
+```
+
+The legacy Bash packager is also available on Unix-like environments:
 
 ```bash
 bash scripts/package-extensions.sh

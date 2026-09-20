@@ -4,11 +4,13 @@
 
 ### Prepared, not published
 
-The registry now has four extensions, and the prepared descriptor in `release/current.json` is `extensions-2026.09.20` / `Custom Extensions — 2026-09-20`. It includes `chatgpt-provenance-exporter-v0.1.0.zip`. No ZIPs were generated and no release or upload was performed during this audit.
+The registry now has four extensions, and the prepared descriptor in `release/current.json` is `extensions-2026.09.20` / `Custom Extensions — 2026-09-20`. It includes `chatgpt-provenance-exporter-v0.1.0.zip`. Temporary ZIPs were generated only in controlled local output directories for packager validation; no release assets are committed and no release or upload was performed.
 
-The packaging script's stored Git blob passes `bash -n`. On this Windows checkout, `core.autocrlf=true` makes direct `bash -n scripts/package-extensions.sh` see CRLF; this is checkout-local and does not affect the Ubuntu workflow's stored-content checkout.
+The canonical Node packager uses only built-in modules and runs on this Windows checkout as well as CI. The legacy Bash wrapper's stored Git blob also passes `bash -n`; on this checkout, `core.autocrlf=true` makes direct `bash -n scripts/package-extensions.sh` see CRLF, which is checkout-local.
 
 Local verification on 2026-09-20: all four registered suites passed (102 tests total); registry/manifest version checks passed; JSON parsing passed; release coverage checks passed after metadata alignment; `bash -n scripts/package-extensions.sh` passed after the line-ending fix.
+
+The new cross-platform packager was also verified locally with `node --check scripts/package-extensions.mjs`, `node scripts/package-extensions.mjs --help`, and two independent `--out` runs. Both runs produced the four expected ZIPs with identical SHA-256 values; checksum recomputation passed; every archive had `manifest.json` at its root and excluded `tests/` and `specs/`. The temporary output directories were removed after verification. After this change, `node scripts/test-all.mjs` returned exit `0` with all registered extension suites passed (`102` tests total, including `56` provenance tests).
 
 Remaining release risks: the workflow has not been run on this branch; the prepared bundle has not been packaged or published; and no new streaming/SSE observer event was observed. The required unpacked-MV3 smoke and one authorized persisted-fetch observer smoke are recorded as passed.
 

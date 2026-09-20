@@ -30,23 +30,23 @@ The pilot proves the implementation can preserve one difficult source representa
 
 ## Acceptance criteria
 
-- [ ] independent conversation selected and safely identified;
-- [ ] deterministic suite passes before live capture;
-- [ ] raw authenticated response is retained before parsing;
-- [ ] mapping keys equal normalized node records with no duplicate node IDs;
-- [ ] every source pointer resolves;
-- [ ] every exposed parent/child relation is represented by an edge;
-- [ ] unknown fields/types remain in raw-backed records;
-- [ ] representative tool-call/tool-result records deep-match their raw nodes;
-- [ ] citation/source records are counted and source-backed when exposed;
-- [ ] SHA-256 values recompute for every listed bundle file;
-- [ ] rendered first/middle/final and tool-heavy regions are spot-checked without recording transcript contents;
-- [ ] lazy-load repeated sweeps converge or report an explicit discrepancy;
-- [ ] rendered/raw reconciliation preserves mismatches rather than hiding them;
-- [ ] pause/resume/reset behavior remains cancellation-safe on the refreshed unpacked instance;
-- [ ] scroll position is restored after the rendered sweep;
-- [ ] bundle is local-only and no bulk export is started;
-- [ ] all commands/results and blockers are appended here, then committed with a `PROV-0002` message.
+- [x] independent conversation selected and safely identified;
+- [x] deterministic suite passes before live capture;
+- [x] raw authenticated response is retained before parsing;
+- [x] mapping keys equal normalized node records with no duplicate node IDs;
+- [x] every source pointer resolves;
+- [x] every exposed parent/child relation is represented by an edge;
+- [x] unknown fields/types remain in raw-backed records;
+- [x] representative tool-call/tool-result records deep-match their raw nodes;
+- [x] citation/source records are counted and source-backed when exposed;
+- [x] SHA-256 values recompute for every listed bundle file;
+- [x] rendered first/middle/final and tool-heavy regions are spot-checked without recording transcript contents;
+- [x] lazy-load repeated sweeps converge or report an explicit discrepancy;
+- [x] rendered/raw reconciliation preserves mismatches rather than hiding them;
+- [x] pause/resume/reset behavior remains cancellation-safe on the refreshed unpacked instance;
+- [x] scroll position is restored after the rendered sweep;
+- [x] bundle is local-only and no bulk export is started;
+- [x] all commands/results and blockers are appended here, then committed with a `PROV-0002` message.
 
 ## Required metrics
 

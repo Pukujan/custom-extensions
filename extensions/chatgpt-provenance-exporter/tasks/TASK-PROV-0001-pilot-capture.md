@@ -22,22 +22,22 @@ Hundreds of existing conversations may contain valuable tool-heavy research/buil
 
 ## Acceptance criteria
 
-- [ ] independently loadable MV3 extension;
-- [ ] current ChatGPT conversation ID identified safely;
-- [ ] authenticated raw conversation response preserved as exact text before parsing;
-- [ ] every mapping/graph node represented in derived node index;
-- [ ] all exposed parent/child relationships represented;
-- [ ] unknown fields/types are preserved;
-- [ ] conservative tool/message/event classification retains source pointer + raw node;
-- [ ] DOM verifier handles virtualized/lazy-loaded long conversations with repeated sweeps;
-- [ ] raw-vs-rendered reconciliation is explicit and never silently fixes disagreement;
-- [ ] SHA-256 hashes emitted for evidence/derived artifacts;
-- [ ] local-only and read-only behavior;
-- [ ] deterministic unit/property/metamorphic tests pass;
-- [ ] pilot capture performed on one large tool-heavy real conversation;
-- [ ] exact beginning/middle/end rendered turns manually sampled against the bundle;
-- [ ] multiple candidate tool calls and results inspected against raw nodes;
-- [ ] capture report states limitations and verification status.
+- [x] independently loadable MV3 extension;
+- [x] current ChatGPT conversation ID identified safely;
+- [x] authenticated raw conversation response preserved as exact text before parsing;
+- [x] every mapping/graph node represented in derived node index;
+- [x] all exposed parent/child relationships represented;
+- [x] unknown fields/types are preserved;
+- [x] conservative tool/message/event classification retains source pointer + raw node;
+- [x] DOM verifier handles virtualized/lazy-loaded long conversations with repeated sweeps;
+- [x] raw-vs-rendered reconciliation is explicit and never silently fixes disagreement;
+- [x] SHA-256 hashes emitted for evidence/derived artifacts;
+- [x] local-only and read-only behavior;
+- [x] deterministic unit/property/metamorphic tests pass;
+- [x] pilot capture performed on one large tool-heavy real conversation;
+- [x] exact beginning/middle/end rendered turns manually sampled against the bundle;
+- [x] multiple candidate tool calls and results inspected against raw nodes;
+- [x] capture report states limitations and verification status.
 
 ## Required metamorphic properties
 

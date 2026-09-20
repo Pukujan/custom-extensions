@@ -36,16 +36,16 @@ The official export is an independent account-level source. It can reveal conver
 
 ## Acceptance criteria
 
-- [ ] official ZIP design and source reference are recorded;
-- [ ] stored and deflated ZIP entries are parsed with safety checks;
-- [ ] `conversations.json` and numbered/structural conversation JSON documents are discovered;
-- [ ] original ZIP bytes are preserved and hashed before parsing;
-- [ ] normalized conversation/node/edge/message/tool/citation/artifact records preserve source pointers and raw nodes;
-- [ ] optional account-catalog reconciliation reports missing IDs, duplicates, and metadata mismatches without mutation;
-- [ ] deterministic tests cover parsing, conservation, reconciliation, and hash integrity;
-- [ ] CLI syntax/help is deterministic and no real private ZIP is used;
-- [ ] repository-wide tests pass;
-- [ ] checkpoint records exact commands/results, blockers, and next atomic action.
+- [x] official ZIP design and source reference are recorded;
+- [x] stored and deflated ZIP entries are parsed with safety checks;
+- [x] `conversations.json` and numbered/structural conversation JSON documents are discovered;
+- [x] original ZIP bytes are preserved and hashed before parsing;
+- [x] normalized conversation/node/edge/message/tool/citation/artifact records preserve source pointers and raw nodes;
+- [x] optional account-catalog reconciliation reports missing IDs, duplicates, and metadata mismatches without mutation;
+- [x] deterministic tests cover parsing, conservation, reconciliation, and hash integrity;
+- [x] CLI syntax/help is deterministic and no real private ZIP is used;
+- [x] repository-wide tests pass;
+- [x] checkpoint records exact commands/results, blockers, and next atomic action.
 
 ## Planned commands
 

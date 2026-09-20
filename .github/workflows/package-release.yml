@@ -31,7 +31,7 @@ jobs:
         run: node scripts/test-all.mjs
 
       - name: Build extension ZIPs
-        run: bash scripts/package-extensions.sh
+        run: node scripts/package-extensions.mjs
 
       - name: Read release metadata
         id: release
