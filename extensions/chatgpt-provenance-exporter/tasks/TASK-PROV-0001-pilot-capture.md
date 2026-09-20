@@ -262,6 +262,12 @@ Additional rendered observation:
 - the probe found `matchedAttributeCount: 9`, but all unique matches were sidebar/UI labels (`Search`, project/conversation controls, `tooltip`), not conversation-level tool/source/citation/reference markers;
 - this is supporting UI evidence for the reported absence of visibly labeled tool/source records, not proof of raw-source absence. No classifier change was made without raw API evidence.
 
+Additional page-HTML aggregate observation:
+- `document.documentElement.outerHTML.length` was `1000860` bytes;
+- serialized-page marker counts were `tool_call: 5`, `function_call: 0`, `tool_result: 0`, `tool_output: 0`, `citation: 16`, `content_reference: 1`, `source: 41`, and `reference: 34`;
+- the page contained `pre: 130` and `code: 120` elements;
+- these counts may include hidden application state and are not treated as raw API evidence. They do indicate that the page contains tool-call/citation-related serialized markers even though the semantic rendered marker probe did not expose clear conversation-level labels, strengthening the case for raw-source validation before classifier edits.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.
