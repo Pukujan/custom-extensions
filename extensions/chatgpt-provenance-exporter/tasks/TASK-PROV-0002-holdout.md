@@ -123,6 +123,62 @@ Blocked/uncertain:
 Next:
 - in a fresh supervised browser-control turn, select the independent holdout conversation and run the frozen capture/validation sequence; do not start bulk export.
 
+### 2026-09-20 20:40:36 UTC — Codex — holdout acceptance checkpoint
+
+Completed:
+- selected the independent ChatGPT conversation `https://chatgpt.com/c/6ab01a29-1e0c-83ea-a624-2dcb02656404` titled `Eval-lab PR 20 gate`, distinct from the PROV-0001 pilot;
+- opened the installed unpacked exporter on that conversation and reset the persisted pilot state before starting;
+- captured one large, tool-heavy holdout conversation with the frozen implementation;
+- exercised pause during the holdout run: popup changed to `Capture paused` with `Resume capture`, and the displayed progress remained unchanged during the pause observation;
+- exercised resume: popup changed to active capture and the run advanced to source acquisition/rendered sweep and completion;
+- exercised active reset after starting a second holdout run: popup returned to `Ready`, all progress counts returned to `0`, and no second bundle was produced;
+- visually compared the pre-capture and post-completion viewport: the page moved during the lazy rendered sweep and returned to the same pre-capture viewport/scroll position;
+- did not change parser/classifier rules, start bulk export, or add private transcript contents to the repository.
+
+Environment:
+- OS: Microsoft Windows 11 Home, version `10.0.26200`, build `26200`, 64-bit;
+- Brave: `153.1.95.102`;
+- Node: `v24.14.1`;
+- repository branch: `task/PROV-0002-holdout`.
+
+Exact commands/results:
+- `node tests/test.js` from `extensions/chatgpt-provenance-exporter/` → exit `0`; `24 tests passed`;
+- `node scripts/test-all.mjs` from repository root → exit `0`; all registered suites passed, including provenance `24 tests passed`; final output: `All registered extension test suites passed.`;
+- aggregate-only structural Node validator over the holdout folder → exit `0`; raw parse, conservation, pointers, edges, raw-backed tool records, reconciliation, and hashes all passed;
+- `git diff --check` → exit `0` with only normal LF/CRLF warnings.
+
+Holdout bundle evidence (aggregate-only; no private transcript contents):
+- controlled download folder: `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance\20260920-Eval-lab PR 20 gate-6ab01a29-1e0c-83ea-a624-2dcb02656404`;
+- capture ID: `1f95f8f3-fb06-498f-845e-b28c69a13941`;
+- captured at: `2026-09-20T20:38:27.029Z`;
+- raw response bytes preserved before parsing: `3,154,583`;
+- mapping keys / normalized nodes / unique node IDs: `984 / 984 / 984`;
+- messages: `983`;
+- deduplicated edges: `983`; explicit parent relations checked: `983`; explicit child relations checked: `983`; explicit relations checked total: `1,966`; missing parent/child edges: `0`;
+- source pointers missing: `0`;
+- tool events: `862` (`351` `tool.call`, `511` `tool.result`); all `862` records were deep-structurally equal to their corresponding raw mapping node; content types were `code=644`, `execution_output=51`, `multimodal_text=163`, `text=4`;
+- citations: `740`; artifacts: `0`;
+- rendered turns: `12`; rendered stability: `true`; repeated lazy-load sweep converged;
+- rendered first/middle/final aggregate spot checks: `user` at turn index `1`, `user` at turn index `7`, `assistant` at turn index `12`; all sampled records retained message IDs and stable keys;
+- rendered reconciliation: `differences_observed`, with `12` overlapping comparable rendered/source IDs and one explicit assistant role-count discrepancy preserved (`rendered=6`, `source=466`); rendered user/assistant counts `6/6`, source user/assistant counts `6/466`, plus source tool `511` and none `1`;
+- SHA-256 recomputation: all `12` listed hashes matched expected digest and byte length;
+- raw source, normalized graph, tool/citation indexes, rendered records, reconciliation, and integrity files were present in the controlled folder.
+
+Observed defects/fixes:
+- no holdout conservation, pointer, lineage, raw-backed tool-event, citation, hash, or rendered-stability defect was found;
+- the one raw/rendered role-count discrepancy remains explicitly recorded and is not silently corrected;
+- pause/resume/reset and viewport restoration behaved as required on the independent conversation;
+- no implementation fix was justified by this holdout, so the pilot implementation remains frozen.
+
+Blockers:
+- none for PROV-0002 holdout acceptance;
+- bulk export remains prohibited until the next phase's ontology/checkpoint work is complete.
+
+Acceptance result: **PROV-0002 holdout acceptance passed**.
+
+Next:
+- freeze the two-chat v0.1 evidence baseline and begin PROV-0003 ontology v0.1 from aggregate class/content distributions; do not begin account-wide export.
+
 ## Handoff
 
 Read `PROJECT.md → checkpoints/CURRENT.md → TASK-PROV-0002-holdout.md → specs/TDD.md` before continuing. Do not start bulk export or tune the pilot classifier.
