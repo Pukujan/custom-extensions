@@ -154,3 +154,18 @@ Decision:
 
 Next:
 - obtain the approved ChatGPT desktop full-CDP/evaluate surface and run the live smoke; do not start bulk export.
+
+### 2026-09-20 21:58:03 UTC — Codex — payload readiness check
+
+Completed:
+- rebuilt both development-only browser payloads without opening a browser or writing a bundle.
+
+Exact commands/results:
+- `node dev/build-browser-payload.mjs | Measure-Object -Character -Line` → exit `0`; `1,246` lines and `43,419` characters;
+- `node dev/build-live-browser-payload.mjs | Measure-Object -Character -Line` → exit `0`; `333` lines and `11,536` characters.
+
+Decision:
+- payload generation is ready for the approved CDP/evaluate route; no browser smoke is claimed until that external surface is enabled.
+
+Next:
+- enable full CDP/evaluate access in ChatGPT desktop and run the documented capture plus live-observer smoke.
