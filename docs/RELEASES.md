@@ -14,6 +14,8 @@ The repository keeps each extension independently loadable under `extensions/<sl
 
 For ChatGPT Transcript Exporter v0.1.0, the asset is `chatgpt-transcript-exporter-v0.1.0.zip`.
 
+For ChatGPT Provenance Exporter v0.1.0, the asset is `chatgpt-provenance-exporter-v0.1.0.zip`. Its pilot, independent holdout, required MV3 smoke, and built-in-browser full-CDP validation are recorded in the extension handoff; optional live-event observation and account-wide export remain separately gated.
+
 ## Release contents
 
 `scripts/package-extensions.sh` reads `extensions/registry.json`, checks that each registry version matches its `manifest.json`, and creates one ZIP per registered extension. Runtime files are packaged with `manifest.json` at archive root. Conventional repository-only material (`README.md`, `TEST_REPORT.txt`, `tests/`, `specs/`, and `tests.js`) is excluded from release ZIPs.
