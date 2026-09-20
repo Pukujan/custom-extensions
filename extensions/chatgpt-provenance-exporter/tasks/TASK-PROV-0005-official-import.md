@@ -1,6 +1,6 @@
 # TASK-PROV-0005 — Official ChatGPT export importer/reconciliation
 
-- Status: active
+- Status: review
 - Owner: ChatGPT/Sol + local repository agent
 - Priority: P1
 - Depends on: `PROV-0001`, `PROV-0002`, `PROV-0003`, and the PROV-0004 design checkpoint

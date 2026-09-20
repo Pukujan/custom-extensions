@@ -1,6 +1,6 @@
 # TASK-PROV-0007 — Eval Lab trace compatibility adapter
 
-- Status: active
+- Status: review
 - Owner: ChatGPT/Sol + local repository agent
 - Priority: P1
 - Depends on: `PROV-0001` through `PROV-0006` deterministic checkpoints

@@ -2,9 +2,9 @@
 
 ## Program state
 
-Phase: 7 — Eval Lab trace compatibility adapter.
+Phase: 8 — Controlled live-validation backlog.
 
-Current P0 task: `TASK-PROV-0007-eval-trace.md` (review checkpoint).
+Current P0 task: `TASK-PROV-0008-controlled-validation.md` (active backlog).
 
 ## Main objective
 
@@ -18,32 +18,25 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 - unknown node/content types must be preserved rather than dropped;
 - classification is versioned interpretation over immutable raw evidence;
 - v0.1 does not claim complete knowledge of OpenAI-internal execution;
-- pilot live validation may use ChatGPT desktop's built-in browser with full CDP through the development-only standalone runner; installed-extension controls still require one unpacked MV3 smoke check;
+- pilot live validation may use ChatGPT desktop's built-in browser only when the approved development-only full-CDP/evaluate surface is enabled; installed-extension controls still require one unpacked MV3 smoke check;
 - active captures expose pause/resume/reset controls and reset is cancellation-safe;
 - bulk account export is explicitly deferred until two-chat validation passes.
 
 ## Active
 
-- extension skeleton/specification/implementation;
-- deterministic and metamorphic capture tests;
-- independent PROV-0002 holdout validation;
-- versioned PROV-0003 ontology v0.1.0.
-- PROV-0004 account-wide exporter design and deterministic implementation.
-- PROV-0005 official export importer/reconciliation implementation.
-- PROV-0006 optional client-visible event capture implementation.
-- PROV-0007 Eval Lab trace compatibility adapter.
+- PROV-0008 controlled live-validation backlog and evidence checkpoint.
+- Deterministic implementation maintenance only; no bulk account export.
 
 ## Queued
 
-1. PROV-0004 — resumable incremental account-wide exporter.
-2. PROV-0005 — official ChatGPT export importer/reconciliation.
-3. PROV-0006 — optional live client-visible event capture.
-4. PROV-0007 — Eval Lab trace compatibility.
+1. Native external Eval Lab compatibility, only after a pinned target schema and validator are supplied.
 
 ## Current verification state
 
-The PROV-0001 pilot and PROV-0002 independent holdout are both accepted and frozen. The pilot preserved `465` nodes, `363` tool events, and `328` citations; the holdout preserved `984` nodes, `862` tool events, and `740` citations. Both passed source conservation, lineage, pointer, raw-backed tool, hash, rendered-stability, pause/resume/reset, and scroll-restoration checks with raw/rendered discrepancies preserved. PROV-0003 ontology v0.1.0 is implemented and its deterministic/full-suite gates are green. PROV-0004's design and deterministic implementation gate is green, but its controlled live account smoke remains unrun by design; no live account-wide export has started. PROV-0005's deterministic official-export importer/reconciliation gate is green, but no real private ZIP has been imported. PROV-0006's deterministic client-event observer gate is green, but its built-in-browser smoke remains unrun by design. PROV-0007's deterministic portable trace-adapter gate is green; no native external Eval Lab schema is claimed. The built-in in-app browser remains read-only and is not treated as the live acceptance surface.
+The PROV-0001 pilot and PROV-0002 independent holdout are both accepted and frozen. The pilot preserved `465` nodes, `363` tool events, and `328` citations; the holdout preserved `984` nodes, `862` tool events, and `740` citations. Both passed source conservation, lineage, pointer, raw-backed tool, hash, rendered-stability, pause/resume/reset, and scroll-restoration checks with raw/rendered discrepancies preserved. PROV-0003 ontology v0.1.0 is implemented and its deterministic/full-suite gates are green. PROV-0004's design and deterministic implementation gate is green, but its controlled live account smoke remains unrun by design; no live account-wide export has started. PROV-0005's deterministic official-export importer/reconciliation gate is green, but no real private ZIP has been imported. PROV-0006's deterministic client-event observer gate is green, but its built-in-browser smoke remains unrun by design. PROV-0007's deterministic portable trace-adapter gate is green; no native external Eval Lab schema is claimed. The current ChatGPT desktop process was inspected for the approved CDP/evaluate surface and had no `--remote-debugging-port` flag, so PROV-0006 live smoke is externally blocked rather than accepted. The built-in in-app browser remains read-only and is not treated as the live acceptance surface.
+
+The latest repository-wide verification is green: `node tests/test.js` returned exit `0` with `54 tests passed`; `node scripts/test-all.mjs` returned exit `0` with `All registered extension test suites passed.`; `git diff --check` returned exit `0` with only normal LF/CRLF conversion warnings. No private transcript contents, live event bodies, bundles, or raw IDs are in Git.
 
 ## Next atomic action
 
-Commit the PROV-0007 review checkpoint. The implementation phases are complete; next work is controlled live validation of PROV-0004/0005/0006 only with explicit real-source authorization. Do not start account-wide export automatically.
+Record the PROV-0008 validation prerequisites and keep the implementation checkpoint deterministic-clean. To proceed with live validation, enable the approved ChatGPT desktop full-CDP/evaluate surface or use another explicitly authorized validation surface; obtain a user-supplied official export ZIP if real importer validation is desired. Do not start account-wide export automatically.
