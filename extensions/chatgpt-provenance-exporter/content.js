@@ -4,38 +4,68 @@
   globalThis.__CHATGPT_PROVENANCE_EXPORTER_V1__ = true;
 
   const core = globalThis.ChatGPTProvenanceCore;
+  const extensionApi = globalThis.__CHATGPT_PROVENANCE_EXPORTER_RUNTIME__ || globalThis.chrome;
+  if (!core || !extensionApi) throw new Error("ChatGPT Provenance Exporter runtime is not available.");
   const STATE_KEY = "chatgptProvenanceExporterState";
   const MAX_PASSES = 5;
   const MAX_TOP_PRIME_ROUNDS = 10;
   const STEP_FRACTION = 0.55;
   const SETTLE_MS = 300;
-  let running = false;
+  let activeRun = null;
   let lastProgressWrite = 0;
+  let stateWrite = Promise.resolve();
+
+  class CaptureCancelledError extends Error {
+    constructor() {
+      super("Capture was reset before it completed.");
+      this.name = "CaptureCancelledError";
+    }
+  }
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  async function setState(patch) {
-    const previous = (await chrome.storage.local.get(STATE_KEY))[STATE_KEY] || {};
-    const next = { ...previous, ...patch, updatedAt: new Date().toISOString() };
-    await chrome.storage.local.set({ [STATE_KEY]: next });
-    return next;
+  function ensureActive(run) {
+    if (!run || activeRun !== run || run.cancelled) throw new CaptureCancelledError();
   }
 
-  async function publishProgress(patch, force = false) {
+  async function waitUntilResumed(run) {
+    ensureActive(run);
+    while (run.paused) {
+      await sleep(100);
+      ensureActive(run);
+    }
+  }
+
+  async function setState(patch, run = null) {
+    const write = stateWrite.then(async () => {
+      if (run) ensureActive(run);
+      const previous = (await extensionApi.storage.local.get(STATE_KEY))[STATE_KEY] || {};
+      if (run) ensureActive(run);
+      const next = { ...previous, ...patch, updatedAt: new Date().toISOString() };
+      await extensionApi.storage.local.set({ [STATE_KEY]: next });
+      return next;
+    });
+    stateWrite = write.catch(() => undefined);
+    return write;
+  }
+
+  async function publishProgress(patch, force = false, run = null) {
     const now = Date.now();
     if (!force && now - lastProgressWrite < 500) return;
     lastProgressWrite = now;
-    await setState(patch);
+    await setState(patch, run);
   }
 
   function isStreaming() {
     return Boolean(document.querySelector('[data-testid="stop-button"]'));
   }
 
-  async function getAccessToken() {
+  async function getAccessToken(run) {
+    await waitUntilResumed(run);
     const response = await fetch("/api/auth/session", {
       method: "GET",
       credentials: "include",
+      signal: run.abortController.signal,
     });
     if (!response.ok) throw new Error(`Session request failed (${response.status}).`);
     const data = await response.json();
@@ -43,14 +73,16 @@
     return data.accessToken;
   }
 
-  async function fetchWithRetry(url, options = {}, retries = 4) {
+  async function fetchWithRetry(url, options = {}, retries = 4, run) {
     let lastError;
     for (let attempt = 0; attempt <= retries; attempt += 1) {
       try {
+        await waitUntilResumed(run);
         const response = await fetch(url, {
           method: "GET",
           credentials: "include",
           ...options,
+          signal: run.abortController.signal,
         });
         if (response.ok) return response;
         if ((response.status === 429 || response.status >= 500) && attempt < retries) {
@@ -62,20 +94,25 @@
           `ChatGPT read request failed (${response.status})${body ? `: ${body.slice(0, 160)}` : ""}`,
         );
       } catch (error) {
+        ensureActive(run);
         lastError = error;
         if (attempt >= retries) throw error;
+        await waitUntilResumed(run);
         await sleep(700 * (attempt + 1));
       }
     }
     throw lastError || new Error("ChatGPT read request failed.");
   }
 
-  async function acquireConversation(conversationId) {
-    const token = await getAccessToken();
+  async function acquireConversation(conversationId, run) {
+    const token = await getAccessToken(run);
     const response = await fetchWithRetry(
       `/backend-api/conversation/${encodeURIComponent(conversationId)}`,
       { headers: { Authorization: `Bearer ${token}` } },
+      4,
+      run,
     );
+    await waitUntilResumed(run);
     // Preserve the returned text before any JSON parsing/normalization.
     const rawText = await response.text();
     let parsed;
@@ -239,13 +276,15 @@
     return container.scrollHeight;
   }
 
-  async function primeLazyTop(container, collected, counterRef) {
+  async function primeLazyTop(container, collected, counterRef, run) {
     let previousSignature = null;
     let stableRounds = 0;
 
     for (let round = 0; round < MAX_TOP_PRIME_ROUNDS; round += 1) {
+      await waitUntilResumed(run);
       setScrollTop(container, 0);
       await sleep(SETTLE_MS);
+      await waitUntilResumed(run);
       const visible = harvestVisible();
       counterRef.value = core.mergeRenderedRecords(collected, visible, counterRef.value);
       const keys = visible.map(core.renderedStableKey).sort().join("|");
@@ -259,14 +298,15 @@
     }
   }
 
-  async function harvestPass(container, collected, counterRef, passNumber) {
-    await primeLazyTop(container, collected, counterRef);
+  async function harvestPass(container, collected, counterRef, passNumber, run) {
+    await primeLazyTop(container, collected, counterRef, run);
 
     const passKeys = new Set();
     let lastTop = -1;
     let safety = 0;
 
     while (safety < 20000) {
+      await waitUntilResumed(run);
       safety += 1;
       const visible = harvestVisible();
       for (const record of visible) passKeys.add(core.renderedStableKey(record));
@@ -277,7 +317,7 @@
         phase: "rendered-sweep",
         pass: passNumber,
         renderedTurns: collected.size,
-      });
+      }, false, run);
 
       const top = scrollTopOf(container);
       const height = scrollHeightOf(container);
@@ -298,7 +338,7 @@
     return passKeys;
   }
 
-  async function captureRendered() {
+  async function captureRendered(run) {
     if (!candidateTurns().length) {
       return { records: [], stable: false, warning: "No rendered user/assistant turns found." };
     }
@@ -312,7 +352,8 @@
 
     try {
       for (let pass = 1; pass <= MAX_PASSES; pass += 1) {
-        const passKeys = await harvestPass(container, collected, counterRef, pass);
+        await waitUntilResumed(run);
+        const passKeys = await harvestPass(container, collected, counterRef, pass, run);
         passSets.push(passKeys);
         stable = core.evaluateRenderedStability(passSets);
         await publishProgress(
@@ -324,6 +365,7 @@
             renderedStable: stable,
           },
           true,
+          run,
         );
         if (stable) break;
       }
@@ -497,10 +539,9 @@
     return { files, graph, tools, reconciliation };
   }
 
-  async function runCapture() {
-    if (running) return;
-    running = true;
+  async function runCapture(run) {
     try {
+      ensureActive(run);
       if (location.hostname !== "chatgpt.com") throw new Error("Open a chatgpt.com conversation first.");
       const conversationId = core.conversationIdFromUrl(location.href);
       if (!conversationId) throw new Error("Open a specific ChatGPT /c/<conversation-id> conversation first.");
@@ -516,13 +557,13 @@
         renderedStable: false,
         error: null,
         startedAt: new Date().toISOString(),
-      });
+      }, run);
 
-      const { rawText, parsed } = await acquireConversation(conversationId);
+      const { rawText, parsed } = await acquireConversation(conversationId, run);
       const mappingCount = Object.keys(core.mappingFromConversation(parsed)).length;
-      await publishProgress({ status: "running", phase: "source-acquired", sourceNodes: mappingCount }, true);
+      await publishProgress({ status: "running", phase: "source-acquired", sourceNodes: mappingCount }, true, run);
 
-      const renderedCapture = await captureRendered();
+      const renderedCapture = await captureRendered(run);
       const capturedAt = new Date().toISOString();
       const captureId = crypto.randomUUID();
       const meta = {
@@ -533,6 +574,7 @@
         url: location.href,
       };
 
+      await waitUntilResumed(run);
       const bundle = await buildBundle(rawText, parsed, renderedCapture, meta);
       const baseDirectory = [
         "chatgpt-provenance",
@@ -547,9 +589,10 @@
         renderedTurns: renderedCapture.records.length,
         renderedStable: renderedCapture.stable,
         baseDirectory,
-      }, true);
+      }, true, run);
 
-      const response = await chrome.runtime.sendMessage({
+      await waitUntilResumed(run);
+      const response = await extensionApi.runtime.sendMessage({
         type: "DOWNLOAD_PROVENANCE_FILES",
         baseDirectory,
         files: bundle.files,
@@ -570,27 +613,101 @@
         fileCount: bundle.files.length,
         completedAt: new Date().toISOString(),
         error: null,
-      });
+      }, run);
     } catch (error) {
-      await setState({
-        status: "error",
-        phase: "failed",
-        error: error?.message || String(error),
-        completedAt: new Date().toISOString(),
-      });
+      if (!(error instanceof CaptureCancelledError) && activeRun === run && !run.cancelled) {
+        await setState({
+          status: "error",
+          phase: "failed",
+          error: error?.message || String(error),
+          completedAt: new Date().toISOString(),
+        }, run);
+      }
     } finally {
-      running = false;
+      if (activeRun === run && !run.cancelled) activeRun = null;
     }
   }
 
-  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message?.type !== "START_PROVENANCE_CAPTURE") return false;
-    if (running) {
-      sendResponse({ ok: false, error: "A provenance capture is already running in this tab." });
+  function startCapture() {
+    if (activeRun) return { ok: false, error: "A provenance capture is already running in this tab." };
+    const run = {
+      id: crypto.randomUUID(),
+      paused: false,
+      cancelled: false,
+      abortController: new AbortController(),
+    };
+    activeRun = run;
+    lastProgressWrite = 0;
+    setTimeout(() => runCapture(run), 0);
+    return { ok: true, accepted: true };
+  }
+
+  async function pauseCapture() {
+    if (!activeRun) return { ok: false, error: "No provenance capture is running in this tab." };
+    activeRun.paused = true;
+    await setState({ status: "paused", phase: "paused" }, activeRun);
+    return { ok: true, paused: true };
+  }
+
+  async function resumeCapture() {
+    if (!activeRun) return { ok: false, error: "No provenance capture is running in this tab." };
+    activeRun.paused = false;
+    await setState({ status: "running", phase: "resuming" }, activeRun);
+    return { ok: true, paused: false };
+  }
+
+  async function resetCapture() {
+    const run = activeRun;
+    if (run) {
+      run.cancelled = true;
+      run.paused = false;
+      run.abortController.abort();
+      activeRun = null;
+    }
+    await setState({
+      status: "ready",
+      phase: "reset",
+      conversationId: null,
+      sourceNodes: 0,
+      toolEvents: 0,
+      renderedTurns: 0,
+      renderedStable: false,
+      reconciliationStatus: null,
+      baseDirectory: null,
+      fileCount: 0,
+      captureId: null,
+      error: null,
+      startedAt: null,
+      completedAt: null,
+    });
+    return { ok: true, reset: true };
+  }
+
+  globalThis.ChatGPTProvenanceRunner = {
+    start: startCapture,
+    pause: pauseCapture,
+    resume: resumeCapture,
+    reset: resetCapture,
+    getState: async () => (await extensionApi.storage.local.get(STATE_KEY))[STATE_KEY] || null,
+  };
+
+  extensionApi.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message?.type === "START_PROVENANCE_CAPTURE") {
+      sendResponse(startCapture());
       return false;
     }
-    setTimeout(() => runCapture(), 0);
-    sendResponse({ ok: true, accepted: true });
+    if (message?.type === "PAUSE_PROVENANCE_CAPTURE") {
+      pauseCapture().then(sendResponse);
+      return true;
+    }
+    if (message?.type === "RESUME_PROVENANCE_CAPTURE") {
+      resumeCapture().then(sendResponse);
+      return true;
+    }
+    if (message?.type === "RESET_PROVENANCE_CAPTURE") {
+      resetCapture().then(sendResponse);
+      return true;
+    }
     return false;
   });
 })();

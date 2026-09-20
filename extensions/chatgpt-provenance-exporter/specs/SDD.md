@@ -4,7 +4,7 @@
 
 ```text
 popup/status
-   │ START_PROVENANCE_CAPTURE
+   │ START / PAUSE / RESUME / RESET_PROVENANCE_CAPTURE
    ▼
 content runner on chatgpt.com
    │
@@ -25,7 +25,7 @@ content runner on chatgpt.com
          chrome.downloads
 ```
 
-The popup controls/status only. Long-running work belongs to the content runner so closing the popup does not terminate capture.
+The popup controls/status only. Long-running work belongs to the content runner so closing the popup does not terminate capture. Each run has a cancellation token and `AbortController`; pause waits at network/sweep boundaries, resume continues the same run, and reset aborts it and clears status. State writes are serialized so a reset cannot be overwritten by a stale progress write.
 
 ## Context ownership
 
@@ -54,7 +54,10 @@ Site adapter and runner:
 Local download adapter only. Receives named UTF-8 files and downloads them under a deterministic capture directory. It has no ChatGPT extraction logic.
 
 ### `popup.js`
-Starts capture for the active ChatGPT conversation and renders persisted progress.
+Starts, pauses, resumes, and resets capture for the active ChatGPT conversation while rendering persisted progress.
+
+### Built-in browser development adapter
+`dev/standalone-browser-bootstrap.js` supplies an in-memory runtime shim for `content.js` and retains the generated bundle only at `window.__CHATGPT_PROVENANCE_BUNDLE__`. `dev/build-browser-payload.mjs` composes `core.js`, the shim, and `content.js` for evaluation in the ChatGPT desktop built-in browser with full CDP enabled. This validates the same-origin acquisition/DOM/core pipeline but intentionally does not claim coverage for the MV3 popup, service worker, `chrome.storage`, or `chrome.downloads` surfaces.
 
 ## Acquisition
 
@@ -169,7 +172,7 @@ SHA-256 is computed over the exact UTF-8 string passed to download for each non-
 
 ## Persistence/resume
 
-v0.1 captures one conversation in one run. Progress/status is persisted in `chrome.storage.local`; transcript/evidence content is not retained there after download.
+v0.1 captures one conversation in one run. Progress/status is persisted in `chrome.storage.local`; transcript/evidence content is not retained there after download. Pause/resume is in-memory run control with status updates. Reset aborts the active run, clears the small status record, and is safe to invoke after a failed or completed run. No remote conversation mutation is performed.
 
 Account-wide resume is deferred to a later task.
 

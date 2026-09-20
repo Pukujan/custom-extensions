@@ -59,6 +59,9 @@ The extension performs GET/read operations only. It never patches, deletes, edit
 ### P-PROV-015 — Fail visibly
 Missing session/auth, malformed source JSON, absent mapping, zero captured messages, hashing failures, or download failures produce an explicit failed capture rather than a misleading successful bundle.
 
+### P-PROV-016 — User-controlled run state
+An active capture can be paused, resumed, or reset. Reset cancels pending reads/sweeps, clears persisted progress, leaves the remote conversation unchanged, and prevents stale work from overwriting the reset state.
+
 ## v0.1 non-goals
 
 - bulk account enumeration/export;
@@ -69,6 +72,7 @@ Missing session/auth, malformed source JSON, absent mapping, zero captured messa
 - perfect semantic ontology;
 - automatic external-artifact verification;
 - Eval Lab execution tracing.
+- Using the ChatGPT desktop built-in browser as a replacement for the installed-extension popup/service-worker smoke test.
 
 ## Acceptance
 

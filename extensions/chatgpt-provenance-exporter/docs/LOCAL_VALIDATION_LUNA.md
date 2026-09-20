@@ -52,6 +52,10 @@ Do not begin changing parser/classifier rules merely because a live ChatGPT stru
 9. Confirm the page scroll position is restored.
 10. Inspect the downloaded `chatgpt-provenance/.../` folder.
 
+## ChatGPT built-in browser development route
+
+When a ChatGPT desktop session has **Settings → Browser → Developer mode → Enable full CDP access** enabled, the same pilot can be run in the built-in browser using `docs/BUILTIN_BROWSER_VALIDATION.md`. This route is preferred for validating same-origin acquisition, raw preservation, the real rendered DOM, tool/source derivation, hashes, reconciliation, and pause/resume/reset without relying on Brave. It does not replace the final unpacked-extension check for popup, service-worker, storage, or download behavior.
+
 ## Pilot conversation selection
 
 Choose a conversation that is deliberately difficult:

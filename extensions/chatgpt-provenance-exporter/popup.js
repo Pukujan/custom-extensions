@@ -2,6 +2,8 @@
 
 const STATE_KEY = "chatgptProvenanceExporterState";
 const button = document.getElementById("capture");
+const pauseButton = document.getElementById("pause");
+const resetButton = document.getElementById("reset");
 const statusEl = document.getElementById("status");
 const detailsEl = document.getElementById("details");
 
@@ -14,6 +16,8 @@ function render(state) {
   statusEl.textContent =
     state.status === "running"
       ? `Capturing… ${state.phase || ""}`
+      : state.status === "paused"
+        ? "Capture paused"
       : state.status === "done"
         ? "Capture complete"
         : state.status === "error"
@@ -28,7 +32,10 @@ function render(state) {
   if (state.baseDirectory) details.push(`Download folder: ${state.baseDirectory}`);
   if (state.error) details.push(`Error: ${state.error}`);
   detailsEl.textContent = details.join("\n");
-  button.disabled = state.status === "running";
+  const active = state.status === "running" || state.status === "paused";
+  button.disabled = active;
+  pauseButton.disabled = !active;
+  pauseButton.textContent = state.status === "paused" ? "Resume capture" : "Pause capture";
 }
 
 async function activeChatGPTTab() {
@@ -50,7 +57,34 @@ async function startCapture() {
   }
 }
 
+async function sendControl(type) {
+  const tab = await activeChatGPTTab();
+  const response = await chrome.tabs.sendMessage(tab.id, { type });
+  if (!response?.ok) throw new Error(response?.error || "Capture control request was rejected.");
+}
+
+async function togglePause() {
+  try {
+    const value = await chrome.storage.local.get(STATE_KEY);
+    await sendControl(value[STATE_KEY]?.status === "paused" ? "RESUME_PROVENANCE_CAPTURE" : "PAUSE_PROVENANCE_CAPTURE");
+  } catch (error) {
+    statusEl.textContent = "Capture control failed";
+    detailsEl.textContent = error?.message || String(error);
+  }
+}
+
+async function resetCapture() {
+  try {
+    await sendControl("RESET_PROVENANCE_CAPTURE");
+  } catch (_error) {
+    await chrome.storage.local.remove(STATE_KEY);
+    render(null);
+  }
+}
+
 button.addEventListener("click", startCapture);
+pauseButton.addEventListener("click", togglePause);
+resetButton.addEventListener("click", resetCapture);
 
 chrome.storage.local.get(STATE_KEY).then((value) => render(value[STATE_KEY]));
 chrome.storage.onChanged.addListener((changes, area) => {

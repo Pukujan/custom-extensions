@@ -24,6 +24,15 @@ button {
   font-weight: 600;
   cursor: pointer;
 }
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.actions button {
+  width: auto;
+}
 .status {
   margin-top: 12px;
   font-weight: 600;

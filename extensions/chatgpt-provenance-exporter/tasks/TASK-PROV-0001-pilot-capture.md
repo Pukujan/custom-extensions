@@ -170,6 +170,65 @@ Observed defects/fixes:
 Next atomic action:
 - in a supervised Brave/Chromium session whose browser-control surface can safely verify the current URL, load `extensions/chatgpt-provenance-exporter/` unpacked, capture one deliberately large tool-heavy conversation, run every structural/hash/rendered/tool-event/lazy-load/scroll check in `docs/LOCAL_VALIDATION_LUNA.md`, append the exact aggregate evidence here, and commit that pilot checkpoint with a `PROV-0001` message. Do not start PROV-0002 or bulk export until the pilot is fully checkpointed.
 
+### 2026-09-20 — Codex — control recovery and built-in browser validation route
+
+Completed:
+- verified the repository-wide gate from the complete Windows checkout before changing implementation;
+- confirmed the user-observed missing pause/reset controls in the checked-in popup/content architecture: only `START_PROVENANCE_CAPTURE` existed and the runner had only a boolean `running` guard;
+- added pause, resume, and reset controls to the installed-extension path;
+- made reset cancellation-safe with an active-run token, `AbortController`, serialized status writes, and stale-run suppression;
+- added a development-only standalone runtime adapter and payload builder for the ChatGPT desktop built-in browser, preserving the same core/content capture path while retaining the bundle only in page memory;
+- updated PDD/SDD, the local validation procedure, and `checkpoints/CURRENT.md` so the built-in browser is the preferred live pipeline validation route and the unpacked MV3 smoke test remains limited to popup/service-worker/storage/download behavior;
+- no private transcript text or capture bundle was added to the repository.
+
+Changed files:
+- `extensions/chatgpt-provenance-exporter/content.js`
+- `extensions/chatgpt-provenance-exporter/popup.html`
+- `extensions/chatgpt-provenance-exporter/popup.js`
+- `extensions/chatgpt-provenance-exporter/popup.css`
+- `extensions/chatgpt-provenance-exporter/tests/test.js`
+- `extensions/chatgpt-provenance-exporter/dev/standalone-browser-bootstrap.js`
+- `extensions/chatgpt-provenance-exporter/dev/build-browser-payload.mjs`
+- `extensions/chatgpt-provenance-exporter/docs/BUILTIN_BROWSER_VALIDATION.md`
+- `extensions/chatgpt-provenance-exporter/docs/LOCAL_VALIDATION_LUNA.md`
+- `extensions/chatgpt-provenance-exporter/specs/PDD.md`
+- `extensions/chatgpt-provenance-exporter/specs/SDD.md`
+- `extensions/chatgpt-provenance-exporter/checkpoints/CURRENT.md`
+- this task file
+
+Environment:
+- OS: Microsoft Windows 11 Home, version `10.0.26200`, build `26200`, 64-bit;
+- Node: `v24.14.1`;
+- Brave: `153.1.95.102` installed, but no new Brave pilot capture was claimed;
+- ChatGPT desktop built-in browser: no browser page/version was available in the controllable ChatGPT app window during this checkpoint; full CDP status is not claimed.
+
+Commands/results:
+- `node tests/test.js` from `extensions/chatgpt-provenance-exporter/` → exit `0`, **24 tests passed**;
+- `node --check dev/build-browser-payload.mjs` → exit `0`;
+- `node --check dev/standalone-browser-bootstrap.js` → exit `0`;
+- `node dev/build-browser-payload.mjs | Select-Object -First 8` → exit `0`, payload begins with `/* core.js */` and the browser payload is emitted to standard output;
+- `node scripts/test-all.mjs` from repository root → exit `0`; registered suites passed: chatgpt-10-day-cleaner 12, linkedin-connection-exporter 16, chatgpt-transcript-exporter 18, chatgpt-provenance-exporter 24; final output `All registered extension test suites passed.`;
+- `git diff --check` → exit `0`; only normal Git LF/CRLF warnings were reported when inspecting the working copy.
+
+Live pilot evidence:
+- capture counts: not available; no new pilot bundle was produced;
+- raw response preservation, mapping/node conservation, source-pointer resolution, parent/edge reconciliation, representative tool-event/raw-source checks, SHA-256 recomputation, rendered spot checks, rendered reconciliation, lazy-load/stability sweep, and scroll restoration: not performed in this checkpoint;
+- prior Brave blocker remains unchanged; the new preferred live route requires the user to enable ChatGPT desktop **Settings → Browser → Developer mode → Enable full CDP access** and open the selected pilot conversation;
+- the ChatGPT desktop window currently exposed the Codex app shell rather than an open built-in-browser page, so no CDP page evaluation was attempted and no private content was inspected.
+
+Observed defects/fixes:
+- confirmed defect: no pause/resume/reset UI or messages existed → fixed in popup/content runner;
+- confirmed design risk: a reset could otherwise be overwritten by in-flight progress writes → fixed with serialized state writes and active-run checks;
+- unverified user report: missing tool/source records. The live raw response and bundle are still required before changing conservative classification; no parser/classifier tuning was made.
+
+Blockers:
+- user action required before live built-in-browser validation: enable full CDP in the ChatGPT desktop Browser settings and open the exact pilot conversation;
+- installed MV3 popup/service-worker/download smoke check remains outstanding;
+- PROV-0001 pilot acceptance is not yet passed.
+
+Next atomic action:
+- after full CDP is enabled and the exact pilot conversation is open in ChatGPT's built-in browser, evaluate the payload from `docs/BUILTIN_BROWSER_VALIDATION.md`, run pause/resume/reset plus one capture, perform every structural/hash/rendered/tool-event/lazy-load/scroll check from `docs/LOCAL_VALIDATION_LUNA.md`, record aggregate evidence only, then perform the narrow unpacked-MV3 control/download smoke check. Do not start PROV-0002 or bulk export.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.

@@ -243,4 +243,19 @@ test("long runner lives in content script rather than popup", () => {
   assert.match(content, /finally\s*\{/);
 });
 
+test("capture exposes pause, resume, and cancellation-safe reset controls", () => {
+  const popup = fs.readFileSync(path.join(ROOT, "popup.js"), "utf8");
+  const html = fs.readFileSync(path.join(ROOT, "popup.html"), "utf8");
+  const content = fs.readFileSync(path.join(ROOT, "content.js"), "utf8");
+  assert.match(html, /id="pause"/);
+  assert.match(html, /id="reset"/);
+  for (const type of ["PAUSE_PROVENANCE_CAPTURE", "RESUME_PROVENANCE_CAPTURE", "RESET_PROVENANCE_CAPTURE"]) {
+    assert.match(popup, new RegExp(type));
+    assert.match(content, new RegExp(type));
+  }
+  assert.match(content, /AbortController/);
+  assert.match(content, /activeRun = null/);
+  assert.match(content, /CaptureCancelledError/);
+});
+
 console.log(`\n${passed} tests passed.`);
