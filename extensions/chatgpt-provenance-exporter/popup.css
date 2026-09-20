@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+body {
+  margin: 0;
+  min-width: 360px;
+}
+main {
+  padding: 16px;
+}
+h1 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+.lead {
+  font-size: 13px;
+  line-height: 1.4;
+}
+button {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.status {
+  margin-top: 12px;
+  font-weight: 600;
+}
+pre {
+  white-space: pre-wrap;
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+  max-height: 260px;
+  overflow: auto;
+}
