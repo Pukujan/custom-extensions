@@ -35,6 +35,19 @@ function safeFile(bundle, relative) {
   const root = path.resolve(bundle);
   const file = path.resolve(root, relative);
   if (file !== root && !file.startsWith(`${root}${path.sep}`)) throw new Error("unsafe bundle path");
+  if (fs.existsSync(root)) {
+    const realRoot = fs.realpathSync.native(root);
+    let existing = file;
+    while (!fs.existsSync(existing)) {
+      const parent = path.dirname(existing);
+      if (parent === existing) break;
+      existing = parent;
+    }
+    const realExisting = fs.realpathSync.native(existing);
+    if (realExisting !== realRoot && !realExisting.startsWith(`${realRoot}${path.sep}`)) {
+      throw new Error("unsafe bundle path");
+    }
+  }
   return file;
 }
 
@@ -55,6 +68,23 @@ function addExpectedEdges(mapping) {
     }
   }
   return expected;
+}
+
+function sameRecordMultiset(actual, expected) {
+  if (actual.length !== expected.length) return false;
+  const counts = new Map();
+  for (const record of expected) {
+    const key = core.stableStringify(record);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  for (const record of actual) {
+    const key = core.stableStringify(record);
+    const count = counts.get(key) || 0;
+    if (!count) return false;
+    if (count === 1) counts.delete(key);
+    else counts.set(key, count - 1);
+  }
+  return counts.size === 0;
 }
 
 function validate(bundle) {
@@ -135,6 +165,19 @@ function validate(bundle) {
   let missingEdges = 0;
   for (const expected of expectedEdges) if (!actualEdges.has(expected)) missingEdges += 1;
   if (missingEdges) errors.push("parent_child_edge_missing");
+  const invalidEdges = edges.filter((edge) => !rawNodeIds.has(edge?.from) || !rawNodeIds.has(edge?.to));
+  if (invalidEdges.length || actualEdges.size !== expectedEdges.size || [...expectedEdges].some((edge) => !actualEdges.has(edge))) {
+    errors.push("edge_conservation_mismatch");
+  }
+
+  const expectedMessages = graph ? core.deriveMessages(graph.nodes) : [];
+  const expectedTools = graph ? core.deriveToolEvents(graph.nodes) : [];
+  const expectedCitations = graph ? core.deriveCitations(graph.nodes) : [];
+  const expectedArtifacts = graph ? core.deriveArtifacts(graph.nodes) : [];
+  if (!sameRecordMultiset(messages, expectedMessages)) errors.push("message_conservation_mismatch");
+  if (!sameRecordMultiset(tools, expectedTools)) errors.push("tool_conservation_mismatch");
+  if (!sameRecordMultiset(citations, expectedCitations)) errors.push("citation_conservation_mismatch");
+  if (!sameRecordMultiset(artifacts, expectedArtifacts)) errors.push("artifact_conservation_mismatch");
 
   let toolRawMismatches = 0;
   for (const record of tools) {
@@ -155,8 +198,33 @@ function validate(bundle) {
     errors.push("invalid_reconciliation_status");
   }
 
+  const expectedCounts = {
+    nodes: nodes.length,
+    edges: edges.length,
+    messages: messages.length,
+    tool_events: tools.length,
+    citations: citations.length,
+    artifacts: artifacts.length,
+  };
+  if (!report?.counts || Object.keys(expectedCounts).some((key) => report.counts[key] !== expectedCounts[key])) {
+    errors.push("capture_report_count_mismatch");
+  }
+
   let hashFailures = 0;
+  const manifestFiles = Array.isArray(manifest?.files) ? manifest.files : [];
+  const hashEntries = sums?.hashes && typeof sums.hashes === "object" ? Object.keys(sums.hashes) : [];
+  const expectedHashEntries = [
+    "manifest.json",
+    ...manifestFiles.filter((relative) => relative !== "integrity/SHA256SUMS.json" && relative !== "manifest.json"),
+  ];
   if (sums?.hashes && typeof sums.hashes === "object") {
+    if (new Set(hashEntries).size !== hashEntries.length ||
+        new Set(expectedHashEntries).size !== expectedHashEntries.length ||
+        hashEntries.length !== expectedHashEntries.length ||
+        expectedHashEntries.some((relative) => !sums.hashes[relative]) ||
+        hashEntries.some((relative) => !expectedHashEntries.includes(relative))) {
+      errors.push("hash_manifest_mismatch");
+    }
     for (const [relative, expected] of Object.entries(sums.hashes)) {
       try {
         const bytes = fs.readFileSync(safeFile(bundle, relative));
@@ -171,9 +239,12 @@ function validate(bundle) {
   }
   if (hashFailures) errors.push("hash_mismatch");
 
-  const manifestFiles = Array.isArray(manifest?.files) ? manifest.files : [];
-  const missingManifestFiles = manifestFiles.filter((relative) => !fs.existsSync(safeFile(bundle, relative)));
-  if (missingManifestFiles.length) errors.push("manifest_file_missing");
+  try {
+    const missingManifestFiles = manifestFiles.filter((relative) => !fs.existsSync(safeFile(bundle, relative)));
+    if (missingManifestFiles.length) errors.push("manifest_file_missing");
+  } catch (error) {
+    errors.push(`manifest_path:${error?.message || String(error)}`);
+  }
 
   return {
     ok: errors.length === 0,

@@ -41,4 +41,4 @@ The committed aggregate validator also passed against both controlled real bundl
 
 ## Next atomic action
 
-Enable the approved ChatGPT desktop full-CDP/evaluate surface, then run the controlled built-in-browser/live-event smoke and append aggregate-only evidence. If official-import validation is desired, obtain a user-supplied official export ZIP separately. Do not start account-wide export automatically.
+Enable the approved ChatGPT desktop full-CDP/evaluate surface and open the pilot conversation, then run the controlled built-in-browser/live-event smoke and append aggregate-only evidence. After that, run the one unpacked MV3 UI smoke. If official-import validation is desired, obtain a user-supplied official export ZIP separately. Do not start account-wide export automatically.

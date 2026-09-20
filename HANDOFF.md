@@ -2,13 +2,14 @@
 
 ## Checkpoint
 
-- Date: 2026-09-03
+- Date: 2026-09-20
 - Repository: `Pukujan/custom-extensions`
 - Purpose: durable collection of small independently loadable Brave/Chromium extensions
 - Bootstrap PR #1: merged to `main`
 - Packaged-release PR #3: merged to `main`
 - Release commit: `7ba4f8e54d6e7b1c383cade76916cb746b1271c6`
 - Published release: `extensions-2026.09.03` — `Custom Extensions — 2026-09-03`
+- Prepared next release descriptor: `extensions-2026.09.20` — `Custom Extensions — 2026-09-20` (not published from this branch)
 - Release workflow run: `33825192190` — success
 
 ## Current extension inventory
@@ -25,6 +26,7 @@
 - `rendered/transcript.md` is a readable rendered transcript, not the complete raw-backed tool/source view
 - pause, resume, and reset are supported for active capture; reset cancels the active run and clears its persisted progress
 - built-in-browser full-CDP/live-event validation remains pending because the approved CDP/evaluate surface is unavailable
+- packaging readiness: registry and manifest are aligned; the prepared release descriptor includes this extension
 
 ### ChatGPT 10-Day Cleaner v2.0.0
 
@@ -53,11 +55,11 @@
 
 ## Packaged release design
 
-`release/current.json` defines the active collection bundle tag/title.
+`release/current.json` defines the prepared collection bundle tag/title.
 
 `scripts/package-extensions.sh` packages every registry entry, requires registry/manifest version agreement, excludes conventional repository-only tests/specs/reports, verifies `manifest.json` is at ZIP root, and writes `SHA256SUMS.txt`.
 
-`.github/workflows/package-release.yml` runs the collection tests before packaging and publishing the GitHub Release. A change to `release/current.json` on `main` publishes a new bundle; manual reruns refresh the named release idempotently.
+`.github/workflows/package-release.yml` runs the collection tests before packaging and publishing the GitHub Release. A change to `release/current.json` on `main` publishes a new bundle; manual reruns refresh the named release idempotently. This branch has not published the prepared bundle.
 
 ## Observed release evidence
 
@@ -83,7 +85,7 @@ The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.
 4. Smoke-test a short ChatGPT thread and a genuinely long/virtualized thread.
 5. Verify Markdown and JSON downloads, beginning/middle/end ordering, code blocks, links, roles, filename, scroll restoration, and partial-warning behavior.
 6. Only after observed live browser evidence should the transcript exporter move from `LIVE_SMOKE_REQUIRED` to `LIVE_SMOKE_PASSED`.
-7. For a future bundle, update extension/registry versions as needed and change `release/current.json` to a new unique collection tag/title.
+7. Before publishing, review the prepared `release/current.json` and `release/RELEASE_NOTES.md`; then merge to `main` or run the workflow manually.
 
 ## Do not repeat
 

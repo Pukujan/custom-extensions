@@ -1,6 +1,16 @@
 # Status
 
-## Release packaging — 2026-09-03
+## Release packaging — 2026-09-20 readiness audit
+
+### Prepared, not published
+
+The registry now has four extensions, and the prepared descriptor in `release/current.json` is `extensions-2026.09.20` / `Custom Extensions — 2026-09-20`. It includes `chatgpt-provenance-exporter-v0.1.0.zip`. No ZIPs were generated and no release or upload was performed during this audit.
+
+The packaging script's stored Git blob passes `bash -n`. On this Windows checkout, `core.autocrlf=true` makes direct `bash -n scripts/package-extensions.sh` see CRLF; this is checkout-local and does not affect the Ubuntu workflow's stored-content checkout.
+
+Local verification on 2026-09-20: all four registered suites passed (102 tests total); registry/manifest version checks passed; JSON parsing passed; release coverage checks passed after metadata alignment; `bash -n scripts/package-extensions.sh` passed after the line-ending fix.
+
+Remaining release risks: the workflow has not been run on this branch; the prepared bundle has not been packaged or published; and built-in-browser full-CDP/live-event validation for the provenance exporter remains pending.
 
 ### Implemented and merged
 

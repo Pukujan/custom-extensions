@@ -34,14 +34,14 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 ## Deterministic baseline
 
-- `node tests/test.js` → exit `0`; `54 tests passed`.
+- `node tests/test.js` → exit `0`; `56 tests passed`.
 - `node tools/export-eval-trace.mjs --help` → exit `0`; local-only portable trace help printed.
 - `node scripts/test-all.mjs` → exit `0`; all registered extension suites passed; final output `All registered extension test suites passed.`
 - `git diff --check` → exit `0`; only normal LF/CRLF conversion warnings.
 
 ## Acceptance
 
-This task remains open until the permitted live-validation surface and any user-supplied real ZIP are available, or the user explicitly accepts deterministic-only status. The next atomic action is to obtain the missing validation prerequisite; no bulk export is permitted as a workaround.
+This task remains open until the permitted live-validation surface and any user-supplied real ZIP are available, or the user explicitly accepts deterministic-only status. The next atomic action is to enable the approved ChatGPT desktop full-CDP/evaluate surface and open the pilot conversation; then run the controlled built-in-browser/live-observer smoke and append aggregate-only evidence, followed by the unpacked MV3 UI smoke. If official-import validation is requested, obtain a user-supplied official export ZIP separately. No bulk export is permitted as a workaround.
 
 ### 2026-09-20 21:37:52 UTC — Codex — live-surface recheck
 
@@ -181,4 +181,27 @@ Decision:
 - set this task to `blocked` because the remaining live acceptance cannot proceed without the external full-CDP/evaluate enablement; no browser UI automation or bulk export will be used as a workaround.
 
 Next:
-- after the authorized operator enables full CDP/evaluate access and opens the pilot conversation, resume this task and run the documented live smoke.
+- after the authorized operator enables full CDP/evaluate access and opens the pilot conversation, resume this task, run the documented built-in-browser/live-observer smoke, append aggregate-only evidence, and then run the unpacked MV3 UI smoke; obtain a user-supplied official export ZIP separately only if official-import validation is requested.
+
+### 2026-09-20 22:10:32 UTC — Codex — parallel repository hardening
+
+Completed:
+- integrated the disjoint Luna audits for release readiness, validator correctness, and checkpoint continuity;
+- hardened `tools/validate-capture-bundle.mjs` against lexical/symlink path traversal, incomplete or extra hash entries, dangling/extra edges, derived-record conservation mismatches, and capture-report count drift;
+- prepared the next release descriptor and release notes for all four registered extensions without generating ZIPs, publishing, or uploading anything;
+- preserved the blocked live-validation state and did not inspect or automate a browser.
+
+Exact verification:
+- `node tests/test.js` → exit `0`; `56 tests passed`;
+- `node scripts/test-all.mjs` → exit `0`; all four registered suites passed; total `102` tests; final output `All registered extension test suites passed.`;
+- pilot `node tools/validate-capture-bundle.mjs <controlled-pilot-folder>` → exit `0`; `ok:true`, `no_differences_observed`;
+- holdout `node tools/validate-capture-bundle.mjs <controlled-holdout-folder>` → exit `0`; `ok:true`, `no_differences_observed`;
+- `git diff --check` → exit `0`; only normal LF/CRLF conversion warnings;
+- registry/manifest version and release-coverage checks → passed; no ZIP artifacts created.
+
+Observed fixes:
+- the validator initially treated `manifest.json` inconsistently between production manifests and the hash list; the expected hash set now explicitly includes `manifest.json`, and the fixture mirrors production layout;
+- malformed/path-escape regression cases now fail safely with aggregate-only output.
+
+Next:
+- if the external CDP prerequisite becomes available, run the built-in-browser/live-observer smoke and then the unpacked MV3 UI smoke; otherwise no further live acceptance can be claimed.

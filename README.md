@@ -8,13 +8,14 @@ This repository is the durable home for browser utilities that would otherwise b
 
 GitHub Releases contains a separate versioned ZIP for every extension currently registered on `main`.
 
-Current bundle: **Custom Extensions — 2026-09-03** (`extensions-2026.09.03`).
+Prepared bundle: **Custom Extensions — 2026-09-20** (`extensions-2026.09.20`). It is not published from this branch.
 
 | Extension | Release asset |
 | --- | --- |
 | ChatGPT 10-Day Cleaner v2.0.0 | `chatgpt-10-day-cleaner-v2.0.0.zip` |
 | ChatGPT Transcript Exporter v0.1.0 | `chatgpt-transcript-exporter-v0.1.0.zip` |
 | Connection List Exporter v1.1.0 | `linkedin-connection-exporter-v1.1.0.zip` |
+| ChatGPT Provenance Exporter v0.1.0 | `chatgpt-provenance-exporter-v0.1.0.zip` |
 
 Open the repository **Releases** page, download the ZIP you want, extract it, then load the extracted folder in Brave. See `docs/RELEASES.md` for checksums, exact install steps, packaging rules, and the release workflow.
 
@@ -65,7 +66,8 @@ custom-extensions/
     ├── registry.json
     ├── chatgpt-10-day-cleaner/
     ├── linkedin-connection-exporter/
-    └── chatgpt-transcript-exporter/
+    ├── chatgpt-transcript-exporter/
+    └── chatgpt-provenance-exporter/
 ```
 
 ## Current extensions

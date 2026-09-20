@@ -578,9 +578,9 @@ test("capture-bundle validator checks conservation, raw-backed tools, reconcilia
       ["normalized/artifacts.jsonl", ""],
       ["rendered/rendered-turns.jsonl", ""],
       ["validation/reconciliation.json", JSON.stringify({ status: "no_differences_observed" })],
-      ["validation/capture-report.json", JSON.stringify({ counts: { nodes: 3, tool_events: 2, citations: 0 } })],
+      ["validation/capture-report.json", JSON.stringify({ counts: { nodes: 3, edges: 2, messages: 3, tool_events: 2, citations: 0, artifacts: 0 } })],
     ]);
-    const manifestFiles = ["manifest.json", ...files.keys(), "integrity/SHA256SUMS.json"];
+    const manifestFiles = [...files.keys(), "integrity/SHA256SUMS.json"];
     files.set("manifest.json", JSON.stringify({ files: manifestFiles }));
     const hashes = {};
     for (const [relative, content] of files) {
@@ -607,6 +607,42 @@ test("capture-bundle validator checks conservation, raw-backed tools, reconcilia
     assert.equal(summary.tool_raw_mismatches, 0);
     assert.equal(summary.hash_failures, 0);
     assert.equal(summary.rendered_reconciliation, "no_differences_observed");
+
+    const incompleteSums = { hashes: { ...hashes } };
+    delete incompleteSums.hashes["normalized/tool-events.jsonl"];
+    fs.writeFileSync(sumPath, JSON.stringify(incompleteSums));
+    const missingHash = spawnSync(process.execPath, [cli, bundle], { encoding: "utf8" });
+    assert.equal(missingHash.status, 1);
+    assert.equal(JSON.parse(missingHash.stdout).errors.includes("hash_manifest_mismatch"), true);
+
+    fs.writeFileSync(sumPath, JSON.stringify({ hashes }));
+    fs.writeFileSync(path.join(bundle, "normalized", "tool-events.jsonl"), "");
+    const missingTool = spawnSync(process.execPath, [cli, bundle], { encoding: "utf8" });
+    assert.equal(missingTool.status, 1);
+    assert.equal(JSON.parse(missingTool.stdout).errors.includes("tool_conservation_mismatch"), true);
+
+    fs.writeFileSync(path.join(bundle, "normalized", "tool-events.jsonl"), core.toJsonl(tools));
+    fs.writeFileSync(path.join(bundle, "normalized", "edges.jsonl"), `${core.toJsonl(graph.edges)}{"from":"extra","to":"extra"}\n`);
+    const extraEdge = spawnSync(process.execPath, [cli, bundle], { encoding: "utf8" });
+    assert.equal(extraEdge.status, 1);
+    assert.equal(JSON.parse(extraEdge.stdout).errors.includes("edge_conservation_mismatch"), true);
+
+    const manifest = JSON.parse(fs.readFileSync(path.join(bundle, "manifest.json"), "utf8"));
+    const outside = path.join(temp, "outside");
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, "secret.json"), "secret");
+    fs.symlinkSync(outside, path.join(bundle, "linked"), "junction");
+    manifest.files.push("linked/secret.json");
+    fs.writeFileSync(path.join(bundle, "manifest.json"), JSON.stringify(manifest));
+    const symlinkEscape = spawnSync(process.execPath, [cli, bundle], { encoding: "utf8" });
+    assert.equal(symlinkEscape.status, 1);
+    assert.match(symlinkEscape.stdout, /"ok":false/);
+
+    manifest.files.push("../outside.json");
+    fs.writeFileSync(path.join(bundle, "manifest.json"), JSON.stringify(manifest));
+    const unsafeManifest = spawnSync(process.execPath, [cli, bundle], { encoding: "utf8" });
+    assert.equal(unsafeManifest.status, 1);
+    assert.match(unsafeManifest.stdout, /"ok":false/);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
