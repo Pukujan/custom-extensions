@@ -12,6 +12,7 @@ globalThis.ChatGPTProvenanceCore = core;
 const accountCore = require("../account-core.js");
 const officialCore = require("../official-core.js");
 const officialZip = require("../official-zip.js");
+const evalCore = require("../eval-core.js");
 
 const ROOT = path.resolve(__dirname, "..");
 let passed = 0;
@@ -43,7 +44,9 @@ for (const file of [
   "official-zip.js",
   "live-core.js",
   "live-hook.js",
+  "eval-core.js",
   "tools/import-official-export.mjs",
+  "tools/export-eval-trace.mjs",
   "dev/build-live-browser-payload.mjs",
 ]) {
   test(`${file} syntax`, () => syntax(file));
@@ -607,6 +610,66 @@ test("live hook restores page methods and remains development-only", () => {
   assert.match(hook, /XMLHttpRequest\.prototype\.send = originalSend/);
   assert.doesNotMatch(hook, /chrome\.storage|chrome\.runtime|chrome\.downloads/);
   assert.doesNotMatch(JSON.stringify(manifest), /debugger|webRequest|cookies/);
+});
+
+test("portable eval trace conserves source spans and keeps live events unmatched", () => {
+  const conversation = makeConversation("c1", "One", "python");
+  const graph = core.normalizeConversation(conversation);
+  const tools = core.deriveToolEvents(graph.nodes);
+  const trace = evalCore.buildTrace({
+    traceId: "capture-1",
+    graph,
+    tools,
+    liveEvents: [{ sequence: 1, transport: "fetch", path: "/backend-api/f/conversation", request_body: "req", response_body: "res" }],
+  });
+  const validation = evalCore.validateTrace(trace, graph, tools);
+  assert.equal(validation.status, "no_differences_observed");
+  assert.equal(validation.source_nodes, 3);
+  assert.equal(validation.trace_tool_spans, 2);
+  assert.equal(validation.live_events, 1);
+  assert.equal(trace.spans.at(-1).attributes.unmatched_live_event, true);
+  assert.equal(trace.spans.at(-1).source_pointer, null);
+  assert.equal(core.stableStringify(trace), core.stableStringify(evalCore.buildTrace({ traceId: "capture-1", graph, tools, liveEvents: [{ sequence: 1, transport: "fetch", path: "/backend-api/f/conversation", request_body: "req", response_body: "res" }] })));
+});
+
+test("portable eval trace validator reports broken parent/source conservation", () => {
+  const conversation = makeConversation("c1", "One");
+  const graph = core.normalizeConversation(conversation);
+  const tools = core.deriveToolEvents(graph.nodes);
+  const trace = evalCore.buildTrace({ traceId: "capture-1", graph, tools });
+  trace.spans.find((span) => span.span_id === "node:user").parent_span_id = "node:missing";
+  const validation = evalCore.validateTrace(trace, graph, tools);
+  assert.equal(validation.status, "differences_observed");
+  assert.ok(validation.discrepancies.some((item) => item.type === "parent_mismatch"));
+});
+
+test("portable eval trace CLI is local-only and exports a redacted structural bundle", () => {
+  const cli = path.join(ROOT, "tools", "export-eval-trace.mjs");
+  const help = spawnSync(process.execPath, [cli, "--help"], { encoding: "utf8" });
+  assert.equal(help.status, 0, help.stderr);
+  assert.match(help.stdout, /portable trace/);
+  assert.doesNotMatch(fs.readFileSync(cli, "utf8"), /fetch\(|https?:\/\//);
+
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "provenance-eval-trace-"));
+  try {
+    const bundle = path.join(temp, "bundle");
+    const output = path.join(temp, "trace.json");
+    const conversation = makeConversation("c1", "One", "python");
+    const graph = core.normalizeConversation(conversation);
+    const tools = core.deriveToolEvents(graph.nodes);
+    fs.mkdirSync(path.join(bundle, "normalized"), { recursive: true });
+    fs.writeFileSync(path.join(bundle, "manifest.json"), JSON.stringify({ capture_id: "capture-1" }));
+    fs.writeFileSync(path.join(bundle, "normalized", "nodes.jsonl"), core.toJsonl(graph.nodes));
+    fs.writeFileSync(path.join(bundle, "normalized", "edges.jsonl"), core.toJsonl(graph.edges));
+    fs.writeFileSync(path.join(bundle, "normalized", "tool-events.jsonl"), core.toJsonl(tools));
+    const result = spawnSync(process.execPath, [cli, bundle, output], { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    const summary = JSON.parse(result.stdout.trim());
+    assert.equal(summary.ok, true);
+    assert.equal(JSON.parse(fs.readFileSync(output, "utf8")).validation.status, "no_differences_observed");
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
 });
 
 console.log(`\n${passed} tests passed.`);
