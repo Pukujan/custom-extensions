@@ -12,7 +12,7 @@ Local verification on 2026-09-20: all four registered suites passed (102 tests t
 
 The new cross-platform packager was also verified locally with `node --check scripts/package-extensions.mjs`, `node scripts/package-extensions.mjs --help`, and two independent `--out` runs. Both runs produced the four expected ZIPs with identical SHA-256 values; checksum recomputation passed; every archive had `manifest.json` at its root and excluded `tests/` and `specs/`. The temporary output directories were removed after verification. After this change, `node scripts/test-all.mjs` returned exit `0` with all registered extension suites passed (`102` tests total, including `56` provenance tests). Release metadata is now validated/emitted by `scripts/read-release-metadata.mjs`, removing the workflow's `jq` dependency.
 
-Remaining release risks: the workflow has not been run on this branch; the prepared bundle has not been packaged or published; and no new streaming/SSE observer event was observed. The required unpacked-MV3 smoke and one authorized persisted-fetch observer smoke are recorded as passed.
+Remaining release risks: the GitHub Actions workflow has not been run on this branch, no release assets are committed or published, and no new streaming/SSE observer event was observed. Local packaging, checksum, archive-invariant, and metadata validation passed. The required unpacked-MV3 smoke and one authorized persisted-fetch observer smoke are recorded as passed.
 
 ### Implemented and merged
 
