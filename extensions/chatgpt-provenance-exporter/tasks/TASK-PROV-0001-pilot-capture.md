@@ -123,6 +123,53 @@ Blockers/uncertainty:
 Next atomic action:
 - on a complete local checkout of this branch, run `node scripts/test-all.mjs` and require a clean exit; then load the extension unpacked in Brave/Chromium, capture one deliberately large tool-heavy pilot conversation, perform the structural/hash/rendered/tool-event/scroll-restoration checks in `docs/LOCAL_VALIDATION_LUNA.md`, and append the exact observed results here. Do not start PROV-0002 or bulk export before the pilot checkpoint is complete.
 
+### 2026-09-20 — Codex — repository-wide gate and live-pilot checkpoint
+
+Completed:
+- cloned the authoritative `Pukujan/custom-extensions` remote into a local checkout because the supplied project directory contained only project outputs/work folders;
+- checked out `feature/chatgpt-provenance-exporter` at `b0513e8a56a4bbde597bfd07e25e5e24d1cda21a`;
+- ran the exact repository-wide command below; it passed cleanly;
+- no implementation defect was evidenced, so no parser/classifier or extension code was changed;
+- no private transcript content was copied into this checkpoint.
+
+Environment:
+- OS: Microsoft Windows 11 Home, version `10.0.26200`, build `26200`, 64-bit;
+- Brave executable: `C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe`;
+- installed Brave version: `153.1.95.102`;
+- Node: `v24.14.1`.
+
+Commands/results:
+- `git switch feature/chatgpt-provenance-exporter` → already on the requested branch; initial checkout HEAD `b0513e8a56a4bbde597bfd07e25e5e24d1cda21a`;
+- `node scripts/test-all.mjs` from repository root → exit `0`;
+- exact suite result: `chatgpt-10-day-cleaner` — `12 invariant/property tests passed`; `linkedin-connection-exporter` — `16 tests passed`; `chatgpt-transcript-exporter` — `18 tests passed`; `chatgpt-provenance-exporter` — `23 tests passed`; final output: `All registered extension test suites passed.`
+- the already checkpointed extension-local `node tests/test.js` evidence was not rerun or overwritten; the repository-wide run independently reported the provenance suite at `23 tests passed`.
+
+Live pilot status:
+- capture counts: not applicable; no pilot bundle was produced;
+- raw response preservation: not performed;
+- mapping/node conservation: not performed;
+- source-pointer resolution: not performed;
+- parent/edge reconciliation: not performed;
+- representative tool-call/tool-result checks against raw source: not performed;
+- SHA-256 recomputation: not performed;
+- rendered first/middle/final/tool-heavy spot checks: not performed;
+- rendered reconciliation/discrepancy result: not available;
+- lazy-load/stability sweep: not performed;
+- scroll-position restoration: not observed.
+
+Observed blocker:
+- the in-app Chromium surface rejected `chrome://extensions` under its browser URL policy;
+- the sanctioned desktop computer-use surface did find Brave, but stopped before interaction with: `Computer Use has been stopped for this turn because it could not determine the current browser URL on Windows with enough confidence to enforce policy. Stop your work and send a final message noting why Computer Use ended.`
+- therefore the extension was not loaded unpacked, no ChatGPT conversation was opened or captured, and no browser result is claimed. The browser safety guard was not bypassed.
+
+Observed defects/fixes:
+- none evidenced by `node scripts/test-all.mjs`;
+- no code fix was made;
+- no bulk export and no PROV-0002 work was started.
+
+Next atomic action:
+- in a supervised Brave/Chromium session whose browser-control surface can safely verify the current URL, load `extensions/chatgpt-provenance-exporter/` unpacked, capture one deliberately large tool-heavy conversation, run every structural/hash/rendered/tool-event/lazy-load/scroll check in `docs/LOCAL_VALIDATION_LUNA.md`, append the exact aggregate evidence here, and commit that pilot checkpoint with a `PROV-0001` message. Do not start PROV-0002 or bulk export until the pilot is fully checkpointed.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.
