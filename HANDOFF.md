@@ -11,6 +11,33 @@
 - Published release: `extensions-2026.09.03` — `Custom Extensions — 2026-09-03`
 - Release workflow run: `33825192190` — success
 
+## Active project — ChatGPT Provenance Exporter
+
+A new high-value project is active but intentionally **not merged to main yet** because its deterministic/local and live-browser validation gates have not been observed.
+
+- project: ChatGPT Provenance Exporter
+- branch: `feature/chatgpt-provenance-exporter`
+- GitHub issue: #6 — `PROV-0001: Validate single-conversation ChatGPT provenance capture`
+- draft PR: #7 — `PROV-0001: add single-conversation ChatGPT provenance exporter`
+- registry state on feature branch: `IMPLEMENTED_UNVERIFIED / LIVE_SMOKE_REQUIRED / HOLDOUT_REQUIRED`
+
+### Fresh-session read order
+
+A new agent continuing this project should switch/read the feature branch and then read:
+
+1. `extensions/chatgpt-provenance-exporter/PROJECT.md`
+2. `extensions/chatgpt-provenance-exporter/AGENTS.md`
+3. `extensions/chatgpt-provenance-exporter/checkpoints/CURRENT.md`
+4. `extensions/chatgpt-provenance-exporter/tasks/TASK-PROV-0001-pilot-capture.md`
+5. `extensions/chatgpt-provenance-exporter/docs/LOCAL_VALIDATION_LUNA.md`
+6. only the relevant PDD/SDD/TDD section needed for the next action.
+
+The exact next action is local deterministic test execution followed by one large, tool-heavy Brave/ChatGPT pilot capture. Do **not** begin bulk account export or ontology tuning until PROV-0001 and the independent PROV-0002 holdout gate are satisfied.
+
+The task file and checkpoint are canonical execution state. Issue #6 and PR #7 are coordination mirrors.
+
+---
+
 ## Current extension inventory
 
 ### ChatGPT 10-Day Cleaner v2.0.0
