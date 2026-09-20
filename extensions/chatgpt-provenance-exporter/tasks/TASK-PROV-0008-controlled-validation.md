@@ -1,6 +1,6 @@
 # TASK-PROV-0008 — Controlled live-validation backlog
 
-- Status: active
+- Status: blocked
 - Owner: ChatGPT/Sol + local repository agent
 - Priority: P0
 - Depends on: `PROV-0001` through `PROV-0007` deterministic checkpoints
@@ -169,3 +169,16 @@ Decision:
 
 Next:
 - enable full CDP/evaluate access in ChatGPT desktop and run the documented capture plus live-observer smoke.
+
+### 2026-09-20 21:59:46 UTC — Codex — blocked-state audit
+
+Evidence:
+- ChatGPT desktop process remains version `153.0.8010.48` with no process-owned listening endpoint;
+- approved browser-control inventory contains a ChatGPT desktop shell but no connected built-in-browser page;
+- all repository-side deterministic, controlled-bundle, documentation, and payload-readiness work is committed and clean.
+
+Decision:
+- set this task to `blocked` because the remaining live acceptance cannot proceed without the external full-CDP/evaluate enablement; no browser UI automation or bulk export will be used as a workaround.
+
+Next:
+- after the authorized operator enables full CDP/evaluate access and opens the pilot conversation, resume this task and run the documented live smoke.

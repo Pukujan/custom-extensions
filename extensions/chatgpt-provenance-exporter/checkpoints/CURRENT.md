@@ -4,7 +4,7 @@
 
 Phase: 8 — Controlled live-validation backlog.
 
-Current P0 task: `TASK-PROV-0008-controlled-validation.md` (active backlog).
+Current P0 task: `TASK-PROV-0008-controlled-validation.md` (blocked on external CDP enablement).
 
 ## Main objective
 
@@ -24,7 +24,7 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 
 ## Active
 
-- PROV-0008 controlled live-validation backlog and evidence checkpoint.
+- PROV-0008 controlled live-validation backlog and evidence checkpoint (blocked on the approved ChatGPT desktop full-CDP/evaluate surface).
 - Deterministic implementation maintenance only; no bulk account export.
 
 ## Queued
