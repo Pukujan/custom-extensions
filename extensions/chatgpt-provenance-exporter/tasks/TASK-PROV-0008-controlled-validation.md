@@ -71,3 +71,47 @@ Blocked/uncertain:
 
 Next:
 - enable the approved ChatGPT desktop full-CDP/evaluate surface, then run the controlled built-in-browser smoke and append aggregate-only evidence.
+
+### 2026-09-20 21:45:44 UTC — Codex — controlled pilot bundle audit
+
+Completed:
+- inspected the user-tested pilot directory in the controlled local download root using aggregate-only parsing;
+- compared the reported missing tool/source behavior against the actual emitted bundle artifacts without printing transcript text or raw IDs.
+
+Evidence:
+- directory: `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance\20260920-Handoff Declined-6ab01034-f144-83ea-bae2-1e71588ccae5`;
+- raw response file size: `1,490,216` bytes;
+- normalized nodes: `465`; messages: `464`; tool records: `363`; citation records: `328`;
+- tool classes: `127` `tool.call`, `236` `tool.result`;
+- tool content values: `363` objects;
+- citation fields: `175` `citations`, `153` `content_references`;
+- rendered turns: `22`; rendered stability: `true`; reconciliation status: `differences_observed`; explicit discrepancies: `2`;
+- the bundle contains separate `normalized/tool-events.jsonl` and `normalized/citations.jsonl` artifacts. The readable `rendered/transcript.md` is not the complete raw-backed tool/source view.
+
+Decision:
+- the user report that no tool calls or sources were recorded is not reproduced by this controlled pilot bundle; no classifier/parser change is justified by the evidence. The remaining issue is discoverability/documentation of the separate evidence indexes, while the live desktop-browser route remains independently blocked.
+
+Next:
+- finish the documentation/status reconciliation in parallel, then obtain the approved full-CDP/evaluate surface for the built-in-browser smoke.
+
+### 2026-09-20 21:48:58 UTC — Codex — discoverability checkpoint
+
+Completed:
+- incorporated independent Luna audits: no reproducible source/tool extraction defect; no CDP endpoint available; documentation/status changes are disjoint and evidence-backed;
+- added explicit completed-state popup paths for the raw source, tool-event index, citation/source index, and reconciliation report;
+- closed the stale PROV-0002 task status and updated the collection registry/root handoff/status docs to reflect the accepted pilot and holdout.
+
+Evidence:
+- `node tests/test.js` → exit `0`; `54 tests passed`;
+- `node scripts/test-all.mjs` → exit `0`; final output `All registered extension test suites passed.`;
+- `git diff --check` → exit `0`; only normal LF/CRLF conversion warnings;
+- controlled pilot bundle audit remains aggregate-only: `465` nodes, `363` tool records, `328` citation records; the reported missing records were not reproduced.
+
+Observed defect/fix:
+- discoverability defect: the readable rendered transcript does not contain every raw-backed tool/source record, and the popup did not identify the separate JSONL artifacts; fixed by documenting the bundle layout and naming those paths in the completed popup status. Extraction rules were not changed.
+
+Blocked/uncertain:
+- built-in-browser/live-event acceptance still requires the external full-CDP/evaluate surface; no bulk export was started.
+
+Next:
+- enable the approved full-CDP/evaluate surface, run the controlled built-in-browser smoke, and append aggregate-only live evidence.

@@ -1,6 +1,6 @@
 # TASK-PROV-0002 — Independent Conversation Holdout
 
-- Status: active
+- Status: complete
 - Owner: ChatGPT/Sol + local Luna/browser agent for live validation
 - Priority: P0
 - Depends on: `PROV-0001` pilot acceptance at commit `b9e996263090f5d8d3dca55dd4b2210fe0cdc580`

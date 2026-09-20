@@ -11,10 +11,12 @@ v0.1 captures **one current conversation at a time**. This is deliberate. The fi
 ## Evidence model
 
 - `raw/` — primary captured source representation; preserve unchanged.
-- `normalized/` — deterministic derived JSONL views that always retain source pointers/raw nodes.
+- `normalized/` — deterministic derived JSONL views that always retain source pointers/raw nodes. In particular, `normalized/tool-events.jsonl` is the source-backed tool-call/tool-result index, and `normalized/citations.jsonl` is the source-backed citation/source index where exposed.
 - `rendered/` — independent DOM/UI verification using repeated virtualized scroll sweeps.
 - `validation/` — reconciliation/reporting; mismatches remain visible.
 - `integrity/` — SHA-256 hashes over emitted text artifacts.
+
+`rendered/transcript.md` is only the readable rendered transcript. It is not the complete raw-backed view of tools or sources; inspect the normalized JSONL indexes for those records and retain the raw representation as the primary evidence.
 
 A successful capture means complete relative to the acquired source representation and stated verifier checks. It does **not** claim access to hidden reasoning, unexposed server-side execution, or transient events ChatGPT never persisted/exposed.
 
@@ -45,6 +47,8 @@ Load `extensions/chatgpt-provenance-exporter/` as an unpacked Brave/Chromium ext
 5. Leave the ChatGPT tab open while the rendered verifier scrolls it.
 6. Inspect the downloaded `chatgpt-provenance/.../` folder.
 
+During capture, **Pause capture** freezes the active run and its progress. **Resume capture** continues the same run. **Reset** cancels the active run, clears persisted progress, and returns the popup to `Ready`; a reset does not allow stale in-flight progress to overwrite the cleared state.
+
 ## Current usable capability
 
 - one current conversation;
@@ -58,15 +62,15 @@ Load `extensions/chatgpt-provenance-exporter/` as an unpacked Brave/Chromium ext
 - SHA-256 integrity metadata;
 - project/task/checkpoint/handoff protocol for multi-session continuation.
 
-## Deferred deliberately
+The PROV-0001 pilot and PROV-0002 independent holdout passed their aggregate-only acceptance checks and are the frozen v0.1 evidence baseline. No private transcript contents are part of the repository.
 
-- bulk account export;
-- incremental/resumable account snapshots;
-- official ChatGPT data-export ZIP importer;
-- live network/runtime event capture;
-- desktop/mobile-specific instrumentation;
-- mature/versioned semantic ontology built from real pilot data;
-- Eval Lab native trace integration.
+## Deferred or separately gated
+
+- bulk account export remains prohibited until the project explicitly authorizes it;
+- account-wide export, official-export import, client-visible event capture, and portable evaluation traces are implemented as separately gated development tasks, not exposed by the single-capture popup flow;
+- ChatGPT desktop built-in-browser live validation requires its approved full-CDP/evaluate surface;
+- native Eval Lab integration is not claimed without a pinned external schema and validator;
+- hidden reasoning and unexposed server-side execution remain outside the evidence boundary.
 
 ## Tests
 

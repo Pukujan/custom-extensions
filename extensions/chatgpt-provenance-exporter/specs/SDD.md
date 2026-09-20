@@ -54,7 +54,7 @@ Site adapter and runner:
 Local download adapter only. Receives named UTF-8 files and downloads them under a deterministic capture directory. It has no ChatGPT extraction logic.
 
 ### `popup.js`
-Starts, pauses, resumes, and resets capture for the active ChatGPT conversation while rendering persisted progress.
+Starts, pauses, resumes, and resets capture for the active ChatGPT conversation while rendering persisted progress. After completion it identifies the raw source, tool-event, citation, and reconciliation files inside the controlled download folder so those evidence indexes are discoverable without implying that the rendered Markdown contains every raw-backed record.
 
 ### Built-in browser development adapter
 `dev/standalone-browser-bootstrap.js` supplies an in-memory runtime shim for `content.js` and retains the generated bundle only at `window.__CHATGPT_PROVENANCE_BUNDLE__`. `dev/build-browser-payload.mjs` composes `core.js`, the shim, and `content.js` for evaluation in the ChatGPT desktop built-in browser with full CDP enabled. This validates the same-origin acquisition/DOM/core pipeline but intentionally does not claim coverage for the MV3 popup, service worker, `chrome.storage`, or `chrome.downloads` surfaces.

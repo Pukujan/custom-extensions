@@ -13,6 +13,19 @@
 
 ## Current extension inventory
 
+### ChatGPT Provenance Exporter — current validation state
+
+- directory: `extensions/chatgpt-provenance-exporter/`
+- risk class: read-export
+- PROV-0001 pilot: **passed**
+- PROV-0002 independent holdout: **passed**
+- aggregate-only evidence remains outside Git; no private transcript contents are included here
+- the source-backed tool index is `normalized/tool-events.jsonl`
+- the source-backed citation/source index is `normalized/citations.jsonl`
+- `rendered/transcript.md` is a readable rendered transcript, not the complete raw-backed tool/source view
+- pause, resume, and reset are supported for active capture; reset cancels the active run and clears its persisted progress
+- built-in-browser full-CDP/live-event validation remains pending because the approved CDP/evaluate surface is unavailable
+
 ### ChatGPT 10-Day Cleaner v2.0.0
 
 - directory: `extensions/chatgpt-10-day-cleaner/`

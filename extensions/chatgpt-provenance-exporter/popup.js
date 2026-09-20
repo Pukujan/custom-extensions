@@ -31,6 +31,12 @@ function render(state) {
   if (Number.isFinite(state.renderedTurns)) details.push(`Rendered turns: ${state.renderedTurns}`);
   if (typeof state.renderedStable === "boolean") details.push(`Rendered stable: ${state.renderedStable}`);
   if (state.baseDirectory) details.push(`Download folder: ${state.baseDirectory}`);
+  if (state.status === "done") {
+    details.push("Raw source: raw/conversation.response.json");
+    details.push("Tool records: normalized/tool-events.jsonl");
+    details.push("Sources/citations: normalized/citations.jsonl");
+    details.push("Reconciliation: validation/reconciliation.json");
+  }
   if (state.error) details.push(`Error: ${state.error}`);
   detailsEl.textContent = details.join("\n");
   const active = state.status === "running" || state.status === "paused";

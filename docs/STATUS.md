@@ -44,6 +44,20 @@ GitHub Release `extensions-2026.09.03` / `Custom Extensions — 2026-09-03` was 
 
 Packaging/release success does not change live-site verification status.
 
+## ChatGPT Provenance Exporter — current state
+
+The PROV-0001 single-conversation pilot and PROV-0002 independent holdout both passed and are frozen. Aggregate-only evidence showed source conservation, lineage and pointer validity, raw-backed tool records, citations, integrity hashes, rendered-stability checks, pause/resume/reset behavior, and scroll restoration. Private transcript contents, raw IDs, bundles, and live event bodies are not stored in Git.
+
+For a captured bundle, use the normalized indexes for evidence review:
+
+- `normalized/tool-events.jsonl` contains the source-backed tool-call and tool-result records;
+- `normalized/citations.jsonl` contains source-backed citation records where exposed;
+- `rendered/transcript.md` is the readable rendered transcript and is not the complete raw-backed tool/source view.
+
+Capture controls support pause, resume, and reset. Pause freezes the active run and its displayed progress; resume continues the same run; reset cancels the active run, clears persisted progress, and prevents stale progress from being written afterward.
+
+The deterministic ontology, account-export design, official-import design, client-event observer, and portable trace adapter gates are green. Built-in-browser full-CDP/live-event validation remains pending: the approved ChatGPT desktop CDP/evaluate surface was unavailable, so no live-event acceptance is claimed. Account-wide export and real official-export import remain deferred.
+
 ## Collection bootstrap — 2026-09-01
 
 ### Implemented

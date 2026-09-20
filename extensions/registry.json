@@ -74,9 +74,9 @@
       "purpose": "Capture one current ChatGPT conversation as raw provenance evidence plus lossless graph/tool indexes, rendered verification, reconciliation, and integrity metadata.",
       "test_command": "node tests/test.js",
       "status": [
-        "IMPLEMENTED_UNVERIFIED",
-        "LIVE_SMOKE_REQUIRED",
-        "HOLDOUT_REQUIRED"
+        "LOCAL_TESTED",
+        "LIVE_SMOKE_PASSED",
+        "HOLDOUT_PASSED"
       ],
       "provenance": {
         "source": "designed from existing ChatGPT transcript exporter, cleaner auth patterns, and Eval Lab continuity protocol",

@@ -351,6 +351,9 @@ test("capture exposes pause, resume, and cancellation-safe reset controls", () =
   assert.match(content, /CaptureCancelledError/);
   assert.match(content, /citationRecords/);
   assert.match(popup, /Citation records/);
+  assert.match(popup, /normalized\/tool-events\.jsonl/);
+  assert.match(popup, /normalized\/citations\.jsonl/);
+  assert.match(popup, /validation\/reconciliation\.json/);
 });
 
 test("ontology v0.1 is versioned, source-preserving, and structurally complete", () => {
