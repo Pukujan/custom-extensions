@@ -10,7 +10,7 @@ The packaging script's stored Git blob passes `bash -n`. On this Windows checkou
 
 Local verification on 2026-09-20: all four registered suites passed (102 tests total); registry/manifest version checks passed; JSON parsing passed; release coverage checks passed after metadata alignment; `bash -n scripts/package-extensions.sh` passed after the line-ending fix.
 
-Remaining release risks: the workflow has not been run on this branch; the prepared bundle has not been packaged or published; and built-in-browser full-CDP/live-event validation for the provenance exporter remains pending.
+Remaining release risks: the workflow has not been run on this branch; the prepared bundle has not been packaged or published; the final unpacked-MV3 popup/service-worker/download smoke remains pending; and the optional live-event observer remains separately unrun.
 
 ### Implemented and merged
 
@@ -66,7 +66,7 @@ For a captured bundle, use the normalized indexes for evidence review:
 
 Capture controls support pause, resume, and reset. Pause freezes the active run and its displayed progress; resume continues the same run; reset cancels the active run, clears persisted progress, and prevents stale progress from being written afterward.
 
-The deterministic ontology, account-export design, official-import design, client-event observer, and portable trace adapter gates are green. Built-in-browser full-CDP/live-event validation remains pending: the approved ChatGPT desktop CDP/evaluate surface was unavailable, so no live-event acceptance is claimed. Account-wide export and real official-export import remain deferred.
+The deterministic ontology, account-export design, official-import design, client-event observer, and portable trace adapter gates are green. The built-in-browser full-CDP pilot now passes the aggregate source/tool/citation/hash/rendered/pause-reset/scroll checks; the optional client-visible event observer and final unpacked-MV3 popup/service-worker/download smoke remain separate gates. Account-wide export and real official-export import remain deferred.
 
 ## Collection bootstrap — 2026-09-01
 

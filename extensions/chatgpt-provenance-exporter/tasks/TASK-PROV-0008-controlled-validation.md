@@ -1,6 +1,6 @@
 # TASK-PROV-0008 — Controlled live-validation backlog
 
-- Status: blocked
+- Status: in_progress
 - Owner: ChatGPT/Sol + local repository agent
 - Priority: P0
 - Depends on: `PROV-0001` through `PROV-0007` deterministic checkpoints
@@ -24,12 +24,12 @@ Close the remaining real-source validation gaps without starting bulk export or 
 - Do not claim live acceptance while the approved ChatGPT desktop full-CDP/evaluate surface is unavailable.
 - Do not automate the ChatGPT desktop app UI through the computer-use surface; the permitted route is the development-only CDP/evaluate surface when enabled.
 
-## Current blocker evidence
+## Previous blocker / current state
 
 - OS: `Microsoft Windows 11 Home 10.0.26200 build 26200 AMD64`.
 - Node: `v24.14.1`.
 - ChatGPT desktop executable version observed in process metadata: `153.0.8010.48`.
-- The ChatGPT desktop main process did not expose a `--remote-debugging-port` flag, so no approved full-CDP/evaluate route was available for the live smoke.
+- The earlier session lacked a connected full-CDP browser despite the setting being enabled. After the user reopened the pilot in a renegotiated Browser Use session, the tab exposed the approved `cdp` capability and the built-in-browser pilot completed successfully; the earlier CDP blocker is resolved.
 - No private transcript, raw live event body, official ZIP, or capture bundle was written to Git.
 
 ## Deterministic baseline
@@ -41,7 +41,7 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 ## Acceptance
 
-This task remains open until the permitted live-validation surface and any user-supplied real ZIP are available, or the user explicitly accepts deterministic-only status. The next atomic action is to enable the approved ChatGPT desktop full-CDP/evaluate surface and open the pilot conversation; then run the controlled built-in-browser/live-observer smoke and append aggregate-only evidence, followed by the unpacked MV3 UI smoke. If official-import validation is requested, obtain a user-supplied official export ZIP separately. No bulk export is permitted as a workaround.
+The controlled built-in-browser pilot is now accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. This task remains open only for the narrow unpacked-MV3 UI smoke, the separately authorized optional client-visible observer smoke, and any user-supplied real ZIP if official-import validation is requested. No bulk export is permitted as a workaround.
 
 ### 2026-09-20 21:37:52 UTC — Codex — live-surface recheck
 
@@ -71,6 +71,32 @@ Blocked/uncertain:
 
 Next:
 - enable the approved ChatGPT desktop full-CDP/evaluate surface, then run the controlled built-in-browser smoke and append aggregate-only evidence.
+
+### 2026-09-20 22:46:59 UTC — Codex — built-in full-CDP pilot completed
+
+Completed:
+- user reopened the pilot in ChatGPT desktop's built-in browser; the tab exposed `cdp` alongside the normal page controls;
+- evaluated the repository development payload through CDP in the authenticated ChatGPT origin;
+- performed two aggregate-only captures: the first verified pause/resume and the second verified nonzero scroll restoration;
+- reset the active run and confirmed the page remained ready with all progress counts zero after a settling delay;
+- appended the detailed aggregate evidence to `TASK-PROV-0001-pilot-capture.md`.
+
+Exact live results:
+- final bundle: raw `1,490,216` bytes; `465` mapping/normalized/unique nodes; `464` edges; `464` messages; `363` tools; `328` citations; `0` artifacts;
+- source-pointer failures `0`; missing/extra edges `0/0`; tool raw mismatches `0`; representative tool checks `3/3`; derived conservation all passed;
+- SHA-256: `12` entries, `0` failures; manifest coverage missing/extra `0/0`;
+- rendered: `21` stable turns after `2` passes; reconciliation `differences_observed` with `1` explicit discrepancy preserved;
+- scroll restoration: `29,987.199` px before and after, delta `0`;
+- no private transcript body, live-event body, or bundle was written to Git; the development route held files in page memory only.
+
+Observed issue/fix:
+- the first aggregate probe incorrectly counted the self-referential `integrity/SHA256SUMS.json` entry as missing; the probe was corrected to exclude that file, matching the committed validator. The final result passed; no product parser/classifier change was made.
+
+Decision:
+- mark the built-in-browser/live pilot portion accepted; keep this task `in_progress` until the unpacked MV3 smoke is completed. Do not start bulk export.
+
+Next atomic action:
+- load/reload the current unpacked MV3 extension in the authorized Chromium/Brave test surface and verify popup controls, service-worker messaging, controlled download paths, and completed-state tool/source file discoverability; then append aggregate-only evidence here and in the pilot task.
 
 ### 2026-09-20 21:45:44 UTC — Codex — controlled pilot bundle audit
 

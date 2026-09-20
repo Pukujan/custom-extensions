@@ -9,7 +9,7 @@ This project is ready for a fresh session without prior chat history.
 - Draft PR: #7
 - Branch: `feature/chatgpt-provenance-exporter`
 - Canonical task: `tasks/TASK-PROV-0001-pilot-capture.md`
-- Status: `IMPLEMENTED_UNVERIFIED / LIVE_SMOKE_REQUIRED / HOLDOUT_REQUIRED`
+- Status: `LOCAL_TESTED / LIVE_SMOKE_PASSED / HOLDOUT_PASSED`; built-in full-CDP pilot accepted; final unpacked-MV3 UI smoke remains
 
 ## Read exactly this first
 
@@ -24,15 +24,7 @@ Do not reconstruct project state from the chat session that created this branch.
 
 ## Exact next action
 
-On a local machine/browser-capable session:
-1. check out this branch;
-2. run `node tests/test.js` in this extension;
-3. run repository-wide `node scripts/test-all.mjs`;
-4. fix only evidenced defects;
-5. load the extension unpacked in Brave/Chromium;
-6. capture one selected large, tool-heavy ChatGPT conversation;
-7. verify node conservation, source pointers, representative tool records, hashes, rendered reconciliation, and scroll restoration;
-8. append exact results to the canonical task checkpoint.
+On a local machine/browser-capable session, perform the remaining narrow unpacked-MV3 smoke against the current build: verify popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state discoverability for `raw/conversation.response.json`, `normalized/tool-events.jsonl`, `normalized/citations.jsonl`, and `validation/reconciliation.json`. The built-in full-CDP pilot already recorded aggregate source/node/edge/tool/citation/hash/rendered/scroll evidence in the canonical task checkpoint.
 
 ## Scope guard
 

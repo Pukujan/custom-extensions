@@ -408,3 +408,49 @@ Next atomic action:
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.
+
+### 2026-09-20 22:46:59 UTC — Codex — built-in ChatGPT full-CDP pilot validation
+
+Environment:
+- OS: `Microsoft Windows 11 Home`, version `10.0.26200`, build `26200`;
+- ChatGPT desktop: `153.0.8010.48`;
+- Brave installed for the separate MV3 smoke: `153.1.95.102`;
+- Node: `v24.14.1`;
+- browser surface: ChatGPT desktop built-in browser, connected through the newly exposed `cdp` capability;
+- no private transcript contents, raw IDs, or live event bodies were copied into this checkpoint.
+
+Exact commands/results:
+- `node dev/build-browser-payload.mjs` → exit `0`; development payload served locally at `45,780` bytes and evaluated in the authenticated pilot page through CDP;
+- previously checkpointed deterministic evidence was preserved without rerunning it: `node tests/test.js` → exit `0`, `56 tests passed`; `node scripts/test-all.mjs` → exit `0`, all registered suites passed, `102` total tests;
+- the built-in-browser runner controls returned `{ok:true}` for reset/start, pause, resume, and reset; the active pause observation remained unchanged for `1.5` seconds (`sourceNodes:465`, `renderedTurns:9`, `status:"paused"`);
+- an active-run reset probe ended in `status:"ready"` with `sourceNodes:0`, `toolEvents:0`, `citationRecords:0`, `renderedTurns:0`, `fileCount:0`, and remained unchanged after a further `3` seconds; the CDP wrapper timed out while the page settled, so the post-poll state is the authoritative result.
+
+Final live bundle aggregate evidence (page-memory development route; no local transcript files written):
+- raw response preserved before parsing: `1,490,216` bytes; JSON parse succeeded;
+- mapping keys / normalized nodes / unique node IDs: `465 / 465 / 465`;
+- normalized edges / expected explicit parent-child edges: `464 / 464`; missing edges `0`; extra edges `0`;
+- messages `464`; tool events `363`; citations `328`; artifacts `0`;
+- source-pointer failures `0`;
+- raw-backed tool records mismatched `0`; representative first/middle/final tool samples all matched (`[true,true,true]`);
+- derived message/tool/citation/artifact conservation checks: all `true`;
+- SHA-256 recomputation: `12` hash entries, `0` failures; manifest/hash coverage missing `0`, extra `0`; capture-report counts matched all derived files;
+- final rendered sweep: `21` turns, `2` passes, `renderedStable:true`; tool-heavy rendered candidates observed: `16`;
+- rendered first/middle/final aggregate spot checks: indices `0/10/20`, roles `user/user/assistant`, all non-empty; only lengths and hashes were retained, not text;
+- rendered reconciliation: `differences_observed` with `1` explicit discrepancy preserved, not hidden or corrected;
+- controlled scroll-restoration probe: anchor `29,987.199` px before capture and `29,987.199` px after capture; delta `0`, restored `true`;
+- the first live run also completed successfully with `465` nodes, `363` tools, `328` citations, `17` stable rendered turns, and `differences_observed` reconciliation.
+
+Observed defects/fixes:
+- the CDP setting was enabled, but the existing browser session initially exposed only read-only `iab`; after the browser session renegotiated, the pilot tab exposed `cdp` and the documented route ran successfully;
+- ChatGPT page CSP rejected page-origin `eval`; execution was moved to the approved CDP `Runtime.evaluate` path, without weakening the page or changing repository code;
+- an initial aggregate-only probe counted `integrity/SHA256SUMS.json` as a missing self-hash; the validation calculation was corrected to exclude the self-referential sums file, matching the committed validator rule; final aggregate validation passed;
+- no parser/classifier defect was evidenced; tools, citations, source pointers, graph edges, hashes, pause/resume/reset, rendered stability, and scroll restoration all passed;
+- the development route retains the bundle only in page memory, so it does not validate popup labels, `chrome.storage`, `chrome.downloads`, or actual unpacked-MV3 download paths.
+
+Acceptance status:
+- built-in ChatGPT full-CDP pilot validation: **passed**;
+- PROV-0001 pilot acceptance remains **passed** based on the prior unpacked Brave smoke plus this independent built-in-CDP run;
+- no bulk export started; PROV-0002 remains closed/frozen and was not retuned.
+
+Blocker/next atomic action:
+- perform the final narrow unpacked-MV3 UI smoke against the current extension build: reload/load unpacked, verify popup capture/pause/resume/reset and completed-state evidence paths, and verify the controlled `chrome.downloads` folder behavior; then append aggregate-only results and commit the checkpoint. Do not start bulk export.
