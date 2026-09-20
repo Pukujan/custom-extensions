@@ -12,7 +12,7 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 ## Remaining validation items
 
-- one controlled live smoke for the optional client-visible event observer;
+- one controlled live smoke for the optional client-visible event observer — completed in `TASK-PROV-0006-live-events.md`, with persisted-fetch/no-streaming limitation recorded;
 - one real official ChatGPT export ZIP supplied by the user, if official-import validation is required;
 - optional follow-up validation only: the required unpacked MV3 UI smoke is already recorded in the PROV-0001 pilot checkpoint;
 - preserve exact evidence in this task and `checkpoints/CURRENT.md` only.
@@ -41,7 +41,7 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 ## Acceptance
 
-The controlled built-in-browser pilot is accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. The required unpacked-MV3 smoke is also already recorded in the PROV-0001 checkpoint: the fresh Brave run verified popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state bundle discoverability. This task remains in `review` only for the separately authorized optional client-visible observer smoke and any user-supplied real ZIP if official-import validation is requested. No bulk export is permitted as a workaround.
+The controlled built-in-browser pilot is accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. The required unpacked-MV3 smoke is also recorded in the PROV-0001 checkpoint: the fresh Brave run verified popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state bundle discoverability. The authorized PROV-0006 observer smoke is complete for one persisted conversation fetch, with no streaming/SSE claim. This task remains in `review` only for any user-supplied real ZIP if official-import validation is requested; account-wide live export remains a separate explicitly authorized task. No bulk export is permitted as a workaround.
 
 ### 2026-09-20 23:00:04 UTC — Codex — MV3 gate reconciliation
 
@@ -299,3 +299,27 @@ Decision:
 
 Next atomic action:
 - use the configured Ubuntu workflow when publication is explicitly authorized; otherwise the accepted v0.1 provenance pilot/holdout and repository-side implementation remain frozen.
+
+### 2026-09-20 23:23:10 UTC — Codex — PROV-0006 observer smoke completed
+
+Completed:
+- recorded the required controlled-validation authorization in `TASK-PROV-0006-live-events.md`;
+- built and evaluated the development-only observer through the approved built-in-browser CDP surface;
+- observed one existing same-origin conversation fetch without sending a message or mutating remote data;
+- reset page-memory state and removed all temporary transfer tabs/server state after aggregate inspection.
+
+Aggregate evidence:
+- `1` eligible `fetch` event, HTTP `200`, response length `1,484,442` characters;
+- raw event JSON parsed successfully and derived to `465` mapping nodes, `464` edges, `363` tool events, and `328` citation records;
+- source pointers resolved; source hints included tool/client activity and source/reference markers;
+- forbidden credential-header keys retained: `0`; hook restoration: `true`;
+- lifecycle start/pause/resume/stop/reset returned expected states;
+- bounded retry after `10` seconds returned HTTP `429` and was not repeated; no streaming/SSE event was observed;
+- the live event body and private response content were not written to Git; the authoritative source-bundle hash checks remain covered by the pilot/holdout evidence.
+
+Decision:
+- mark the optional PROV-0006 observer smoke complete with the explicit limitation that this run observed a persisted conversation fetch, not a newly streamed response;
+- keep account-wide live export, official-import validation, and any future streaming/SSE smoke separately authorized; do not start bulk export.
+
+Next atomic action:
+- wait for a user-supplied official ZIP or a separate authorization for account-wide/streaming validation; otherwise the accepted v0.1 provenance baseline remains frozen.

@@ -25,7 +25,7 @@
 - the source-backed citation/source index is `normalized/citations.jsonl`
 - `rendered/transcript.md` is a readable rendered transcript, not the complete raw-backed tool/source view
 - pause, resume, and reset are supported for active capture; reset cancels the active run and clears its persisted progress
-- built-in-browser full-CDP pilot validation: **passed** through the approved `cdp` capability; the optional live-event observer remains separately unrun
+- built-in-browser full-CDP pilot validation: **passed** through the approved `cdp` capability; one authorized persisted-fetch observer smoke also passed, with streaming/SSE observation separately gated
 - packaging readiness: registry and manifest are aligned; the prepared release descriptor includes this extension
 
 ### ChatGPT 10-Day Cleaner v2.0.0

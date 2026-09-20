@@ -9,7 +9,7 @@ This project is ready for a fresh session without prior chat history.
 - Draft PR: #7
 - Branch: `feature/chatgpt-provenance-exporter`
 - Canonical task: `tasks/TASK-PROV-0001-pilot-capture.md`
-- Status: `LOCAL_TESTED / LIVE_SMOKE_PASSED / HOLDOUT_PASSED`; built-in full-CDP pilot and required unpacked-MV3 smoke accepted; optional gates remain separately authorized
+- Status: `LOCAL_TESTED / LIVE_SMOKE_PASSED / HOLDOUT_PASSED`; built-in full-CDP pilot, required MV3 smoke, and authorized observer smoke accepted; official/account-wide gates remain separately authorized
 
 ## Read exactly this first
 
@@ -24,7 +24,7 @@ Do not reconstruct project state from the chat session that created this branch.
 
 ## Exact next action
 
-No additional live action is required for the accepted v0.1 pilot/holdout baseline. The canonical pilot checkpoint already records the required unpacked-MV3 popup, service-worker, controlled-download, and completed-state discoverability smoke, while the built-in full-CDP pilot records the aggregate source/node/edge/tool/citation/hash/rendered/scroll evidence. Wait for explicit authorization before running the optional client-visible observer, or for a user-supplied official export ZIP before testing official import.
+No additional live action is required for the accepted v0.1 pilot/holdout baseline. The canonical checkpoints record the required unpacked-MV3 smoke, built-in full-CDP validation, and one authorized persisted-fetch observer smoke; the observer did not claim a new streaming/SSE event. Wait for a user-supplied official export ZIP before testing official import, and do not start account-wide export without a separate authorization checkpoint.
 
 ## Scope guard
 

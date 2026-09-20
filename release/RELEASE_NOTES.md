@@ -7,7 +7,7 @@ This release packages every extension currently registered on `main` as a separa
 - `chatgpt-10-day-cleaner-v2.0.0.zip` — preview and bulk-delete ChatGPT conversations older than a chosen age. **Destructive:** review the dry-run snapshot carefully before confirming deletion.
 - `chatgpt-transcript-exporter-v0.1.0.zip` — export the active ChatGPT conversation to Markdown or structured JSON. Deterministic/property tests pass; a current live Brave smoke test is still required.
 - `linkedin-connection-exporter-v1.1.0.zip` — collect visible LinkedIn connection-list rows and export CSV/TSV.
-- `chatgpt-provenance-exporter-v0.1.0.zip` — capture one current ChatGPT conversation as source-preserving provenance evidence with graph, tool, rendered, reconciliation, and integrity indexes. Pilot, independent holdout, required MV3 smoke, and built-in-browser full-CDP validation passed; optional live-event observation remains separately gated.
+- `chatgpt-provenance-exporter-v0.1.0.zip` — capture one current ChatGPT conversation as source-preserving provenance evidence with graph, tool, rendered, reconciliation, and integrity indexes. Pilot, independent holdout, required MV3 smoke, built-in-browser full-CDP validation, and one authorized persisted-fetch observer smoke passed; streaming/SSE observation remains separately gated.
 - `SHA256SUMS.txt` — SHA-256 checksums for all ZIP assets.
 
 ## Install in Brave
