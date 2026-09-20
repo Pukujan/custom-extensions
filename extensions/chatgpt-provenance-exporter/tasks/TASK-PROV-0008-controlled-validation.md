@@ -115,3 +115,42 @@ Blocked/uncertain:
 
 Next:
 - enable the approved full-CDP/evaluate surface, run the controlled built-in-browser smoke, and append aggregate-only live evidence.
+
+### 2026-09-20 21:53:59 UTC — Codex — repeatable bundle validator
+
+Completed:
+- added `tools/validate-capture-bundle.mjs`, a local-only aggregate validator for the required raw/conservation/pointer/edge/tool/reconciliation/hash checks;
+- added a redacted structural fixture test and documented the command in the extension README and local validation procedure.
+
+Evidence:
+- `node tests/test.js` → exit `0`; `56 tests passed`;
+- `node tools/validate-capture-bundle.mjs --help` → exit `0`; aggregate-only contract printed;
+- the fixture validator test passed conservation, raw-backed tool equality, reconciliation status, and SHA-256 checks;
+- no private bundle or transcript content was copied into Git.
+
+Decision:
+- keep the validator output aggregate-only so users can verify a controlled download without exposing transcript contents in a checkpoint or terminal log.
+
+Next:
+- run the validator against the controlled pilot/holdout folders after any future capture, then proceed with the approved full-CDP/evaluate smoke when that external surface is enabled.
+
+### 2026-09-20 21:55:19 UTC — Codex — real-bundle validator evidence
+
+Completed:
+- ran the committed aggregate-only validator against the controlled PROV-0001 pilot and PROV-0002 holdout bundles;
+- corrected one initial holdout invocation that used a stale path string, then reran using the exact resolved directory.
+
+Exact commands/results:
+- `node tools/validate-capture-bundle.mjs "C:\\Users\\pujan\\Downloads\\June 2026\\chatgpt-provenance\\20260920-Handoff Declined-6ab01034-f144-83ea-bae2-1e71588ccae5"` → exit `0`; `ok:true`, status `no_differences_observed`;
+- corrected holdout command with exact resolved path `C:\\Users\\pujan\\Downloads\\June 2026\\chatgpt-provenance\\20260920-Eval-lab PR 20 gate-6ab01a29-1e0c-83ea-a624-2dcb02656404` → exit `0`; `ok:true`, status `no_differences_observed`;
+- initial stale-path holdout invocation → exit `1` with aggregate `missing:*` file errors; no bundle was modified.
+
+Aggregate results:
+- pilot: `465` mapping/normalized nodes, `464` messages, `464` edges, `363` tools, `328` citations, `22` rendered turns, `0` source-pointer failures, `0` tool-raw mismatches, `0` hash failures, reconciliation `differences_observed`;
+- holdout: `984` mapping/normalized nodes, `983` messages, `983` edges, `862` tools, `740` citations, `12` rendered turns, `0` source-pointer failures, `0` tool-raw mismatches, `0` hash failures, reconciliation `differences_observed`.
+
+Decision:
+- the requested structural/hash/tool/source checks are now repeatable against both controlled real bundles without exposing private contents; live built-in-browser validation remains a separate external prerequisite.
+
+Next:
+- obtain the approved ChatGPT desktop full-CDP/evaluate surface and run the live smoke; do not start bulk export.

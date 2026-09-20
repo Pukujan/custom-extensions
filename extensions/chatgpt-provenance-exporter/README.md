@@ -76,9 +76,10 @@ The PROV-0001 pilot and PROV-0002 independent holdout passed their aggregate-onl
 
 ```bash
 node tests/test.js
+node tools/validate-capture-bundle.mjs <capture-bundle-directory>
 ```
 
-Deterministic/property/metamorphic tests are the structural correctness oracle. A local Luna/CUA/browser agent is useful for live UI smoke testing but cannot replace node/edge/hash/source-pointer assertions.
+The bundle validator prints aggregate-only JSON and checks raw parsing, node/edge conservation, source pointers, raw-backed tool records, reconciliation status, and listed SHA-256 values without printing transcript contents. Deterministic/property/metamorphic tests are the structural correctness oracle. A local Luna/CUA/browser agent is useful for live UI smoke testing but cannot replace node/edge/hash/source-pointer assertions.
 
 ## Multi-session continuation
 

@@ -79,6 +79,14 @@ Using the downloaded files, verify deterministically:
 7. SHA-256 values recompute for every file listed in `integrity/SHA256SUMS.json`.
 8. `validation/reconciliation.json` reports rendered stability or an explicit discrepancy; do not manually "fix" mismatches.
 
+The same checks can be repeated without exposing transcript text by running from the extension directory:
+
+```text
+node tools/validate-capture-bundle.mjs <capture-bundle-directory>
+```
+
+The command emits aggregate-only JSON and exits nonzero on conservation, pointer, raw-backed tool, reconciliation, or SHA-256 failures.
+
 ## Rendered spot check
 
 Manually compare:

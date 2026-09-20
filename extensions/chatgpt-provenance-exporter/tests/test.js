@@ -47,6 +47,7 @@ for (const file of [
   "eval-core.js",
   "tools/import-official-export.mjs",
   "tools/export-eval-trace.mjs",
+  "tools/validate-capture-bundle.mjs",
   "dev/build-live-browser-payload.mjs",
 ]) {
   test(`${file} syntax`, () => syntax(file));
@@ -548,6 +549,64 @@ test("official importer CLI preserves raw ZIP bytes and recomputes output hashes
     }
     const manifest = JSON.parse(fs.readFileSync(path.join(output, "manifest.json"), "utf8"));
     assert.equal(manifest.source_archive.sha256, crypto.createHash("sha256").update(archive).digest("hex"));
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+test("capture-bundle validator checks conservation, raw-backed tools, reconciliation, and hashes", () => {
+  const cli = path.join(ROOT, "tools", "validate-capture-bundle.mjs");
+  const help = spawnSync(process.execPath, [cli, "--help"], { encoding: "utf8" });
+  assert.equal(help.status, 0, help.stderr);
+  assert.match(help.stdout, /aggregate-only JSON/);
+  assert.doesNotMatch(fs.readFileSync(cli, "utf8"), /fetch\(|https?:\/\//);
+
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "provenance-bundle-validator-"));
+  try {
+    const bundle = path.join(temp, "bundle");
+    const conversation = makeConversation("c1", "One", "python");
+    const graph = core.normalizeConversation(conversation);
+    const messages = core.deriveMessages(graph.nodes);
+    const tools = core.deriveToolEvents(graph.nodes);
+    const files = new Map([
+      ["raw/conversation.response.json", JSON.stringify(conversation)],
+      ["normalized/nodes.jsonl", core.toJsonl(graph.nodes)],
+      ["normalized/edges.jsonl", core.toJsonl(graph.edges)],
+      ["normalized/messages.jsonl", core.toJsonl(messages)],
+      ["normalized/tool-events.jsonl", core.toJsonl(tools)],
+      ["normalized/citations.jsonl", ""],
+      ["normalized/artifacts.jsonl", ""],
+      ["rendered/rendered-turns.jsonl", ""],
+      ["validation/reconciliation.json", JSON.stringify({ status: "no_differences_observed" })],
+      ["validation/capture-report.json", JSON.stringify({ counts: { nodes: 3, tool_events: 2, citations: 0 } })],
+    ]);
+    const manifestFiles = ["manifest.json", ...files.keys(), "integrity/SHA256SUMS.json"];
+    files.set("manifest.json", JSON.stringify({ files: manifestFiles }));
+    const hashes = {};
+    for (const [relative, content] of files) {
+      const destination = path.join(bundle, relative);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.writeFileSync(destination, content);
+      const bytes = Buffer.from(content, "utf8");
+      hashes[relative] = {
+        algorithm: "sha256",
+        digest: crypto.createHash("sha256").update(bytes).digest("hex"),
+        bytes: bytes.length,
+      };
+    }
+    const sumPath = path.join(bundle, "integrity", "SHA256SUMS.json");
+    fs.mkdirSync(path.dirname(sumPath), { recursive: true });
+    fs.writeFileSync(sumPath, JSON.stringify({ hashes }));
+
+    const result = spawnSync(process.execPath, [cli, bundle], { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    const summary = JSON.parse(result.stdout.trim());
+    assert.equal(summary.ok, true);
+    assert.equal(summary.mapping_nodes, 3);
+    assert.equal(summary.tools, 2);
+    assert.equal(summary.tool_raw_mismatches, 0);
+    assert.equal(summary.hash_failures, 0);
+    assert.equal(summary.rendered_reconciliation, "no_differences_observed");
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
