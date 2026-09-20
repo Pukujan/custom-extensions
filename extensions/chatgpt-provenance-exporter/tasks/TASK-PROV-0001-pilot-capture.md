@@ -257,6 +257,11 @@ Blocker update:
 Next atomic action:
 - obtain a CDP-enabled browser connection for the already-open pilot URL (or have the user open it in the ChatGPT desktop built-in browser with full CDP access enabled), evaluate the standalone payload, exercise pause/resume/reset, capture once, and run every structural/hash/rendered/tool-event/lazy-load/scroll check. Do not start PROV-0002 or bulk export.
 
+Additional rendered observation:
+- read-only DOM aggregate probe returned `totalSemanticNodes: 264`, `codeBlocks: 250`, `links: 46`, `buttons: 186`;
+- the probe found `matchedAttributeCount: 9`, but all unique matches were sidebar/UI labels (`Search`, project/conversation controls, `tooltip`), not conversation-level tool/source/citation/reference markers;
+- this is supporting UI evidence for the reported absence of visibly labeled tool/source records, not proof of raw-source absence. No classifier change was made without raw API evidence.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.
