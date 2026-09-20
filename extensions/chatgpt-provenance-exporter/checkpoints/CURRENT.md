@@ -2,9 +2,9 @@
 
 ## Program state
 
-Phase: 4 — resumable incremental account-wide exporter.
+Phase: 5 — official ChatGPT export importer/reconciliation.
 
-Current P0 task: `TASK-PROV-0004-incremental-export.md` (review checkpoint).
+Current P0 task: `TASK-PROV-0005-official-import.md` (review checkpoint).
 
 ## Main objective
 
@@ -29,6 +29,7 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 - independent PROV-0002 holdout validation;
 - versioned PROV-0003 ontology v0.1.0.
 - PROV-0004 account-wide exporter design and deterministic implementation.
+- PROV-0005 official export importer/reconciliation implementation.
 
 ## Queued
 
@@ -39,8 +40,8 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 
 ## Current verification state
 
-The PROV-0001 pilot and PROV-0002 independent holdout are both accepted and frozen. The pilot preserved `465` nodes, `363` tool events, and `328` citations; the holdout preserved `984` nodes, `862` tool events, and `740` citations. Both passed source conservation, lineage, pointer, raw-backed tool, hash, rendered-stability, pause/resume/reset, and scroll-restoration checks with raw/rendered discrepancies preserved. PROV-0003 ontology v0.1.0 is implemented and its deterministic/full-suite gates are green. PROV-0004's design and deterministic implementation gate is green, but its controlled live account smoke remains unrun by design; no live account-wide export has started. The built-in in-app browser remains read-only and is not treated as the live acceptance surface.
+The PROV-0001 pilot and PROV-0002 independent holdout are both accepted and frozen. The pilot preserved `465` nodes, `363` tool events, and `328` citations; the holdout preserved `984` nodes, `862` tool events, and `740` citations. Both passed source conservation, lineage, pointer, raw-backed tool, hash, rendered-stability, pause/resume/reset, and scroll-restoration checks with raw/rendered discrepancies preserved. PROV-0003 ontology v0.1.0 is implemented and its deterministic/full-suite gates are green. PROV-0004's design and deterministic implementation gate is green, but its controlled live account smoke remains unrun by design; no live account-wide export has started. PROV-0005's deterministic official-export importer/reconciliation gate is green, but no real private ZIP has been imported. The built-in in-app browser remains read-only and is not treated as the live acceptance surface.
 
 ## Next atomic action
 
-Commit the PROV-0004 review checkpoint, then open PROV-0005 for official ChatGPT export import/reconciliation. Retain the PROV-0004 live-smoke authorization as a later controlled action; do not copy external live bundles into Git or start account-wide export.
+Commit the PROV-0005 review checkpoint, then open PROV-0006 for optional live client-visible event capture. Retain PROV-0004 live-smoke authorization and real official-ZIP validation as later controlled actions; do not copy private evidence into Git or start account-wide export.

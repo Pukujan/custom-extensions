@@ -1,12 +1,17 @@
 "use strict";
 
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
+const zlib = require("node:zlib");
 const { spawnSync } = require("node:child_process");
 const core = require("../core.js");
 globalThis.ChatGPTProvenanceCore = core;
 const accountCore = require("../account-core.js");
+const officialCore = require("../official-core.js");
+const officialZip = require("../official-zip.js");
 
 const ROOT = path.resolve(__dirname, "..");
 let passed = 0;
@@ -27,8 +32,87 @@ function syntax(file) {
   assert.equal(result.status, 0, result.stderr || result.stdout);
 }
 
-for (const file of ["core.js", "content.js", "background.js", "popup.js", "account-core.js", "account-runner.js"]) {
+for (const file of [
+  "core.js",
+  "content.js",
+  "background.js",
+  "popup.js",
+  "account-core.js",
+  "account-runner.js",
+  "official-core.js",
+  "official-zip.js",
+  "tools/import-official-export.mjs",
+]) {
   test(`${file} syntax`, () => syntax(file));
+}
+
+function put16(buffer, offset, value) {
+  buffer.writeUInt16LE(value, offset);
+}
+
+function put32(buffer, offset, value) {
+  buffer.writeUInt32LE(value >>> 0, offset);
+}
+
+function makeZip(entries, { method = 0, flags = 0 } = {}) {
+  const locals = [];
+  const centrals = [];
+  let offset = 0;
+  for (const entry of entries) {
+    const name = Buffer.from(entry.name, "utf8");
+    const raw = Buffer.from(entry.content, "utf8");
+    const compressed = method === 8 ? zlib.deflateRawSync(raw) : raw;
+    const crc = officialZip.crc32(raw);
+    const local = Buffer.alloc(30 + name.length);
+    local.writeUInt32LE(0x04034b50, 0);
+    put16(local, 4, 20);
+    put16(local, 6, flags | 0x800);
+    put16(local, 8, method);
+    put32(local, 14, crc);
+    put32(local, 18, compressed.length);
+    put32(local, 22, raw.length);
+    put16(local, 26, name.length);
+    name.copy(local, 30);
+    locals.push(Buffer.concat([local, compressed]));
+
+    const central = Buffer.alloc(46 + name.length);
+    central.writeUInt32LE(0x02014b50, 0);
+    put16(central, 4, 20);
+    put16(central, 6, 20);
+    put16(central, 8, flags | 0x800);
+    put16(central, 10, method);
+    put32(central, 16, crc);
+    put32(central, 20, compressed.length);
+    put32(central, 24, raw.length);
+    put16(central, 28, name.length);
+    put32(central, 42, offset);
+    name.copy(central, 46);
+    centrals.push(central);
+    offset += locals.at(-1).length;
+  }
+  const centralDirectory = Buffer.concat(centrals);
+  const eocd = Buffer.alloc(22);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  put16(eocd, 8, entries.length);
+  put16(eocd, 10, entries.length);
+  put32(eocd, 12, centralDirectory.length);
+  put32(eocd, 16, offset);
+  return Buffer.concat([...locals, centralDirectory, eocd]);
+}
+
+function makeConversation(id, title, recipient = null) {
+  return {
+    id,
+    title,
+    create_time: "2026-09-01T00:00:00Z",
+    update_time: "2026-09-02T00:00:00Z",
+    mapping: {
+      root: { parent: null, children: ["user"], message: { id: `${id}-u`, author: { role: "user" }, content: { content_type: "text", parts: ["question"] } } },
+      user: { parent: "root", children: ["assistant"], message: { id: `${id}-a`, author: { role: "assistant" }, recipient, content: { content_type: "text", parts: ["answer"] } } },
+      assistant: { parent: "user", children: [], opaque: { preserve: true }, message: { id: `${id}-tool`, author: { role: "tool", name: "python" }, content: { content_type: "execution_output", parts: ["result"] } } },
+    },
+    current_node: "assistant",
+  };
 }
 
 test("manifest is MV3 and least-privilege scoped to ChatGPT", () => {
@@ -360,6 +444,103 @@ test("account runner and background use deterministic overwrite paths without pr
   assert.match(background, /conflictAction: file\.conflictAction/);
   assert.doesNotMatch(`${runner}\n${background}`, /method:\s*["'](?:POST|PATCH|PUT|DELETE)["']/);
   assert.doesNotMatch(`${runner}\n${background}`, /XMLHttpRequest|WebSocket/);
+});
+
+test("official ZIP reader supports stored and deflated entries and verifies CRC", () => {
+  for (const method of [0, 8]) {
+    const archive = makeZip([
+      { name: "conversations.json", content: "[{\"id\":\"c1\",\"mapping\":{}}]" },
+      { name: "user.json", content: "{\"email\":\"redacted\"}" },
+    ], { method });
+    const entries = officialZip.readZipEntries(archive);
+    assert.deepEqual(entries.map((entry) => entry.name), ["conversations.json", "user.json"]);
+    assert.equal(entries[0].bytes.toString("utf8"), "[{\"id\":\"c1\",\"mapping\":{}}]");
+  }
+  assert.throws(() => officialZip.readZipEntries(makeZip([{ name: "../escape.json", content: "{}" }])), /Unsafe ZIP entry/);
+  assert.throws(() => officialZip.readZipEntries(makeZip([{ name: "secret.json", content: "{}" }], { flags: 1 })), /Encrypted ZIP/);
+});
+
+test("official discovery preserves structural source pointers, duplicates, and ignored JSON", () => {
+  const conversations = [makeConversation("c1", "One"), makeConversation("c2", "Two")];
+  const entries = [
+    { name: "conversations.json", text: JSON.stringify(conversations) },
+    { name: "0001.json", text: JSON.stringify(makeConversation("c1", "One duplicate")) },
+    { name: "user.json", text: JSON.stringify({ email: "redacted" }) },
+  ];
+  const found = officialCore.discoverConversations(entries);
+  assert.equal(found.conversations.length, 3);
+  assert.equal(found.duplicateIds.length, 1);
+  assert.equal(found.conversations[0].source_pointer, "zip-entry:conversations.json#/items/0");
+  assert.equal(found.conversations[2].source_pointer, "zip-entry:0001.json#/conversation");
+  assert.ok(found.unrecognizedJson.some((item) => item.entry === "user.json"));
+});
+
+test("official derivation conserves mapping nodes and keeps tool raw source", () => {
+  const record = officialCore.discoverConversations([
+    { name: "conversations.json", text: JSON.stringify([makeConversation("c1", "One", "python")]) },
+  ]).conversations[0];
+  const derived = officialCore.deriveConversation(record);
+  assert.equal(derived.ok, true);
+  assert.equal(derived.graph.nodes.length, 3);
+  assert.equal(derived.graph.edges.length, 2);
+  assert.equal(derived.tools.length, 2);
+  for (const node of derived.graph.nodes) assert.equal(core.pointerNodeId(node.source_pointer), node.node_id);
+  assert.deepEqual(derived.tools.find((item) => item.event_class === "tool.result").raw_node.opaque, { preserve: true });
+});
+
+test("official reconciliation preserves missing, duplicate, and metadata discrepancies", () => {
+  const records = [
+    { id: "c1", title: "Official", create_time: "1", update_time: "2" },
+    { id: "c1", title: "Duplicate", create_time: "1", update_time: "2" },
+    { id: "c2", title: "Only official", create_time: null, update_time: null },
+  ];
+  const report = officialCore.reconciliation(records, [
+    { id: "c1", title: "Account", create_time: "1", update_time: "3" },
+    { id: "c3", title: "Only account" },
+  ]);
+  assert.equal(report.status, "differences_observed");
+  assert.deepEqual(report.official_only, ["c2"]);
+  assert.deepEqual(report.account_only, ["c3"]);
+  assert.deepEqual(report.duplicate_official_ids, ["c1"]);
+  assert.ok(report.metadata_mismatches.some((item) => item.id === "c1"));
+  assert.equal(officialCore.reconciliation(records, undefined).status, "not_comparable");
+});
+
+test("official importer CLI help is deterministic and local-only", () => {
+  const cli = path.join(ROOT, "tools", "import-official-export.mjs");
+  const result = spawnSync(process.execPath, [cli, "--help"], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /export\.zip/);
+  assert.doesNotMatch(fs.readFileSync(cli, "utf8"), /fetch\(|https?:\/\//);
+});
+
+test("official importer CLI preserves raw ZIP bytes and recomputes output hashes", () => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "provenance-official-import-"));
+  try {
+    const input = path.join(temp, "export.zip");
+    const output = path.join(temp, "bundle");
+    const archive = makeZip([
+      { name: "conversations.json", content: JSON.stringify([makeConversation("c1", "One", "python")]) },
+      { name: "user.json", content: JSON.stringify({ email: "redacted" }) },
+    ], { method: 8 });
+    fs.writeFileSync(input, archive);
+    const result = spawnSync(process.execPath, [path.join(ROOT, "tools", "import-official-export.mjs"), input, output], { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    const summary = JSON.parse(result.stdout.trim());
+    assert.equal(summary.valid_conversations, 1);
+    assert.deepEqual(fs.readFileSync(path.join(output, "raw", "official-export.zip")), archive);
+    const sums = JSON.parse(fs.readFileSync(path.join(output, "integrity", "SHA256SUMS.json"), "utf8"));
+    for (const [relative, expected] of Object.entries(sums.hashes)) {
+      const actualBytes = fs.readFileSync(path.join(output, relative));
+      const actual = crypto.createHash("sha256").update(actualBytes).digest("hex");
+      assert.equal(actual, expected.digest, relative);
+      assert.equal(actualBytes.length, expected.bytes, relative);
+    }
+    const manifest = JSON.parse(fs.readFileSync(path.join(output, "manifest.json"), "utf8"));
+    assert.equal(manifest.source_archive.sha256, crypto.createHash("sha256").update(archive).digest("hex"));
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
 });
 
 console.log(`\n${passed} tests passed.`);
