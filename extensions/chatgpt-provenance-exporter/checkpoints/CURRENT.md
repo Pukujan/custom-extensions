@@ -2,9 +2,9 @@
 
 ## Program state
 
-Phase: 3 — versioned provenance ontology.
+Phase: 4 — resumable incremental account-wide exporter.
 
-Current P0 task: `TASK-PROV-0003-ontology-v01.md`.
+Current P0 task: `TASK-PROV-0004-incremental-export.md` (review checkpoint).
 
 ## Main objective
 
@@ -28,6 +28,7 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 - deterministic and metamorphic capture tests;
 - independent PROV-0002 holdout validation;
 - versioned PROV-0003 ontology v0.1.0.
+- PROV-0004 account-wide exporter design and deterministic implementation.
 
 ## Queued
 
@@ -38,8 +39,8 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 
 ## Current verification state
 
-The PROV-0001 pilot and PROV-0002 independent holdout are both accepted and frozen. The pilot preserved `465` nodes, `363` tool events, and `328` citations; the holdout preserved `984` nodes, `862` tool events, and `740` citations. Both passed source conservation, lineage, pointer, raw-backed tool, hash, rendered-stability, pause/resume/reset, and scroll-restoration checks with raw/rendered discrepancies preserved. PROV-0003 ontology v0.1.0 is now implemented and its deterministic/full-suite gates are green. Bulk export remains prohibited until the next account-wide design task is explicitly opened. The built-in in-app browser remains read-only and is not treated as the live acceptance surface.
+The PROV-0001 pilot and PROV-0002 independent holdout are both accepted and frozen. The pilot preserved `465` nodes, `363` tool events, and `328` citations; the holdout preserved `984` nodes, `862` tool events, and `740` citations. Both passed source conservation, lineage, pointer, raw-backed tool, hash, rendered-stability, pause/resume/reset, and scroll-restoration checks with raw/rendered discrepancies preserved. PROV-0003 ontology v0.1.0 is implemented and its deterministic/full-suite gates are green. PROV-0004's design and deterministic implementation gate is green, but its controlled live account smoke remains unrun by design; no live account-wide export has started. The built-in in-app browser remains read-only and is not treated as the live acceptance surface.
 
 ## Next atomic action
 
-Freeze the PROV-0003 ontology checkpoint and open the PROV-0004 resumable incremental account-wide exporter design task. Do not copy the external live bundles into Git or begin bulk export implementation before the design contract is reviewed.
+Commit the PROV-0004 review checkpoint, then open PROV-0005 for official ChatGPT export import/reconciliation. Retain the PROV-0004 live-smoke authorization as a later controlled action; do not copy external live bundles into Git or start account-wide export.

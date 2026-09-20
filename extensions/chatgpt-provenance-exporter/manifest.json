@@ -21,7 +21,9 @@
       ],
       "js": [
         "core.js",
-        "content.js"
+        "content.js",
+        "account-core.js",
+        "account-runner.js"
       ],
       "run_at": "document_idle"
     }

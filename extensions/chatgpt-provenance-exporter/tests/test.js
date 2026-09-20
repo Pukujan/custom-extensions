@@ -5,6 +5,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const core = require("../core.js");
+globalThis.ChatGPTProvenanceCore = core;
+const accountCore = require("../account-core.js");
 
 const ROOT = path.resolve(__dirname, "..");
 let passed = 0;
@@ -25,7 +27,7 @@ function syntax(file) {
   assert.equal(result.status, 0, result.stderr || result.stdout);
 }
 
-for (const file of ["core.js", "content.js", "background.js", "popup.js"]) {
+for (const file of ["core.js", "content.js", "background.js", "popup.js", "account-core.js", "account-runner.js"]) {
   test(`${file} syntax`, () => syntax(file));
 }
 
@@ -34,7 +36,7 @@ test("manifest is MV3 and least-privilege scoped to ChatGPT", () => {
   assert.equal(manifest.manifest_version, 3);
   assert.deepEqual(manifest.host_permissions, ["https://chatgpt.com/*"]);
   assert.deepEqual([...manifest.permissions].sort(), ["activeTab", "downloads", "storage"].sort());
-  assert.deepEqual(manifest.content_scripts[0].js, ["core.js", "content.js"]);
+  assert.deepEqual(manifest.content_scripts[0].js, ["core.js", "content.js", "account-core.js", "account-runner.js"]);
 });
 
 test("conversation ID parser is specific to /c/ URLs", () => {
@@ -285,6 +287,79 @@ test("ontology v0.1 is versioned, source-preserving, and structurally complete",
     assert.match(example.source_pointer, /^\/mapping\//);
     assert.equal(example.classification.ruleset_version, rules.ruleset_id);
   }
+});
+
+test("account enumeration freezes unique queue order and terminates on a short page", () => {
+  let state = accountCore.makeEnumerationState(2);
+  state = accountCore.applyPage(state, {
+    total: 3,
+    items: [
+      { id: "a", title: "A", update_time: "2026-09-20T00:00:00Z" },
+      { id: "b", title: "B", update_time: "2026-09-19T00:00:00Z" },
+    ],
+  });
+  assert.equal(state.complete, false);
+  state = accountCore.applyPage(state, {
+    total: 3,
+    items: [
+      { id: "b", title: "duplicate B" },
+      { id: "c", title: "C" },
+    ],
+  });
+  assert.equal(state.complete, true);
+  assert.deepEqual(accountCore.queueFromEnumeration(state).map((item) => item.id), ["a", "b", "c"]);
+  assert.equal(state.listedItems, 4);
+  assert.equal(state.summaries.length, 3);
+});
+
+test("account enumeration rejects malformed pages and repeated full pages", () => {
+  assert.throws(() => accountCore.normalizePage({ items: [{ title: "missing id" }] }, 100), /without a usable ID/);
+  let state = accountCore.makeEnumerationState(2);
+  state = accountCore.applyPage(state, { items: [{ id: "a" }, { id: "b" }] });
+  assert.throws(() => accountCore.applyPage(state, { items: [{ id: "a" }, { id: "b" }] }), /repeated a full page/);
+  assert.throws(() => accountCore.applyPage(state, { items: [{ id: "b" }, { id: "a" }] }), /no unique progress/);
+});
+
+test("account progress conserves queue order and failed head is retryable", () => {
+  const initial = accountCore.makeProgress([{ id: "a" }, { id: "b" }], "run-1");
+  const failed = accountCore.recordFailure(initial, "a", "temporary failure");
+  assert.equal(failed.next_index, 0);
+  assert.deepEqual(failed.completed_ids, []);
+  assert.equal(failed.failures.length, 1);
+  const afterA = accountCore.completeItem(failed, "a");
+  const afterB = accountCore.completeItem(afterA, "b");
+  assert.equal(afterB.status, "done");
+  assert.equal(afterB.next_index, 2);
+  assert.throws(() => accountCore.completeItem(afterB, "b"), /already complete/);
+  assert.throws(() => accountCore.completeItem(afterA, "not-b"), /queue head/);
+});
+
+test("account paths are deterministic and traversal-safe", () => {
+  const paths = accountCore.makeConversationPaths("run/unsafe", "chat/unsafe");
+  assert.match(paths.raw, /^chatgpt-provenance-account\/run-unsafe\/conversations\/chat-unsafe\//);
+  assert.doesNotMatch(paths.raw, /\.\./);
+  assert.equal(paths.raw, accountCore.makeConversationPaths("run/unsafe", "chat/unsafe").raw);
+  assert.match(accountCore.queueFingerprint([{ id: "a" }]), /^fnv1a64:[0-9a-f]{16}$/);
+  assert.equal(accountCore.queueFingerprint([{ id: "a" }]), accountCore.queueFingerprint([{ id: "a" }]));
+});
+
+test("account runner is read-only and storage-safe by construction", () => {
+  const runner = fs.readFileSync(path.join(ROOT, "account-runner.js"), "utf8");
+  accountCore.assertReadOnlySource(runner);
+  assert.match(runner, /rawText = await response\.text\(\)/);
+  assert.match(runner, /chromeProvenanceAccountState|chatgptProvenanceAccountState/);
+  assert.match(runner, /accountCore\.completeItem/);
+  assert.match(runner, /RESET_PROVENANCE_ACCOUNT_EXPORT/);
+  assert.doesNotMatch(runner, /local\.set\(\{[^}]*rawText/s);
+});
+
+test("account runner and background use deterministic overwrite paths without private endpoints", () => {
+  const runner = fs.readFileSync(path.join(ROOT, "account-runner.js"), "utf8");
+  const background = fs.readFileSync(path.join(ROOT, "background.js"), "utf8");
+  assert.match(runner, /conflictAction: "overwrite"/);
+  assert.match(background, /conflictAction: file\.conflictAction/);
+  assert.doesNotMatch(`${runner}\n${background}`, /method:\s*["'](?:POST|PATCH|PUT|DELETE)["']/);
+  assert.doesNotMatch(`${runner}\n${background}`, /XMLHttpRequest|WebSocket/);
 });
 
 console.log(`\n${passed} tests passed.`);

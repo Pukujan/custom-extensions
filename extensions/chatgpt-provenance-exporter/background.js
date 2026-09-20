@@ -14,7 +14,7 @@ async function downloadFiles(baseDirectory, files) {
       url: textDataUrl(file.content, file.mime),
       filename,
       saveAs: false,
-      conflictAction: "uniquify",
+      conflictAction: file.conflictAction || "uniquify",
     });
     downloadIds.push({ path, downloadId });
   }
@@ -29,7 +29,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       const baseDirectory = String(message.baseDirectory || "chatgpt-provenance");
       const files = Array.isArray(message.files) ? message.files : [];
       if (!files.length) throw new Error("No provenance files supplied.");
-      const downloads = await downloadFiles(baseDirectory, files);
+      if (baseDirectory.includes("..") || baseDirectory.startsWith("/") || baseDirectory.includes("\\")) {
+        throw new Error("Unsafe provenance download directory.");
+      }
+      const downloads = await downloadFiles(baseDirectory, files.map((file) => ({
+        ...file,
+        conflictAction: message.conflictAction || file.conflictAction,
+      })));
       sendResponse({ ok: true, downloads });
     } catch (error) {
       sendResponse({ ok: false, error: error?.message || String(error) });
