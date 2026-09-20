@@ -205,3 +205,32 @@ Observed fixes:
 
 Next:
 - if the external CDP prerequisite becomes available, run the built-in-browser/live-observer smoke and then the unpacked MV3 UI smoke; otherwise no further live acceptance can be claimed.
+
+### 2026-09-20 22:18:15 UTC — Codex — repaired-surface live probe
+
+Environment:
+- OS: `Microsoft Windows 11 Home`, version `10.0.26200`, build `26200`;
+- ChatGPT desktop: `153.0.8010.48`;
+- Brave: `153.1.95.102`;
+- Node: `v24.14.1`;
+- repository branch/commit at probe start: `task/PROV-0007-eval-trace` / `dbadee0148eafd73b2fe6db3b320d989ea70703e`.
+
+Exact live probe:
+- opened the user-selected pilot URL in the exposed Codex in-app Chromium browser: `https://chatgpt.com/c/6ab01034-f144-83ea-bae2-1e71588ccae5`;
+- browser inventory returned only `Codex In-app Browser` (`type: iab`), with no `cdp` browser and no Brave/Chromium extension-provider connection;
+- read-only page diagnostics returned `title:"Handoff Declined"`, the exact pilot URL, `hasBundle:false`, `bundleType:"undefined"`, and `extensionMarkers:[]`;
+- rendered aggregate diagnostics returned `workedForButtons:3`, `sourceLikeLinks:46`, `toolLikeLabels:3`, and `mainTextChars:22558`;
+- attempting `chrome://extensions/` was rejected by the browser-use URL policy; no workaround or raw-CDP/browser-command bypass was attempted;
+- ChatGPT process inspection returned no `--remote-debugging-port` or equivalent full-CDP flag.
+
+Interpretation:
+- the exact pilot page visibly contains tool-work indicators and source-like links, so the user-reported absence of tools/sources is not evidence that this conversation has none;
+- the exposed in-app page is not running the provenance payload or unpacked extension, so no live capture, pause/resume/reset, raw preservation, source-pointer, tool-raw, hash, rendered-reconciliation, lazy-load, or scroll-restore acceptance claim is made from this probe;
+- no parser/classifier fix is justified by this evidence. The remaining blocker is the missing approved full-CDP/evaluate connection plus the required unpacked-MV3 browser smoke surface.
+
+Decision:
+- preserve the live-validation status as blocked; do not claim PROV-0001 pilot acceptance from this in-app read-only probe;
+- do not start bulk export or PROV-0002; do not copy private transcript contents into Git.
+
+Next atomic action:
+- expose the approved ChatGPT desktop full-CDP/evaluate browser connection and load the unpacked MV3 extension in the authorized Chromium/Brave test surface; then run the documented payload controls and aggregate-only validation before changing this status.
