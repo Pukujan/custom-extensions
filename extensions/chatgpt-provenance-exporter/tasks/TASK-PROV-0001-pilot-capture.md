@@ -4,7 +4,7 @@
 - Owner: ChatGPT/Sol + local Luna/browser agent for live validation
 - Priority: P0
 - Depends on: none
-- Branch: `feature/chatgpt-provenance-exporter`
+- Branch: `feature/chatgpt-provenance-exporter`\n- GitHub issue: #6
 
 ## Goal
 
