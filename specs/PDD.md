@@ -1,5 +1,7 @@
 # PDD — Custom Extensions Collection
 
+<!-- continuity:project {"id":"custom-extensions","protocol_version":"0.1.0-draft","schema":"project-continuity.project.v1","title":"Custom Extensions"} -->
+
 ## Problem
 
 Small personal browser extensions are easy to create in one-off AI sessions and easy to lose across chat history, downloaded ZIPs, and separate repositories. The result is weak provenance, duplicated setup, forgotten safety constraints, and no durable handoff for the next coding session.
