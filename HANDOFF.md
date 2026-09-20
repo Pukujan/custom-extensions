@@ -57,9 +57,9 @@
 
 `release/current.json` defines the prepared collection bundle tag/title.
 
-`scripts/package-extensions.sh` packages every registry entry, requires registry/manifest version agreement, excludes conventional repository-only tests/specs/reports, verifies `manifest.json` is at ZIP root, and writes `SHA256SUMS.txt`.
+`scripts/package-extensions.mjs` is the canonical cross-platform packager for every registry entry. It requires registry/manifest version agreement, excludes conventional repository-only tests/specs/reports, verifies `manifest.json` is at ZIP root, and writes `SHA256SUMS.txt`. `scripts/package-extensions.sh` remains a legacy Unix wrapper.
 
-`.github/workflows/package-release.yml` runs the collection tests before packaging and publishing the GitHub Release. A change to `release/current.json` on `main` publishes a new bundle; manual reruns refresh the named release idempotently. This branch has not published the prepared bundle.
+`.github/workflows/package-release.yml` runs the collection tests, Node packager, and Node release-metadata validator before publishing the GitHub Release. A change to `release/current.json` on `main` publishes a new bundle; manual reruns refresh the named release idempotently. This branch has not published the prepared bundle.
 
 ## Observed release evidence
 
@@ -77,7 +77,11 @@ Observed test results:
 
 The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.txt`.
 
-## Exact next actions
+## Active provenance next action
+
+The active project is the ChatGPT Provenance Exporter. Its canonical next action is recorded in `extensions/chatgpt-provenance-exporter/HANDOFF.md` and `extensions/chatgpt-provenance-exporter/checkpoints/CURRENT.md`: keep the accepted v0.1 pilot/holdout baseline frozen; wait for a user-supplied official export ZIP or a separate explicit authorization for account-wide/live-stream validation; do not start bulk export automatically.
+
+## Other collection maintenance (not the active provenance task)
 
 1. Download `chatgpt-transcript-exporter-v0.1.0.zip` from release `extensions-2026.09.03`.
 2. Optionally verify SHA-256 against `SHA256SUMS.txt`.
