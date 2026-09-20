@@ -35,16 +35,7 @@ jobs:
 
       - name: Read release metadata
         id: release
-        shell: bash
-        run: |
-          tag="$(jq -r '.tag // empty' release/current.json)"
-          title="$(jq -r '.title // empty' release/current.json)"
-          if [[ -z "$tag" || -z "$title" ]]; then
-            echo "release/current.json must contain non-empty tag and title fields" >&2
-            exit 1
-          fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "title=$title" >> "$GITHUB_OUTPUT"
+        run: node scripts/read-release-metadata.mjs >> "$GITHUB_OUTPUT"
 
       - name: Publish GitHub Release assets
         env:

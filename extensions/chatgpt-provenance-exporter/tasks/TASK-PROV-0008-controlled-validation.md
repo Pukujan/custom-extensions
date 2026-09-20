@@ -50,6 +50,7 @@ The controlled built-in-browser pilot is accepted: the live bundle passed source
 - Exact verification: `node --check scripts/package-extensions.mjs` → exit `0`; `node scripts/package-extensions.mjs --help` → exit `0`; two independent `node scripts/package-extensions.mjs --out <controlled-temp-dir>` runs → four expected archives each, identical SHA-256 values; checksum recomputation, root `manifest.json`, and exclusion of `tests/`/`specs/` → passed; `node scripts/test-all.mjs` → exit `0`, all registered suites passed (`102` tests total).
 - Temporary packaging directories were removed. No release was published and no private data was involved.
 - At `2026-09-20 23:41:33 UTC`, packager cleanup was hardened to remove only generated `.zip` files and `SHA256SUMS.txt`; a controlled nested sentinel file survived, stale generated ZIPs were removed, and the two-run deterministic ZIP/checksum/archive-invariant check passed again. `node scripts/test-all.mjs` again returned exit `0` with all registered suites passed (`102` tests total).
+- At `2026-09-20 23:43:11 UTC`, `node --check scripts/read-release-metadata.mjs` and `node scripts/read-release-metadata.mjs` passed, returning `tag=extensions-2026.09.20` and `title=Custom Extensions — 2026-09-20`; the release workflow now uses this Node validator instead of `jq`.
 
 Blockers:
 

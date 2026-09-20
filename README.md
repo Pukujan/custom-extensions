@@ -62,6 +62,7 @@ custom-extensions/
 ├── scripts/
 │   ├── package-extensions.mjs
 │   ├── package-extensions.sh
+│   ├── read-release-metadata.mjs
 │   └── test-all.mjs
 └── extensions/
     ├── registry.json
