@@ -1,5 +1,9 @@
 # HANDOFF.md — Custom Extensions
 
+<!-- continuity:current {"active_task":null,"active_task_file":null,"protocol_version":"0.1.0-draft","schema":"project-continuity.current.v1"} -->
+
+> Continuity v1: this file remains the canonical mutable repository checkpoint. On `main`, no root continuity task is active; the ChatGPT Provenance Exporter work described below remains intentionally branch-local on `feature/chatgpt-provenance-exporter` with its own canonical task/checkpoint.
+
 ## Checkpoint
 
 - Date: 2026-09-03
