@@ -260,4 +260,31 @@ test("capture exposes pause, resume, and cancellation-safe reset controls", () =
   assert.match(popup, /Citation records/);
 });
 
+test("ontology v0.1 is versioned, source-preserving, and structurally complete", () => {
+  const ontologyRoot = path.join(ROOT, "ontology", "v0.1.0");
+  const classes = JSON.parse(fs.readFileSync(path.join(ontologyRoot, "classes.json"), "utf8"));
+  const rules = JSON.parse(fs.readFileSync(path.join(ontologyRoot, "rules.json"), "utf8"));
+  const schema = JSON.parse(fs.readFileSync(path.join(ontologyRoot, "schema.json"), "utf8"));
+  const examples = fs
+    .readFileSync(path.join(ontologyRoot, "examples.jsonl"), "utf8")
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  assert.equal(classes.ontology_version, "0.1.0");
+  assert.equal(rules.ontology_version, "0.1.0");
+  assert.equal(schema.ontology_version, "0.1.0");
+  const classIds = new Set(classes.classes.map((item) => item.id));
+  for (const required of ["tool.call", "tool.result", "citation", "unknown"]) assert.ok(classIds.has(required));
+  assert.equal(rules.classification_is_metadata, true);
+  assert.equal(rules.preserve_raw_before_classification, true);
+  assert.equal(rules.ordered_rules.at(-1).class, "unknown");
+  assert.ok(examples.length >= 4);
+  for (const example of examples) {
+    assert.equal(example.ontology_version, "0.1.0");
+    assert.equal(example.raw_node_retained, true);
+    assert.match(example.source_pointer, /^\/mapping\//);
+    assert.equal(example.classification.ruleset_version, rules.ruleset_id);
+  }
+});
+
 console.log(`\n${passed} tests passed.`);

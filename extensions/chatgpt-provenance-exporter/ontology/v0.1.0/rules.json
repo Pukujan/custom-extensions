@@ -1,0 +1,81 @@
+{
+  "ontology_version": "0.1.0",
+  "ruleset_id": "chatgpt-provenance-conservative-v0.1.0",
+  "classification_is_metadata": true,
+  "preserve_raw_before_classification": true,
+  "ordered_rules": [
+    {
+      "id": "tool-call-marker",
+      "priority": 10,
+      "class": "tool.call",
+      "when": [
+        "author role is assistant and recipient is non-empty and is not all/none",
+        "content type matches tool-call, function-call, or computer-call",
+        "message contains tool_call_id, function_call, or tool_calls"
+      ],
+      "requires": ["source_pointer", "raw_node_retained"]
+    },
+    {
+      "id": "tool-result-marker",
+      "priority": 20,
+      "class": "tool.result",
+      "when": [
+        "author role is tool",
+        "content type matches tool-result, tool-output, computer-output, or function-result",
+        "message contains tool_result or tool_output"
+      ],
+      "requires": ["source_pointer", "raw_node_retained"]
+    },
+    {
+      "id": "browser-marker",
+      "priority": 30,
+      "class": "browser.activity",
+      "when": ["author name or content type contains browser or computer"]
+    },
+    {
+      "id": "citation-marker",
+      "priority": 40,
+      "class": "citation",
+      "when": [
+        "metadata contains citations, citation, or content_references",
+        "content type matches citation or reference"
+      ],
+      "requires": ["source_pointer"]
+    },
+    {
+      "id": "attachment-marker",
+      "priority": 50,
+      "class": "attachment",
+      "when": ["message contains attachment or attachments", "content type contains attachment"]
+    },
+    {
+      "id": "artifact-marker",
+      "priority": 60,
+      "class": "artifact",
+      "when": [
+        "message contains artifact, artifact_id, or file_id",
+        "content type contains artifact or file"
+      ]
+    },
+    {
+      "id": "status-marker",
+      "priority": 70,
+      "class": "execution.status",
+      "when": ["content type or nested message fields indicate status, progress, or execution status"]
+    },
+    {
+      "id": "role-fallback",
+      "priority": 80,
+      "class": "message.user|message.assistant|message.system|message.tool",
+      "when": ["author role is one of user, assistant, system, or tool"]
+    },
+    {
+      "id": "unknown-fallback",
+      "priority": 999,
+      "class": "unknown",
+      "when": ["no earlier rule is satisfied"],
+      "requires": ["raw_node_retained"]
+    }
+  ],
+  "disagreement_policy": "retain raw evidence and emit an explicit reconciliation discrepancy"
+}

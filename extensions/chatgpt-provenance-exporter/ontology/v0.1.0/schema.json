@@ -1,0 +1,34 @@
+{
+  "ontology_version": "0.1.0",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ChatGPT Provenance Ontology Annotation",
+  "type": "object",
+  "required": [
+    "ontology_version",
+    "class",
+    "source_pointer",
+    "raw_node_retained",
+    "classifier_version"
+  ],
+  "properties": {
+    "ontology_version": {"const": "0.1.0"},
+    "class": {"type": "string"},
+    "source_pointer": {"type": "string", "pattern": "^/mapping/"},
+    "raw_node_retained": {"const": true},
+    "classifier_version": {"type": "string"},
+    "evidence_kind": {
+      "enum": ["source-node", "derived-index", "rendered-observation", "reconciliation"]
+    },
+    "observed": {"type": "object"},
+    "classification": {
+      "type": "object",
+      "required": ["method", "ruleset_version"],
+      "properties": {
+        "method": {"const": "deterministic-rule"},
+        "ruleset_version": {"const": "chatgpt-provenance-conservative-v0.1.0"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
