@@ -1,6 +1,6 @@
 # TASK-PROV-0001 — Single-Conversation Provenance Pilot
 
-- Status: active
+- Status: complete
 - Owner: ChatGPT/Sol + local Luna/browser agent for live validation
 - Priority: P0
 - Depends on: none
@@ -349,6 +349,61 @@ Blockers:
 
 Next atomic action:
 - in a fresh supervised Brave session, reload the unpacked extension and then reload the exact pilot page; start capture, verify `Pause capture` changes the persisted status to `Capture paused` and freezes counts, verify `Resume capture` restarts progress, and verify Reset aborts without later stale writes; then perform an isolated scroll-anchor before/after check and append only aggregate evidence. Do not start PROV-0002 or bulk export.
+
+### 2026-09-20 — Codex — post-reload pilot acceptance checkpoint
+
+Completed:
+- reloaded the unpacked `ChatGPT Provenance Exporter` from Brave's extension manager, then reloaded the exact pilot conversation before the control retest;
+- verified the refreshed popup exposed the `Citation records` status line;
+- verified pause/resume on the refreshed instance: after a fresh capture reached rendered work, `Pause capture` changed the popup to `Capture paused` and the displayed counts remained at source nodes `465`, rendered turns `9`, tool events `0`, and citation records `0` during the observation window; `Resume capture` changed it back to active capture and rendered progress advanced from `9` to `15` and onward;
+- verified Reset after completion returned the refreshed popup to `Ready` with source nodes, tool events, citation records, and rendered turns all `0`; the earlier active-run reset test remains recorded above as cancellation-safe and stopped before download;
+- performed the isolated scroll-restoration check from a known pre-capture viewport: the page visibly moved during the lazy rendered sweep and, after completion, returned to the same pre-capture viewport/scroll position; no transcript text is recorded here;
+- did not start bulk export or PROV-0002.
+
+Environment:
+- OS: Microsoft Windows 11 Home, version `10.0.26200`, build `26200`, 64-bit;
+- Brave: `153.1.95.102`;
+- Node: `v24.14.1`;
+- repository branch: `feature/chatgpt-provenance-exporter`.
+
+Exact commands/results:
+- `node scripts/test-all.mjs` from repository root → exit `0`; all registered extension test suites passed, including provenance `24 tests passed`; final output was `All registered extension test suites passed.` The earlier `23/23` deterministic checkpoint remains unchanged and was not overwritten;
+- `node --check dev/build-browser-payload.mjs` → exit `0`;
+- `node --check dev/standalone-browser-bootstrap.js` → exit `0`;
+- `git diff --check` → exit `0` with only normal LF/CRLF warnings;
+- aggregate structural validator over the fresh duplicate download set → exit `0`; raw parse, mapping/node conservation, source pointers, parent/child edges, tool/raw equality, and hashes all passed.
+
+Fresh bundle evidence (aggregate-only; no private transcript contents):
+- controlled download folder: `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance\20260920-Handoff Declined-6ab01034-f144-83ea-bae2-1e71588ccae5`;
+- fresh capture ID: `f9f8ccba-54d9-483f-8746-7f38ba900da0`;
+- captured at: `2026-09-20T20:05:51.642Z`;
+- raw response bytes preserved before parsing: `1,490,216`;
+- mapping keys / normalized nodes / unique node IDs: `465 / 465 / 465`;
+- messages: `464`;
+- deduplicated edges: `464`; explicit parent relations checked: `464`; explicit child relations checked: `464`; explicit relations checked total: `928`; missing parent/child edges: `0`;
+- source pointers missing: `0`;
+- tool events: `363` (`127` `tool.call`, `236` `tool.result`); all `363` records were deep-structurally equal to their corresponding raw mapping node; content types were `code=221`, `execution_output=2`, `multimodal_text=112`, `text=28`;
+- citations: `328`; artifacts: `0`;
+- rendered turns: `22`; rendered stability: `true`; lazy-load repeated sweeps converged;
+- rendered first/middle/final aggregate spot checks: `user` at turn index `1`, `assistant` at turn index `6`, `user` at turn index `13`; all sampled records retained message IDs and stable keys; tool-heavy source regions were cross-checked through the raw-backed tool records;
+- rendered reconciliation: `differences_observed`, with `21` overlapping comparable message IDs and `2` explicit role-count discrepancies preserved; rendered user/assistant counts `14/8`, source user/assistant counts `13/215`, plus source tool `236` and none `1`;
+- SHA-256 recomputation: all `12` listed hashes matched expected digest and byte length;
+- raw source, normalized graph, tool/citation indexes, rendered records, reconciliation, and integrity files were all present in the controlled folder. Repeated browser downloads used `(1)` filename suffixes within that same folder; no transcript data was written to the repository or sent to a remote service.
+
+Observed defects/fixes:
+- the original report that tools and sources were absent was not reproduced: the fresh bundle contains `363` tool events and `328` citation records, and the refreshed popup exposes the citation count;
+- the pre-reload pause-control mismatch was not reproduced after extension/page reload; pause froze progress and resume continued it;
+- no classifier or parser rule was changed based only on rendered UI differences; the two rendered/source role-count discrepancies remain explicit in reconciliation;
+- no implementation defect remains open for PROV-0001 acceptance. Scroll restoration is currently numeric-offset based but passed the required isolated Brave before/after behavioral check.
+
+Blockers:
+- none for PROV-0001 pilot acceptance;
+- the built-in ChatGPT browser remains a read-only development surface unless full CDP access is explicitly enabled, so the acceptance evidence is from the required unpacked Brave smoke test.
+
+Acceptance result: **PROV-0001 pilot acceptance passed**.
+
+Next atomic action:
+- freeze this pilot bundle as the PROV-0001 baseline and prepare the independent PROV-0002 holdout task; do not begin bulk export and do not alter the pilot classifier to fit this conversation.
 
 ## Handoff
 

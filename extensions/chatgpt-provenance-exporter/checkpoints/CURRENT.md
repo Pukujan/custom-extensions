@@ -39,8 +39,8 @@ Build and validate a read-only provenance bundle for one currently open, large, 
 
 ## Current verification state
 
-The exact pilot URL has now produced one real Brave bundle with preserved raw response, conserved mapping/nodes, resolved source pointers, reconciled parent/edge evidence, `363` tool events, `328` citations, stable rendered sweeps, discrepancy-preserving reconciliation, and verified SHA-256 hashes. Deterministic validation remains green. PROV-0001 is still pending the refreshed unpacked-instance pause/resume smoke test and an isolated scroll-anchor restoration proof. The built-in in-app browser remains read-only and is not being treated as the live acceptance surface.
+The exact pilot URL has now produced a fresh post-reload Brave bundle with preserved raw response, conserved mapping/nodes, resolved source pointers, reconciled parent/edge evidence, `363` tool events, `328` citations, stable rendered sweeps, discrepancy-preserving reconciliation, and verified SHA-256 hashes. The refreshed unpacked-instance pause/resume smoke test passed, reset remained cancellation-safe, and the isolated before/after scroll-restoration check returned to the original viewport. Deterministic validation remains green. PROV-0001 pilot acceptance is checkpointed as passed; bulk export and PROV-0002 remain deferred. The built-in in-app browser remains read-only and is not treated as the live acceptance surface.
 
 ## Next atomic action
 
-In a fresh supervised Brave session, reload the unpacked extension and the exact pilot page, retest pause/resume/reset with persisted progress checks, then perform the isolated scroll-anchor restoration check and append aggregate evidence. Do not start PROV-0002 or bulk export before the pilot checkpoint is complete.
+Prepare the independent PROV-0002 holdout plan from repository state. Do not start bulk export, and do not tune the classifier against the pilot transcript; the pilot bundle and acceptance evidence are frozen for the next task.
