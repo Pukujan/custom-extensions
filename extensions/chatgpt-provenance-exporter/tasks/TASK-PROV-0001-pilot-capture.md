@@ -82,6 +82,47 @@ Blocked/uncertain:
 Next:
 - implement v0.1 acquisition, lossless graph normalization, conservative event indexing, DOM verifier, bundle hashing, and tests.
 
+### 2026-09-20 — ChatGPT/Sol — deterministic validation checkpoint
+
+Completed:
+- resumed from the extension-local handoff and followed its repository read order;
+- verified Issue #6 / draft PR #7 / branch `feature/chatgpt-provenance-exporter` and tested PR head `9e77b13f65596b9abe5b1df9722ec0251966e067`;
+- attempted direct Git access, then reconstructed the provenance-exporter test inputs from GitHub blobs because the shell environment could not resolve `github.com`;
+- verified reconstructed provenance-exporter files against their Git blob SHAs before execution;
+- ran the extension-local deterministic/property suite successfully.
+
+Environment:
+- OS: Linux `6.18.44`, x86_64;
+- Node: `v22.16.0`;
+- Brave/Chromium: not available in this session, so no live browser version or smoke evidence is claimed.
+
+Commands/results:
+- `git ls-remote https://github.com/Pukujan/custom-extensions.git refs/heads/feature/chatgpt-provenance-exporter` → exit 128, `Could not resolve host: github.com`;
+- `node tests/test.js` from the exact reconstructed `extensions/chatgpt-provenance-exporter/` inputs → exit 0, **23 tests passed**;
+- `node scripts/test-all.mjs` was invoked from a temporary partial reconstruction → provenance exporter passed 23/23, but the command exited 1 because the three unchanged legacy extension directories were not materialized in that temporary tree. This is an environment/reconstruction limitation and is **not** recorded as a repository-wide test failure or pass.
+
+Blob evidence for the extension-local passing run:
+- `core.js` → `b443cd66340b6a36baba1da169e9fcd391f07607`;
+- `content.js` → `0576ea720c8941e6d981a80a477660bd64a4e4af`;
+- `background.js` → `b2412e459d835a8d67d01348b258ce175094b5c3`;
+- `popup.js` → `0606c77074c0228e64d7d74c1639bec252b77b2f`;
+- `manifest.json` → `1b0f7d869996b01f20f842c13abf5f90733eb68d`;
+- `tests/test.js` → `c43b348033fe703f47a1f491adcfcf1f963779af`.
+
+Evidence/decisions:
+- no deterministic implementation defect was exposed by the extension-local suite;
+- no parser/classifier rule was changed;
+- the repository-wide gate remains unverified in this session because a complete checkout could not be obtained;
+- live acquisition, rendered reconciliation, hash recomputation on a real bundle, representative tool-node checks, and scroll restoration remain unverified;
+- no bulk-export work was started.
+
+Blockers/uncertainty:
+- shell DNS cannot resolve `github.com`, preventing a normal branch checkout and qualifying repository-wide rerun;
+- this session has no local Brave/Chromium control, so the PROV-0001 live pilot cannot be executed here.
+
+Next atomic action:
+- on a complete local checkout of this branch, run `node scripts/test-all.mjs` and require a clean exit; then load the extension unpacked in Brave/Chromium, capture one deliberately large tool-heavy pilot conversation, perform the structural/hash/rendered/tool-event/scroll-restoration checks in `docs/LOCAL_VALIDATION_LUNA.md`, and append the exact observed results here. Do not start PROV-0002 or bulk export before the pilot checkpoint is complete.
+
 ## Handoff
 
 Receiving agent: read PROJECT → CURRENT → this task → PDD/SDD/TDD. Do not expand to bulk export. Preserve unexpected source structures and record them rather than tuning them away.
