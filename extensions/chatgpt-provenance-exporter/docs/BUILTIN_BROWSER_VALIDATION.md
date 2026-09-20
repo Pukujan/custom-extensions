@@ -50,3 +50,25 @@ The bundle is retained only in page memory at `window.__CHATGPT_PROVENANCE_BUNDL
 - a final user-facing installed-extension smoke test.
 
 Do not begin bulk export or PROV-0002 from this development route.
+
+## Optional client-visible event observer — PROV-0006
+
+The repository also contains a separate, opt-in development payload for observing client-visible conversation request/response envelopes. Build it with:
+
+```text
+node dev/build-live-browser-payload.mjs
+```
+
+Evaluate the generated payload in the same approved built-in-browser page, then use:
+
+```js
+ChatGPTProvenanceLiveCapture.start()
+ChatGPTProvenanceLiveCapture.pause()
+ChatGPTProvenanceLiveCapture.resume()
+ChatGPTProvenanceLiveCapture.stop()
+ChatGPTProvenanceLiveCapture.reset()
+ChatGPTProvenanceLiveCapture.getState()
+ChatGPTProvenanceLiveCapture.getEvents()
+```
+
+This observer is not part of the installed MV3 extension. It records only same-origin conversation paths, excludes credential headers, never changes or replays requests, and retains events only in page memory. Do not run this smoke route until the PROV-0006 checkpoint explicitly authorizes it, and preserve only aggregate counts, classifications, hashes, and defects—not event bodies or private IDs.

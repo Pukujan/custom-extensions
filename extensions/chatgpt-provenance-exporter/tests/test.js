@@ -41,10 +41,14 @@ for (const file of [
   "account-runner.js",
   "official-core.js",
   "official-zip.js",
+  "live-core.js",
+  "live-hook.js",
   "tools/import-official-export.mjs",
+  "dev/build-live-browser-payload.mjs",
 ]) {
   test(`${file} syntax`, () => syntax(file));
 }
+const liveCore = require("../live-core.js");
 
 function put16(buffer, offset, value) {
   buffer.writeUInt16LE(value, offset);
@@ -541,6 +545,68 @@ test("official importer CLI preserves raw ZIP bytes and recomputes output hashes
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
+});
+
+test("live event boundary admits only same-origin conversation paths", () => {
+  assert.ok(liveCore.normalizeUrl("/backend-api/f/conversation", "https://chatgpt.com"));
+  assert.ok(liveCore.normalizeUrl("https://chatgpt.com/backend-api/conversations?offset=0", "https://chatgpt.com"));
+  assert.equal(liveCore.normalizeUrl("/api/auth/session", "https://chatgpt.com"), null);
+  assert.equal(liveCore.normalizeUrl("https://evil.example/backend-api/conversation", "https://chatgpt.com"), null);
+  assert.equal(liveCore.normalizeUrl("/backend-api/account", "https://chatgpt.com"), null);
+});
+
+test("live event records preserve raw bodies, parse SSE, and exclude credentials", () => {
+  const raw = "data: {\"tool\":\"python\"}\n\ndata: [DONE]\n\n";
+  const event = liveCore.makeEvent({
+    url: "https://chatgpt.com/backend-api/f/conversation",
+    request_method: "POST",
+    request_body: "{\"prompt\":\"redacted\"}",
+    response_body: raw,
+    response_headers: {
+      Authorization: "Bearer secret",
+      Cookie: "session=secret",
+      "Content-Type": "text/event-stream",
+      "X-Request-ID": "req-1",
+    },
+    status: 200,
+  }, 7, { origin: "https://chatgpt.com" });
+  assert.equal(event.accepted, true);
+  assert.equal(event.sequence, 7);
+  assert.equal(event.response_body, raw);
+  assert.deepEqual(Object.keys(event.response_headers), ["content-type", "x-request-id"]);
+  assert.equal(event.sse.frame_count, 2);
+  assert.deepEqual(event.sse.frames[0].parsed, { tool: "python" });
+  assert.equal(event.sse.frames[1].data, "[DONE]");
+  assert.ok(event.source_hints.includes("tool_or_client_activity_marker"));
+  const limited = liveCore.makeEvent({ url: "/backend-api/conversation/c1", response_body: "12345" }, 1, { origin: "https://chatgpt.com", maxBodyChars: 3 });
+  assert.equal(limited.response_body, null);
+  assert.equal(limited.response_body_omitted_reason, "body_limit");
+});
+
+test("live lifecycle sequences events and pause/stop/reset do not retain hidden events", () => {
+  const lifecycle = liveCore.createLifecycle({ origin: "https://chatgpt.com" });
+  assert.equal(lifecycle.record({ url: "/backend-api/conversation/c1", response_body: "before" }).accepted, false);
+  assert.equal(lifecycle.start(), true);
+  assert.equal(lifecycle.record({ url: "/backend-api/conversation/c1", response_body: "one" }).sequence, 1);
+  assert.equal(lifecycle.pause(), true);
+  assert.equal(lifecycle.record({ url: "/backend-api/conversation/c1", response_body: "paused" }).accepted, false);
+  assert.equal(lifecycle.resume(), true);
+  assert.equal(lifecycle.record({ url: "/backend-api/conversation/c1", response_body: "two" }).sequence, 2);
+  assert.equal(lifecycle.stop(), true);
+  assert.equal(lifecycle.record({ url: "/backend-api/conversation/c1", response_body: "stopped" }).accepted, false);
+  assert.equal(lifecycle.getState().event_count, 2);
+  lifecycle.reset();
+  assert.deepEqual(lifecycle.getState(), { status: "ready", event_count: 0, next_sequence: 1 });
+});
+
+test("live hook restores page methods and remains development-only", () => {
+  const hook = fs.readFileSync(path.join(ROOT, "live-hook.js"), "utf8");
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8"));
+  assert.match(hook, /globalThis\.fetch = originalFetch/);
+  assert.match(hook, /XMLHttpRequest\.prototype\.open = originalOpen/);
+  assert.match(hook, /XMLHttpRequest\.prototype\.send = originalSend/);
+  assert.doesNotMatch(hook, /chrome\.storage|chrome\.runtime|chrome\.downloads/);
+  assert.doesNotMatch(JSON.stringify(manifest), /debugger|webRequest|cookies/);
 });
 
 console.log(`\n${passed} tests passed.`);
