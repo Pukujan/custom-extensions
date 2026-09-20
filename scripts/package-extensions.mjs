@@ -180,8 +180,12 @@ async function main() {
     throw new Error(`No extensions found in ${REGISTRY_PATH}`);
   }
 
-  await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
+  const existingEntries = await fs.readdir(outputDir, { withFileTypes: true });
+  for (const entry of existingEntries) {
+    if (!entry.isFile() || !(entry.name.endsWith(".zip") || entry.name === "SHA256SUMS.txt")) continue;
+    await fs.unlink(path.join(outputDir, entry.name));
+  }
   const results = [];
   for (const extension of registry.extensions) {
     results.push(await packageExtension(extension, outputDir));
