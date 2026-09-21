@@ -119,5 +119,5 @@ The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.
 - review files: `docs/content-system-preview.md`, `docs/content-system-preview.html`
 - generated assets: `docs/content-system-assets/hero.png`, `docs/content-system-assets/supporting-square.png`
 - visual rule: narrative raster assets carry one short title and subtitle; SVGs and tiny helper graphics remain text-free
-- validation: existing collection tests plus responsive desktop/tablet/mobile screenshots and PDF packet rendered locally; canonical README remains unchanged
-- next action: inspect the preview PR before deciding whether any README or documentation promotion is warranted
+- validation: existing collection tests plus responsive desktop/tablet/mobile screenshots and PDF packet rendered locally; README promotion is staged on the same branch
+- next action: inspect the updated README in PR #9, then merge only after human review

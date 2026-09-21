@@ -48,7 +48,7 @@ Packaging/release success does not change live-site verification status.
 
 The branch `task/TASK-0016-content-system-preview` contains a non-destructive story, responsive HTML review page, and two repository-specific raster assets. It pins `content-generation-modules` v0.1.2 at `cb8c18fa7789e4b651e1f963892bf056b0d3276d`.
 
-Narrative raster assets use a repeatable **short title + short subtitle** contract. SVGs, logos, and tiny helper graphics remain text-free. The canonical README and release metadata are unchanged. The preview has been checked at desktop, tablet, and mobile widths and rendered to a local PDF packet; GitHub/Brave live-site evidence is not claimed by this content preview.
+Narrative raster assets use a repeatable **short title + short subtitle** contract. SVGs, logos, and tiny helper graphics remain text-free. The canonical README now uses the reviewed story and images on this branch; release metadata is unchanged. The preview has been checked at desktop, tablet, and mobile widths and rendered to a local PDF packet; GitHub/Brave live-site evidence is not claimed by this content preview.
 
 ## Collection bootstrap — 2026-09-01
 
