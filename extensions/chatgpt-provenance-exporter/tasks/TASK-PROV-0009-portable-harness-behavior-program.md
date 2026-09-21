@@ -115,11 +115,11 @@ Exit gate: owner-approved behavior match on the holdout set, with mutation/metam
 
 ## Current blockers
 
-- PR #7 is still draft/open; the remote branch is behind this checkout.
+- PR #7 is still draft/open; the remote branch now matches this checkout.
 - The current account run is intentionally paused and not yet finalized.
 - The harness-on-steroids repository path is not available in this workspace.
 - No private transcript body or account bundle may be committed.
 
 ## Next atomic action
 
-Commit the current handoff/plan clarification, push the branch, then resume the existing controlled account run and validate finalization. After that, obtain the harness repository path and perform its mandated handoff read before changing harness code.
+Resume the existing controlled account run and validate finalization. After that, obtain the harness repository path and perform its mandated handoff read before changing harness code.
