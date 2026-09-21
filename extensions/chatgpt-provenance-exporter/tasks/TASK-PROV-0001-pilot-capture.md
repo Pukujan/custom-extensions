@@ -469,6 +469,42 @@ Decision:
 Next atomic action:
 - wait for explicit authorization of the optional PROV-0006 observer or a user-supplied official export ZIP; do not start bulk export.
 
+### 2026-09-21 01:18:00 UTC — Codex — local unpacked-extension synchronization and icon checkpoint
+
+Environment:
+- OS: `Microsoft Windows 11 Home`, version `10.0.26200`, build `26200`;
+- Brave installed: `153.1.95.102`;
+- Node: `v24.14.1`;
+- repository branch: `feature/chatgpt-provenance-exporter`;
+- no private transcript contents, raw IDs, or live event bodies were copied into this checkpoint.
+
+Local extension discovery and scope:
+- searched `C:\Downloads`, `C:\Users\pujan\Downloads`, and the available `OneDrive` Downloads locations;
+- three matching unpacked extension folders were found under `C:\Users\pujan\Downloads\June 2026` and synchronized: `chatgpt-10-day-cleaner`, `chatgpt-10-day-cleaner-v2`, and `chatgpt-transcript-exporter-v0.1.0`;
+- two folders under `chatgpt-provenance` were capture bundles rather than unpacked extensions (`manifest.name` and `manifest.version` were absent), so they were not modified;
+- no local unpacked LinkedIn exporter copy was found.
+
+Exact commands/results:
+- `node --check scripts/generate-extension-icons.mjs` → exit `0`;
+- `node scripts/generate-extension-icons.mjs` → exit `0`; generated `4` icon sets at `16`, `32`, `48`, and `128` pixels;
+- `node extensions/chatgpt-provenance-exporter/tests/test.js` → exit `0`; `57 tests passed`;
+- `node scripts/test-all.mjs` → exit `0`; all registered suites passed, `103` tests total;
+- `git diff --check` → exit `0`; only normal Git LF/CRLF conversion warnings were emitted;
+- local synchronization copied current repository root files and deterministic `icons/` into all three destinations without deleting unrelated local files;
+- repository/local SHA-256 equality was verified for each synchronized manifest and all `12` icon files; all matched; PNG signatures and dimensions were valid (`16x16`, `32x32`, `48x48`, `128x128`) for each local extension copy.
+
+Observed defects/fixes:
+- all four repository extensions now have distinct deterministic PNG icon sets and matching manifest/action icon declarations; this covers Cleaner, Provenance, Transcript, and LinkedIn even though no local LinkedIn copy was found;
+- the older local Cleaner v1 folder was aligned to the current repository Cleaner build (`2.0.0`) rather than left stale; unrelated local files were preserved;
+- no `update_url` or runtime update-check mechanism is present in the repository manifests/source. Unpacked browser copies do not auto-update; Brave/Chromium must be told to Reload the unpacked extension, and the target page must be reloaded to replace content scripts.
+
+Blockers:
+- none for local synchronization or icon validation;
+- the previously recorded account-wide acceptance blocker remains unchanged: a connected MV3 browser/download surface is required for the authorized account run; no bulk export was started.
+
+Next atomic action:
+- reload the synchronized unpacked extension in Brave and reload the target page before any further live account-surface validation; keep the controlled output root unchanged and do not start bulk export.
+
 ### 2026-09-21 00:50:45 UTC — Codex — follow-up account-control and live-surface evidence
 
 The user explicitly authorized all remaining in-scope actions, including account-wide export. The account runner already supported pause/resume/reset, but the popup did not expose those account-wide controls. `popup.html`/`popup.js` now expose account start/resume, pause/resume, reset, progress, and completed manifest/catalog/integrity paths; `node extensions/chatgpt-provenance-exporter/tests/test.js` returned exit `0` with `56 tests passed`, and `node scripts/test-all.mjs` returned exit `0` with `All registered extension test suites passed.`

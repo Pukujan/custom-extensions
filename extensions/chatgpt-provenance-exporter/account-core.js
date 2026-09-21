@@ -42,6 +42,7 @@
       summaries: [],
       seenIds: [],
       lastPageFingerprint: null,
+      reportedTotalChanges: [],
       complete: false,
       error: null,
     };
@@ -76,10 +77,17 @@
 
     const { items, total } = normalizePage(data, current.limit);
     if (current.page === 0 && current.offset !== 0) throw new Error("Initial enumeration offset was not zero.");
-    if (total !== null && current.reportedTotal !== null && total !== current.reportedTotal) {
-      throw new Error("Conversation list total changed during enumeration.");
+    if (total !== null) {
+      if (current.reportedTotal !== null && total !== current.reportedTotal) {
+        current.reportedTotalChanges = [
+          ...(Array.isArray(current.reportedTotalChanges) ? current.reportedTotalChanges : []),
+          { page: current.page, from: current.reportedTotal, to: total },
+        ];
+      }
+      current.reportedTotal = current.reportedTotal === null
+        ? total
+        : Math.max(current.reportedTotal, total);
     }
-    if (total !== null) current.reportedTotal = total;
 
     const fingerprint = pageFingerprint(items);
     if (items.length === current.limit && fingerprint === current.lastPageFingerprint) {
@@ -108,8 +116,13 @@
 
     const noItems = items.length === 0;
     const shortPage = items.length < current.limit;
-    const reachesTotal = current.reportedTotal !== null && current.offset >= current.reportedTotal;
-    current.complete = noItems || shortPage || reachesTotal;
+    // The reported total is useful only while it is stable. If ChatGPT changes
+    // it during enumeration, wait for a short/empty page so the queue cannot
+    // stop early while the account grows mid-run.
+    const reachesStableTotal = current.reportedTotalChanges.length === 0
+      && current.reportedTotal !== null
+      && current.offset >= current.reportedTotal;
+    current.complete = noItems || shortPage || reachesStableTotal;
     current.status = current.complete ? "complete" : "enumerating";
     if (current.complete) current.error = null;
     return current;

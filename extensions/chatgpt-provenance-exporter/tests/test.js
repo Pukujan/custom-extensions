@@ -127,7 +127,7 @@ test("manifest is MV3 and least-privilege scoped to ChatGPT", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "manifest.json"), "utf8"));
   assert.equal(manifest.manifest_version, 3);
   assert.deepEqual(manifest.host_permissions, ["https://chatgpt.com/*"]);
-  assert.deepEqual([...manifest.permissions].sort(), ["activeTab", "downloads", "storage"].sort());
+  assert.deepEqual([...manifest.permissions].sort(), ["activeTab", "downloads", "scripting", "storage"].sort());
   assert.deepEqual(manifest.content_scripts[0].js, ["core.js", "content.js", "account-core.js", "account-runner.js"]);
 });
 
@@ -411,6 +411,24 @@ test("account enumeration freezes unique queue order and terminates on a short p
   assert.deepEqual(accountCore.queueFromEnumeration(state).map((item) => item.id), ["a", "b", "c"]);
   assert.equal(state.listedItems, 4);
   assert.equal(state.summaries.length, 3);
+});
+
+test("account enumeration tolerates reported-total drift and waits for a short page", () => {
+  let state = accountCore.makeEnumerationState(2);
+  state = accountCore.applyPage(state, {
+    total: 4,
+    items: [{ id: "a" }, { id: "b" }],
+  });
+  state = accountCore.applyPage(state, {
+    total: 5,
+    items: [{ id: "c" }, { id: "d" }],
+  });
+  assert.equal(state.complete, false);
+  assert.equal(state.reportedTotal, 5);
+  assert.deepEqual(state.reportedTotalChanges, [{ page: 1, from: 4, to: 5 }]);
+  state = accountCore.applyPage(state, { total: 5, items: [{ id: "e" }] });
+  assert.equal(state.complete, true);
+  assert.deepEqual(accountCore.queueFromEnumeration(state).map((item) => item.id), ["a", "b", "c", "d", "e"]);
 });
 
 test("account enumeration rejects malformed pages and repeated full pages", () => {

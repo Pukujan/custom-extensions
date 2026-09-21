@@ -59,10 +59,35 @@ async function activeChatGPTTab() {
   return tab;
 }
 
+const CONTENT_SCRIPT_FILES = ["core.js", "content.js", "account-core.js", "account-runner.js"];
+
+async function sendChatGPTMessage(tab, message) {
+  try {
+    const response = await chrome.tabs.sendMessage(tab.id, message);
+    if (response) return response;
+  } catch (error) {
+    const text = error?.message || String(error);
+    if (!/Receiving end does not exist|Could not establish connection|message port closed/i.test(text)) {
+      throw error;
+    }
+  }
+
+  if (!chrome.scripting?.executeScript) {
+    throw new Error("The ChatGPT provenance content runner is unavailable in this tab.");
+  }
+  await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    files: CONTENT_SCRIPT_FILES,
+  });
+  const response = await chrome.tabs.sendMessage(tab.id, message);
+  if (!response) throw new Error("The ChatGPT provenance content runner did not respond.");
+  return response;
+}
+
 async function startCapture() {
   try {
     const tab = await activeChatGPTTab();
-    const response = await chrome.tabs.sendMessage(tab.id, { type: "START_PROVENANCE_CAPTURE" });
+    const response = await sendChatGPTMessage(tab, { type: "START_PROVENANCE_CAPTURE" });
     if (!response?.ok) throw new Error(response?.error || "Capture request was rejected.");
   } catch (error) {
     statusEl.textContent = "Capture failed";
@@ -72,7 +97,7 @@ async function startCapture() {
 
 async function sendControl(type) {
   const tab = await activeChatGPTTab();
-  const response = await chrome.tabs.sendMessage(tab.id, { type });
+  const response = await sendChatGPTMessage(tab, { type });
   if (!response?.ok) throw new Error(response?.error || "Capture control request was rejected.");
 }
 
@@ -147,7 +172,7 @@ async function startAccountExport() {
     const type = ["paused", "error"].includes(status)
       ? "RESUME_PROVENANCE_ACCOUNT_EXPORT"
       : "START_PROVENANCE_ACCOUNT_EXPORT";
-    const response = await chrome.tabs.sendMessage(tab.id, { type });
+    const response = await sendChatGPTMessage(tab, { type });
     if (!response?.ok) throw new Error(response?.error || "Account export request was rejected.");
   } catch (error) {
     accountStatusEl.textContent = "Account export failed";
@@ -163,7 +188,7 @@ async function toggleAccountPause() {
       ? "RESUME_PROVENANCE_ACCOUNT_EXPORT"
       : "PAUSE_PROVENANCE_ACCOUNT_EXPORT";
     const tab = await activeChatGPTTab();
-    const response = await chrome.tabs.sendMessage(tab.id, { type });
+    const response = await sendChatGPTMessage(tab, { type });
     if (!response?.ok) throw new Error(response?.error || "Account export control was rejected.");
   } catch (error) {
     accountStatusEl.textContent = "Account export control failed";
@@ -174,7 +199,7 @@ async function toggleAccountPause() {
 async function resetAccountExport() {
   try {
     const tab = await activeChatGPTTab();
-    const response = await chrome.tabs.sendMessage(tab.id, { type: "RESET_PROVENANCE_ACCOUNT_EXPORT" });
+    const response = await sendChatGPTMessage(tab, { type: "RESET_PROVENANCE_ACCOUNT_EXPORT" });
     if (!response?.ok) throw new Error(response?.error || "Account export reset was rejected.");
   } catch (_error) {
     await chrome.storage.local.remove(ACCOUNT_STATE_KEY);
