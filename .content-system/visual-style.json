@@ -1,0 +1,10 @@
+{
+  "schema_version": "content-generation.visual-style.v1",
+  "reference_asset": "docs/content-system-assets/hero.png",
+  "palette": {"background": "#0B1734", "primary": "#1C4EA3", "cyan_accent": "#50D6FF", "violet_accent": "#8D7CFF", "warm_accent": "#F7B955", "text": "#DCE9FF"},
+  "subjects": ["person choosing a browser utility", "small friendly browser assistant", "three bounded utility roles: clean, export, verify"],
+  "composition": ["show a small number of cards", "keep the person and assistant unobstructed", "use a quiet copy panel for orientation text", "make local-first boundaries feel calm rather than alarmist", "support installation and safety explanation"],
+  "text_policy": "Narrative raster assets carry one exact short title plus one exact short subtitle; SVGs and tiny helper graphics stay text-free.",
+  "roles": {"hero": {"orientation": "wide", "dimensions": "1672x941", "path": "docs/content-system-assets/hero.png"}, "system": {"orientation": "square", "dimensions": "1254x1254", "path": "docs/content-system-assets/supporting-square.png"}, "icon": {"orientation": "svg", "dimensions": "64x64 viewBox", "path": "docs/content-system-assets/"}},
+  "reject_when": ["the visual implies a universal scraper", "permission or warning graphics overwhelm the subject", "the title or subtitle is unreadable", "the cards become a dense dashboard", "the asset looks like an alternate hero instead of explaining a boundary"]
+}

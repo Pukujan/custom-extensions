@@ -1,0 +1,17 @@
+{
+  "canonical": {
+    "current": "HANDOFF.md",
+    "project": "specs/PDD.md",
+    "tasks": "tasks"
+  },
+  "profile": "software",
+  "protocol": "project-continuity",
+  "protocol_version": "0.1.0-draft",
+  "schema": "project-continuity.config.v1",
+  "schema_dir": "schemas/v1",
+  "task_prefix": "CEX",
+  "trackers": {
+    "beads": false,
+    "github": true
+  }
+}

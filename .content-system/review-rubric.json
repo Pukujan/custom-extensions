@@ -1,0 +1,11 @@
+{
+  "schema_version": "content-generation.review-rubric.v1",
+  "dimensions": [
+    {"id": "human_comprehension", "question": "Can a first-time reader tell what the collection is and how to load one extension?", "weight": 2},
+    {"id": "claim_safety", "question": "Are permission, privacy, risk, and evidence claims grounded in the repository contracts?", "weight": 3},
+    {"id": "skimmability", "question": "Do bold anchors and short sections expose install, scope, and verification quickly?", "weight": 2},
+    {"id": "visual_clarity", "question": "Do the cards show bounded utilities without implying a monolithic product?", "weight": 2},
+    {"id": "responsive_fit", "question": "Does the install and risk story remain clear when images stack?", "weight": 1}
+  ],
+  "decision_rule": "Accept only when claim_safety passes and no weighted dimension is below 3/5; human review decides promotion."
+}
