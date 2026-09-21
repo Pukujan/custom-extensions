@@ -14,7 +14,7 @@ The repository keeps each extension independently loadable under `extensions/<sl
 
 For ChatGPT Transcript Exporter v0.1.0, the asset is `chatgpt-transcript-exporter-v0.1.0.zip`.
 
-For ChatGPT Provenance Exporter v0.1.0, the asset is `chatgpt-provenance-exporter-v0.1.0.zip`. Its pilot, independent holdout, required MV3 smoke, built-in-browser full-CDP validation, and one authorized persisted-fetch observer smoke are recorded in the extension handoff; streaming/SSE observation and account-wide export remain separately gated.
+For ChatGPT Provenance Exporter v0.1.0, the asset is `chatgpt-provenance-exporter-v0.1.0.zip`. Its pilot, independent holdout, required MV3 smoke, built-in-browser full-CDP validation, and authorized persisted/generated-response observer smokes are recorded in the extension handoff; account-wide export remains separately gated, and the generated streaming body is explicitly unavailable through the page-level hook.
 
 ## Release contents
 

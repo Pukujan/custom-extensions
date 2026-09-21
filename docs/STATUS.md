@@ -12,7 +12,7 @@ Local verification on 2026-09-20: all four registered suites passed (102 tests t
 
 The new cross-platform packager was also verified locally with `node --check scripts/package-extensions.mjs`, `node scripts/package-extensions.mjs --help`, and two independent `--out` runs. Both runs produced the four expected ZIPs with identical SHA-256 values; checksum recomputation passed; every archive had `manifest.json` at its root and excluded `tests/` and `specs/`. The temporary output directories were removed after verification. After this change, `node scripts/test-all.mjs` returned exit `0` with all registered extension suites passed (`102` tests total, including `56` provenance tests). Release metadata is now validated/emitted by `scripts/read-release-metadata.mjs`, removing the workflow's `jq` dependency.
 
-Remaining release risks: the GitHub Actions workflow has not been run on this branch, no release assets are committed or published, and no new streaming/SSE observer event was observed. Local packaging, checksum, archive-invariant, and metadata validation passed. The required unpacked-MV3 smoke and one authorized persisted-fetch observer smoke are recorded as passed.
+Remaining release risks: the GitHub Actions workflow has not been run on this branch, no release assets are committed or published, and the generated-response observer saw a real `text/event-stream` request whose body was unavailable to the page-level hook. Local packaging, checksum, archive-invariant, and metadata validation passed. The required unpacked-MV3 smoke and authorized observer smokes are recorded as passed.
 
 ### Implemented and merged
 
@@ -68,7 +68,7 @@ For a captured bundle, use the normalized indexes for evidence review:
 
 Capture controls support pause, resume, and reset. Pause freezes the active run and its displayed progress; resume continues the same run; reset cancels the active run, clears persisted progress, and prevents stale progress from being written afterward.
 
-The deterministic ontology, account-export design, official-import design, client-event observer, and portable trace adapter gates are green. The built-in-browser full-CDP pilot now passes the aggregate source/tool/citation/hash/rendered/pause-reset/scroll checks, the required unpacked-MV3 smoke is recorded as passed, and the authorized observer smoke captured one persisted conversation fetch with source-backed counts and credential filtering. No streaming/SSE event was observed; account-wide export and real official-export import remain deferred.
+The deterministic ontology, account-export design, official-import design, client-event observer, and portable trace adapter gates are green. The built-in-browser full-CDP pilot now passes the aggregate source/tool/citation/hash/rendered/pause-reset/scroll checks, the required unpacked-MV3 smoke is recorded as passed, and the authorized observer smokes captured persisted conversation activity plus one generated-response `text/event-stream` request with credential filtering and hook restoration. The page-level hook could not read the stream body, so no SSE frames are claimed; account-wide export and real official-export import remain deferred.
 
 ## Collection bootstrap — 2026-09-01
 

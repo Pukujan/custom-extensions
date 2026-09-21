@@ -12,7 +12,7 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 ## Remaining validation items
 
-- one controlled live smoke for the optional client-visible event observer — completed in `TASK-PROV-0006-live-events.md`, with persisted-fetch/no-streaming limitation recorded;
+- one controlled live smoke for the optional client-visible event observer — completed in `TASK-PROV-0006-live-events.md`; the authorized generation follow-up observed one `text/event-stream` request, with the stream body unavailable to the page hook;
 - one real official ChatGPT export ZIP supplied by the user, if official-import validation is required;
 - optional follow-up validation only: the required unpacked MV3 UI smoke is already recorded in the PROV-0001 pilot checkpoint;
 - preserve exact evidence in this task and `checkpoints/CURRENT.md` only.
@@ -41,7 +41,7 @@ Close the remaining real-source validation gaps without starting bulk export or 
 
 ## Acceptance
 
-The controlled built-in-browser pilot is accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. The required unpacked-MV3 smoke is also recorded in the PROV-0001 checkpoint: the fresh Brave run verified popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state bundle discoverability. The authorized PROV-0006 observer smoke is complete for one persisted conversation fetch, with no streaming/SSE claim. This task remains in `review` only for any user-supplied real ZIP if official-import validation is requested; account-wide live export remains a separate explicitly authorized task. No bulk export is permitted as a workaround.
+The controlled built-in-browser pilot is accepted: the live bundle passed source/node/edge conservation, source-pointer resolution, raw-backed tool checks, SHA-256 recomputation, stable rendered sweeps, rendered spot checks, pause/resume/reset, and scroll restoration. The required unpacked-MV3 smoke is also recorded in the PROV-0001 checkpoint: the fresh Brave run verified popup capture/pause/resume/reset, service-worker messaging, controlled `chrome.downloads` paths, and completed-state bundle discoverability. The authorized PROV-0006 observer smoke is complete for persisted and generated-response activity: one `text/event-stream` POST was observed among six eligible same-origin events, while the streaming body was explicitly unavailable and no SSE frames were parsed. This task remains in `review` only for any user-supplied real ZIP if official-import validation is requested; account-wide live export remains a separate explicitly authorized task. No bulk export is permitted as a workaround.
 
 ### 2026-09-20 23:38:57 UTC — Codex — cross-platform release-packaging checkpoint
 
@@ -55,10 +55,10 @@ The controlled built-in-browser pilot is accepted: the live bundle passed source
 Blockers:
 
 - official-import validation still requires a user-supplied ZIP;
-- account-wide export and streaming/SSE validation remain separately authorized actions;
+- account-wide export remains a separately authorized action;
 - no native external Eval Lab schema/validator is pinned.
 
-Next atomic action: wait for one of those explicitly authorized external inputs/actions; otherwise keep the accepted v0.1 baseline frozen and do not start bulk export.
+Next atomic action: wait for a user-supplied official ZIP or separate account-wide authorization; otherwise keep the accepted v0.1 baseline frozen and do not start bulk export.
 
 ### 2026-09-20 23:00:04 UTC — Codex — MV3 gate reconciliation
 

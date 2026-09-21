@@ -24,7 +24,7 @@ Do not reconstruct project state from the chat session that created this branch.
 
 ## Exact next action
 
-No additional live action is required for the accepted v0.1 pilot/holdout baseline. The canonical checkpoints record the required unpacked-MV3 smoke, built-in full-CDP validation, and one authorized persisted-fetch observer smoke; the observer did not claim a new streaming/SSE event. Wait for a user-supplied official export ZIP before testing official import, and do not start account-wide export without a separate authorization checkpoint.
+No additional live action is required for the accepted v0.1 pilot/holdout baseline. The canonical checkpoints record the required unpacked-MV3 smoke, built-in full-CDP validation, and authorized observer smoke; the latest generated-response run observed one real `text/event-stream` request but could not read its body through the page-level hook. Wait for a user-supplied official export ZIP before testing official import, and do not start account-wide export without a separate authorization checkpoint.
 
 ## Scope guard
 

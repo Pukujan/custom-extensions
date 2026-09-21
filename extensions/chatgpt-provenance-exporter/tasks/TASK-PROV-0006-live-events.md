@@ -159,3 +159,39 @@ Acceptance result: **PROV-0006 deterministic and authorized live observer smoke 
 
 Next atomic action:
 - keep the observer disabled in the installed MV3 extension; only run a future streaming/SSE observation if separately authorized and a live generation can be exercised without recording private event bodies.
+
+### 2026-09-21 00:27:42 UTC — Codex — authorized generated-response SSE smoke
+
+Environment:
+- OS: `Microsoft Windows 11 Home 10.0.26200 build 26200 AMD64`;
+- ChatGPT desktop: `153.0.8010.48`;
+- Node: `v24.14.1`;
+- browser surface: ChatGPT in-app browser with the approved `cdp` capability;
+- the user explicitly authorized one visible test response; no transcript/event body or private identifier was written to Git.
+
+Exact commands/results:
+- `node dev/build-live-browser-payload.mjs` → exit `0`; generated payload length `12,246` bytes;
+- direct CDP load of the development-only observer → `loaded:true`, `hasObserver:true`;
+- observer start → `status:"running", event_count:0, next_sequence:1`;
+- one authorized test response was submitted through the open ChatGPT composer;
+- observer stop → `status:"stopped", event_count:6, next_sequence:7`;
+- observer reset → `status:"ready", event_count:0, next_sequence:1`.
+
+Aggregate live evidence:
+- `6` eligible same-origin `fetch` events, all HTTP `200`;
+- `5` JSON events and `1` `POST` with `content-type: text/event-stream; charset=utf-8`;
+- observed path classes: conversation preparation, stream status, persisted conversation, text documents, and live conversation generation;
+- the live generation request had `1,347` request characters; the page hook reported `response_body_omitted_reason:"not_available"` for that streaming response, so `sse.frame_count:0` and no stream body/hash was claimed;
+- the persisted conversation response was `995,468` characters and carried both `tool_or_client_activity_marker` and `source_or_reference_marker` hints;
+- the generated-response event carried `tool_or_client_activity_marker`, `streaming_or_sse`, and `source_or_reference_marker` hints;
+- forbidden credential-header keys retained: `0`;
+- hook restoration completed through `stop`, and reset cleared all page-memory events;
+- no private prompt, response, raw event body, or conversation identifier was copied into the checkpoint.
+
+Observed limitation:
+- the observer proves that the page issued a real streaming/SSE generation request, but the response body was not readable through the page-level fetch clone for this run. This is an explicit evidence boundary, not a fabricated frame parse or a claim of complete transient-event capture.
+
+Acceptance result: **authorized generated-response SSE transport smoke passed; SSE body/frame capture remains explicitly unavailable for this page-level hook.**
+
+Next atomic action:
+- keep the installed MV3 extension unchanged; wait for a user-supplied official ZIP or separate account-wide authorization, and do not start bulk export.
