@@ -4,6 +4,14 @@ A collection of small, independently loadable Brave/Chromium extensions.
 
 This repository is the durable home for browser utilities that would otherwise be scattered across chat sessions and downloaded ZIPs. Each extension remains its own deployable unit under `extensions/`; the repository shares engineering policy, specifications, testing conventions, release automation, and handoff state rather than forcing unrelated extensions into one runtime.
 
+## Start with the everyday problem
+
+Small browser tools are easy to make and easy to lose. **One lives in a chat, another in a downloaded ZIP, and the next session has to guess what each one can touch.** Custom Extensions gives those utilities a durable home without pretending they are one large browser product.
+
+<p align="center">
+  <img src="docs/content-system-assets/hero.png" alt="Small extensions. Clear boundaries. — install only what you need, with evidence you can inspect" width="100%">
+</p>
+
 ## Download packaged extensions
 
 GitHub Releases contains a separate versioned ZIP for every extension currently registered on `main`.
@@ -78,6 +86,10 @@ custom-extensions/
 
 Machine-readable details live in `extensions/registry.json`.
 
+<p align="center">
+  <img src="docs/content-system-assets/supporting-square.png" alt="Local by default — preview, export, or change data only when the contract allows it" width="520">
+</p>
+
 ## Engineering method
 
 - specification-driven development (SDD) before behavior/contract changes;
@@ -103,3 +115,7 @@ bash scripts/package-extensions.sh
 ## Continuity
 
 New ChatGPT/Codex/Claude/OpenCode sessions should start with `AGENTS.md`, then `HANDOFF.md`, then the target extension's README/specs. Repository state wins over chat memory.
+
+## The content and visual contract
+
+This README follows the pinned [`content-generation-modules` v0.1.2](https://github.com/Pukujan/content-generation-modules/releases/tag/v0.1.2) adapter in [`.content-system/`](.content-system/). **Narrative raster images carry a short title and subtitle** so the visual can introduce one idea without becoming a noisy dashboard; SVGs, logos, and tiny helper graphics stay text-free. The longer story and responsive review page are in [`docs/content-system-preview.md`](docs/content-system-preview.md) and [`docs/content-system-preview.html`](docs/content-system-preview.html).
