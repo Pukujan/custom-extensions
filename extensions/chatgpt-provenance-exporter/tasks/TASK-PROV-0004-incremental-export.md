@@ -170,6 +170,32 @@ Acceptance result: PROV-0004 deterministic implementation and account-control UI
 
 Next atomic action: run the already-authorized account export in a connected Chromium/Brave MV3 surface, then validate the controlled account manifest, catalog, per-conversation reports, and SHA-256 index. No additional authorization prompt is needed.
 
+### 2026-09-21 03:37:33 UTC — Codex — inspection of user-produced account folder
+
+The user reported that the account exporter appeared to be working and requested inspection of `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance-account`. Inspection was aggregate-only; no transcript text, titles, raw IDs, tool payloads, or source URLs were copied into this checkpoint.
+
+Environment:
+- OS: `Microsoft Windows 11 Home`, version `10.0.26200`, build `26200`;
+- Node: `v24.14.1`;
+- repository branch: `feature/chatgpt-provenance-exporter`.
+
+Exact commands/results:
+- `node extensions/chatgpt-provenance-exporter/tools/validate-capture-bundle.mjs C:\Users\pujan\Downloads\June 2026\chatgpt-provenance-account` → exit `0` but returned `ok:false` because the account root is a multi-conversation account layout, not a single-capture bundle; this result was not treated as a per-conversation defect;
+- an aggregate filesystem/report/hash check over the single run directory → `6` conversation reports, `48` files, `49,769,393` bytes; all `6/6` raw responses preserved before parse and parsed successfully; `42` report-listed file hashes checked with `0` failures; normalized line counts matched report counts with `0` mismatches and `0` missing files;
+- a read-only derivation check using the repository `core.js` → `2,633` nodes, `2,627` edges, `2,627` messages, `2,105` tool events, `2,062` citations, `1` artifact; mapping conservation, unique node IDs, report counts, source-pointer resolution, parent/edge reconciliation, and raw-backed tool records all had `0` failures;
+- tool-event class aggregate → `847` `tool.call`, `1,258` `tool.result`; content types `code=1,447`, `execution_output=54`, `multimodal_text=421`, `text=183`;
+- citation field aggregate → `1,066` `citations`, `996` `content_references`;
+- account-level finalization files were absent: `manifest.json`, `catalog/conversations.jsonl`, and `integrity/SHA256SUMS.json` were not present.
+
+Assessment:
+- six per-conversation evidence bundles were exported successfully and are internally consistent, including raw response preservation, normalized graph data, tool-call/tool-result records, citation records, and per-file SHA-256 metadata;
+- the account-wide run is not fully finalized/checkpointed because the account manifest, catalog, and account-level SHA-256 index are missing. The folder therefore represents a valid partial capture, not a completed account export;
+- account-wide output intentionally does not include rendered DOM sweep files; rendered verification remains a single-conversation operation;
+- no code defect was evidenced by this inspection and no exporter source was changed.
+
+Next atomic action:
+- resume or rerun the authorized account export in the connected MV3 surface until the final manifest, catalog, and account-level SHA-256 index appear, then repeat the aggregate validation; do not start bulk export beyond this controlled account run.
+
 ## Handoff
 
 Read `PROJECT.md → checkpoints/CURRENT.md → this task → specs/SDD.md → specs/ACCOUNT_EXPORT_DESIGN.md` before continuing. Do not start a live account-wide export without a later explicit checkpoint.
