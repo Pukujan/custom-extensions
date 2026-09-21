@@ -13,6 +13,7 @@ Before changing code or adding an extension, read:
 5. `specs/SDD.md`
 6. `extensions/registry.json`
 7. the target extension's `README.md` and `specs/` when present
+8. `.content-system/system-version.json` and the relevant `.content-system/` files before changing README, marketing, UX, image, or HTML content.
 
 Do not rely on prior chat/session memory when repository state or observed execution disagrees.
 

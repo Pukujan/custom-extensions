@@ -1,0 +1,9 @@
+{
+  "schema_version": "content-generation.brand-language.v1",
+  "name": "Custom Extensions",
+  "personality": ["practical", "local-first", "careful", "small-scope", "plainspoken"],
+  "audience_feeling": "The reader should know what an extension does, what it can touch, how to install it, and what evidence exists before they load it.",
+  "promise": "Make small browser utilities easy to find, inspect, load, and verify without hiding risk behind convenience language.",
+  "preferred_terms": {"trust": "a narrow contract you can inspect", "privacy": "local-first by default", "technical detail": "name the boundary before the implementation"},
+  "avoid": ["AI-powered browser suite", "seamlessly automates", "secure by design" , "guaranteed privacy", "all-in-one extension"]
+}

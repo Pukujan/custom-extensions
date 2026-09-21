@@ -111,3 +111,13 @@ The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.
 - do not broaden extension permissions for packaging;
 - do not treat successful packaging as a live-site smoke test;
 - do not reuse a collection release tag for materially different source; bump `release/current.json` instead.
+
+## Content-system preview — branch-local
+
+- branch: `task/TASK-0016-content-system-preview`
+- helper: `content-generation-modules` v0.1.2 at commit `cb8c18fa7789e4b651e1f963892bf056b0d3276d`
+- review files: `docs/content-system-preview.md`, `docs/content-system-preview.html`
+- generated assets: `docs/content-system-assets/hero.png`, `docs/content-system-assets/supporting-square.png`
+- visual rule: narrative raster assets carry one short title and subtitle; SVGs and tiny helper graphics remain text-free
+- validation: existing collection tests plus responsive desktop/tablet/mobile screenshots and PDF packet rendered locally; canonical README remains unchanged
+- next action: inspect the preview PR before deciding whether any README or documentation promotion is warranted
