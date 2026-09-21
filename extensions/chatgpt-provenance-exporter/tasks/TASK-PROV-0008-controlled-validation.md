@@ -60,6 +60,13 @@ Blockers:
 
 Next atomic action: wait for a user-supplied official ZIP or separate account-wide authorization; otherwise keep the accepted v0.1 baseline frozen and do not start bulk export.
 
+### 2026-09-21 00:31:12 UTC — Codex — controlled official-ZIP availability check
+
+- inspected only the controlled provenance download root `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance`;
+- no `.zip` files were present there;
+- no unrelated download folders were inspected, no private archive was imported, and no account-wide export was started;
+- next action remains to receive a user-supplied official export ZIP or a separate explicit account-wide authorization.
+
 ### 2026-09-20 23:00:04 UTC — Codex — MV3 gate reconciliation
 
 Evidence reconciliation:
