@@ -132,6 +132,44 @@ Acceptance result: **PROV-0004 deterministic design/implementation gate passed; 
 Next:
 - commit this review checkpoint, then open PROV-0005 for official ChatGPT export import/reconciliation while retaining the explicit PROV-0004 live-smoke authorization as a later controlled action; do not start account-wide export.
 
+### 2026-09-21 00:50:45 UTC — Codex — authorized live attempt and account-control fix
+
+Authorization:
+- the user explicitly authorized all remaining in-scope actions, including the live account-wide export; no additional authorization gate remains for PROV-0004.
+
+Product change:
+- added visible account-wide start/resume, pause/resume, reset, status/progress, and final manifest/catalog/integrity-path controls to `popup.html` and `popup.js`;
+- added deterministic assertions for those controls to `tests/test.js`;
+- the existing `account-runner.js` remains the execution authority and retains its read-only GET-only, raw-before-parse, checkpoint, retry, pause, resume, and reset behavior.
+
+Exact environment:
+- OS: `Microsoft Windows 11 Home 10.0.26200 build 26200 AMD64`;
+- ChatGPT desktop: `153.0.8010.48`;
+- Node: `v24.14.1`;
+- browser inventory: Codex in-app browser (`iab`) only; `createBrowserTab("chrome", ...)` returned `Browser is not available: chrome`.
+
+Exact commands/results:
+- `node extensions/chatgpt-provenance-exporter/tests/test.js` → exit `0`; `56 tests passed`;
+- `node scripts/test-all.mjs` → exit `0`; all registered suites passed; provenance suite `56 tests passed`; final output `All registered extension test suites passed.`;
+- controlled account root `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance-account` → `0` files after the controlled attempt; no run directory was created;
+- no private transcript content, raw account IDs, access tokens, or account bundle was committed.
+
+Exact browser/runtime evidence:
+- the connected in-app ChatGPT tab exposed the approved `cdp` capability, but the runtime probe returned `core:true`, `runtime:true`, `singleRunner:true`, `accountCore:false`, `accountRunner:false`; this is not an installed MV3 context;
+- page-origin fetch to a controlled loopback bridge returned `{ok:false,name:"TypeError",message:"Failed to fetch"}`;
+- in-app loopback navigation returned `net::ERR_BLOCKED_BY_CLIENT`; local `file:` navigation was rejected by the browser URL policy; raw GitHub source navigation was also rejected;
+- `Page.setDownloadBehavior` was unsupported through this CDP surface; data-URL and blob-URL download probes each timed out after `3000ms` waiting for a download event;
+- no authenticated account enumeration/detail request was started; consequently no live conversation counts, raw hashes, per-conversation reconciliation, or live acceptance claim is made.
+
+Observed defect/fix:
+- defect confirmed: account-wide export had no user-visible pause/reset/start controls despite the runner implementing those controls;
+- fix verified deterministically: popup controls and storage listeners now expose them without moving the long-running loop into the popup;
+- unresolved blocker: this session has no connected Chromium/Brave MV3 surface and the in-app browser cannot provide the extension download adapter needed to materialize the account bundle.
+
+Acceptance result: PROV-0004 deterministic implementation and account-control UI fix passed; live account-wide acceptance remains unresolved due the browser-surface blocker, not a demonstrated exporter/parser failure.
+
+Next atomic action: run the already-authorized account export in a connected Chromium/Brave MV3 surface, then validate the controlled account manifest, catalog, per-conversation reports, and SHA-256 index. No additional authorization prompt is needed.
+
 ## Handoff
 
 Read `PROJECT.md → checkpoints/CURRENT.md → this task → specs/SDD.md → specs/ACCOUNT_EXPORT_DESIGN.md` before continuing. Do not start a live account-wide export without a later explicit checkpoint.

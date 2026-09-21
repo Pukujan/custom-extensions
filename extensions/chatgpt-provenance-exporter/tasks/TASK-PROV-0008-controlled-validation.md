@@ -83,6 +83,38 @@ Decision:
 Next atomic action:
 - wait for explicit authorization before running the optional PROV-0006 client-visible observer smoke, or for a user-supplied official export ZIP; otherwise the v0.1 pilot/holdout validation is complete and frozen.
 
+### 2026-09-21 00:50:45 UTC — Codex — standing authorization and account-control follow-up
+
+The user explicitly authorized all remaining in-scope actions, including the account-wide export. The popup was extended with visible account-wide start, pause/resume, and reset controls; the account runner already had cancellation-safe state semantics. No private transcript content or account identifiers were added to Git.
+
+Exact environment:
+- OS: `Microsoft Windows 11 Home 10.0.26200 build 26200 AMD64`;
+- ChatGPT desktop: `153.0.8010.48`;
+- Node: `v24.14.1`;
+- available browser: Codex in-app browser (`iab`) only; `createBrowserTab("chrome", ...)` returned `Browser is not available: chrome`.
+
+Exact commands/results:
+- `node extensions/chatgpt-provenance-exporter/tests/test.js` → exit `0`; `56 tests passed`;
+- `node scripts/test-all.mjs` → exit `0`; all registered suites passed; provenance suite `56 tests passed`; final output `All registered extension test suites passed.`;
+- controlled account output root `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance-account` → exists with `0` files after the attempt; no account run directory was created;
+- the source checkout remained free of private transcript contents and raw account IDs.
+
+Browser/runtime evidence:
+- the connected in-app ChatGPT tab exposed `cdp`, but its runtime probe showed `core:true`, `runtime:true`, `singleRunner:true`, `accountCore:false`, and `accountRunner:false`; it was not an installed MV3 extension context;
+- a page-origin fetch to the controlled loopback bridge returned `{ok:false,name:"TypeError",message:"Failed to fetch"}`;
+- in-app navigation to loopback returned `net::ERR_BLOCKED_BY_CLIENT`; local `file:` navigation was rejected by the browser URL policy; the raw GitHub source route was also rejected;
+- `Page.setDownloadBehavior` was unsupported through this CDP surface, and both data-URL and blob-URL download probes timed out after `3000ms` waiting for a download event;
+- therefore no authenticated account enumeration/detail request was started, no raw response was captured, and no account counts, hashes, reconciliation, or acceptance result are claimed.
+
+Observed defect/fix:
+- defect: account-wide export had no popup controls even though the long-running runner already supported pause/resume/reset;
+- fix: added account-wide start/resume, pause/resume, reset, status/progress, and manifest/catalog/integrity-path display to `popup.html`/`popup.js`, plus deterministic assertions in the provenance suite;
+- unresolved environment blocker: the current in-app browser cannot load the unpacked MV3 extension or provide the controlled download adapter required by PROV-0004.
+
+Acceptance: account-control UI fix passed deterministic and repository-wide tests; PROV-0004 live account acceptance remains unresolved because the required MV3 browser/download surface is unavailable in this session.
+
+Next atomic action: execute the already-authorized account-wide run in a connected Chromium/Brave MV3 surface, then validate its controlled manifest, catalog, per-conversation reports, and SHA-256 index. Do not claim account-wide completion from the current in-app-browser probes.
+
 ### 2026-09-20 21:37:52 UTC — Codex — live-surface recheck
 
 Completed:

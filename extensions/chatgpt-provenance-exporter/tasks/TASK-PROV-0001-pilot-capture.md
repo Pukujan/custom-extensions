@@ -468,3 +468,11 @@ Decision:
 
 Next atomic action:
 - wait for explicit authorization of the optional PROV-0006 observer or a user-supplied official export ZIP; do not start bulk export.
+
+### 2026-09-21 00:50:45 UTC — Codex — follow-up account-control and live-surface evidence
+
+The user explicitly authorized all remaining in-scope actions, including account-wide export. The account runner already supported pause/resume/reset, but the popup did not expose those account-wide controls. `popup.html`/`popup.js` now expose account start/resume, pause/resume, reset, progress, and completed manifest/catalog/integrity paths; `node extensions/chatgpt-provenance-exporter/tests/test.js` returned exit `0` with `56 tests passed`, and `node scripts/test-all.mjs` returned exit `0` with `All registered extension test suites passed.`
+
+The current Codex session has only the in-app browser (`iab`); a Chromium provider request returned `Browser is not available: chrome`. The in-app tab exposed `cdp`, but its runtime had the single-capture runner only (`accountCore:false`, `accountRunner:false`). Loopback fetch returned `TypeError: Failed to fetch`, local/loopback and raw-source navigation were blocked, CDP download behavior was unsupported, and data/blob download probes timed out after `3000ms`. The controlled account root `C:\Users\pujan\Downloads\June 2026\chatgpt-provenance-account` contains `0` files; no authenticated account request or private account bundle was created or committed.
+
+Acceptance: the account-control defect is fixed and repository tests pass; the PROV-0004 live account acceptance remains unresolved because the required connected MV3 browser/download surface is unavailable. Next atomic action: execute the already-authorized account run in a connected Chromium/Brave MV3 surface and record aggregate counts, raw-before-parse/hash/reconciliation results, and blockers without committing private transcript contents.

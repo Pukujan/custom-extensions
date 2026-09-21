@@ -343,6 +343,9 @@ test("capture exposes pause, resume, and cancellation-safe reset controls", () =
   const content = fs.readFileSync(path.join(ROOT, "content.js"), "utf8");
   assert.match(html, /id="pause"/);
   assert.match(html, /id="reset"/);
+  assert.match(html, /id="account-start"/);
+  assert.match(html, /id="account-pause"/);
+  assert.match(html, /id="account-reset"/);
   for (const type of ["PAUSE_PROVENANCE_CAPTURE", "RESUME_PROVENANCE_CAPTURE", "RESET_PROVENANCE_CAPTURE"]) {
     assert.match(popup, new RegExp(type));
     assert.match(content, new RegExp(type));
@@ -355,6 +358,9 @@ test("capture exposes pause, resume, and cancellation-safe reset controls", () =
   assert.match(popup, /normalized\/tool-events\.jsonl/);
   assert.match(popup, /normalized\/citations\.jsonl/);
   assert.match(popup, /validation\/reconciliation\.json/);
+  for (const type of ["PAUSE_PROVENANCE_ACCOUNT_EXPORT", "RESUME_PROVENANCE_ACCOUNT_EXPORT", "RESET_PROVENANCE_ACCOUNT_EXPORT"]) {
+    assert.match(popup, new RegExp(type));
+  }
 });
 
 test("ontology v0.1 is versioned, source-preserving, and structurally complete", () => {

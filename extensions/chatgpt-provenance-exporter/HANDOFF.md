@@ -9,7 +9,7 @@ This project is ready for a fresh session without prior chat history.
 - Draft PR: #7
 - Branch: `feature/chatgpt-provenance-exporter`
 - Canonical task: `tasks/TASK-PROV-0001-pilot-capture.md`
-- Status: `LOCAL_TESTED / LIVE_SMOKE_PASSED / HOLDOUT_PASSED`; built-in full-CDP pilot, required MV3 smoke, and authorized observer smoke accepted; official/account-wide gates remain separately authorized
+- Status: `LOCAL_TESTED / LIVE_SMOKE_PASSED / HOLDOUT_PASSED`; built-in full-CDP pilot, required MV3 smoke, and authorized observer smoke accepted; account-wide export is explicitly authorized but not executable in the current in-app-browser surface
 
 ## Read exactly this first
 
@@ -24,11 +24,11 @@ Do not reconstruct project state from the chat session that created this branch.
 
 ## Exact next action
 
-No additional live action is required for the accepted v0.1 pilot/holdout baseline. The canonical checkpoints record the required unpacked-MV3 smoke, built-in full-CDP validation, and authorized observer smoke; the latest generated-response run observed one real `text/event-stream` request but could not read its body through the page-level hook. Wait for a user-supplied official export ZIP before testing official import, and do not start account-wide export without a separate authorization checkpoint.
+The accepted v0.1 pilot/holdout baseline is complete. The latest checkpoint added visible account-wide start/pause/resume/reset controls and recorded standing authorization for the live account export, but the current Codex in-app browser has no installed MV3 extension context or usable controlled download sink. The next atomic action is to run PROV-0004 in a connected Chromium/Brave MV3 surface; no further authorization prompt is required. Wait for a user-supplied official export ZIP before testing official import.
 
 ## Scope guard
 
-Do not implement account-wide bulk export yet. After the pilot, run the independent PROV-0002 holdout before scaling or tuning an ontology.
+Do not claim account-wide completion until its raw/derived files, manifest, reconciliation, and SHA-256 evidence are written to the controlled account directory. The pilot and independent PROV-0002 holdout are already accepted.
 
 ## Authority
 

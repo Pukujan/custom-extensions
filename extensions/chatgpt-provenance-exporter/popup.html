@@ -17,6 +17,16 @@
       </div>
       <div id="status" class="status">Ready</div>
       <pre id="details"></pre>
+      <hr />
+      <h2>Account-wide export</h2>
+      <p class="lead">Read-only export of the frozen conversation list. Raw responses stay in the controlled account-export folder.</p>
+      <button id="account-start" type="button">Start account export</button>
+      <div class="actions">
+        <button id="account-pause" type="button" disabled>Pause export</button>
+        <button id="account-reset" type="button">Reset export</button>
+      </div>
+      <div id="account-status" class="status">Ready</div>
+      <pre id="account-details"></pre>
     </main>
     <script src="popup.js"></script>
   </body>
