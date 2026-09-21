@@ -1,0 +1,90 @@
+{
+  "ontology_version": "0.1.0",
+  "schema_version": "custom-extensions.chatgpt-provenance.ontology.v1",
+  "classes": [
+    {
+      "id": "message.user",
+      "kind": "observable-role",
+      "posture": "evidence-preserving",
+      "observed_in_acceptance": true,
+      "description": "A source message authored by the user."
+    },
+    {
+      "id": "message.assistant",
+      "kind": "observable-role",
+      "posture": "evidence-preserving",
+      "observed_in_acceptance": true,
+      "description": "A source message authored by the assistant when no higher-priority observable marker applies."
+    },
+    {
+      "id": "message.system",
+      "kind": "observable-role",
+      "posture": "evidence-preserving",
+      "observed_in_acceptance": false,
+      "description": "A source message authored by the system."
+    },
+    {
+      "id": "message.tool",
+      "kind": "observable-role",
+      "posture": "evidence-preserving",
+      "observed_in_acceptance": false,
+      "description": "A tool-authored message that is not more specifically identified as a tool result."
+    },
+    {
+      "id": "tool.call",
+      "kind": "observable-event",
+      "posture": "evidence-preserving",
+      "observed_in_acceptance": true,
+      "description": "A source node with an explicit assistant recipient/tool-call marker."
+    },
+    {
+      "id": "tool.result",
+      "kind": "observable-event",
+      "posture": "evidence-preserving",
+      "observed_in_acceptance": true,
+      "description": "A source node with a tool author or explicit result/output marker."
+    },
+    {
+      "id": "citation",
+      "kind": "observable-reference",
+      "posture": "interpretive-index",
+      "observed_in_acceptance": true,
+      "description": "A source-backed citation/content-reference field or citation-like content type."
+    },
+    {
+      "id": "artifact",
+      "kind": "observable-reference",
+      "posture": "interpretive-index",
+      "observed_in_acceptance": false,
+      "description": "A source-backed artifact or file reference."
+    },
+    {
+      "id": "attachment",
+      "kind": "observable-reference",
+      "posture": "interpretive-index",
+      "observed_in_acceptance": false,
+      "description": "A source-backed attachment reference."
+    },
+    {
+      "id": "browser.activity",
+      "kind": "observable-activity",
+      "posture": "interpretive-index",
+      "observed_in_acceptance": false,
+      "description": "A source marker naming browser/computer activity."
+    },
+    {
+      "id": "execution.status",
+      "kind": "observable-status",
+      "posture": "interpretive-index",
+      "observed_in_acceptance": false,
+      "description": "A source status/progress/execution marker."
+    },
+    {
+      "id": "unknown",
+      "kind": "fallback",
+      "posture": "evidence-preserving",
+      "observed_in_acceptance": true,
+      "description": "A source structure not safely recognized by the current deterministic rules."
+    }
+  ]
+}

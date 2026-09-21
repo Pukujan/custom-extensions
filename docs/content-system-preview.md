@@ -33,7 +33,7 @@ The evidence labels stay honest: `LOCAL_TESTED` means deterministic checks passe
 
 ## What is here today
 
-The current registry includes a ChatGPT 10-Day Cleaner, a LinkedIn Connection Exporter, and a ChatGPT Transcript Exporter. Each has a narrow purpose and its own verification story; the collection does not collapse them into a shared browser runtime.
+The current registry includes a ChatGPT 10-Day Cleaner, a LinkedIn Connection Exporter, a ChatGPT Transcript Exporter, and a ChatGPT Provenance Exporter. Each has a narrow purpose and its own verification story; the collection does not collapse them into a shared browser runtime.
 
 ## Read before adding another extension
 

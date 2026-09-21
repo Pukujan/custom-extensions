@@ -1,6 +1,18 @@
 # Status
 
-## Release packaging — 2026-09-03
+## Release packaging — 2026-09-20 readiness audit
+
+### Prepared for publication
+
+The registry now has four extensions, and the prepared descriptor in `release/current.json` is `extensions-2026.09.20` / `Custom Extensions — 2026-09-20`. It includes `chatgpt-provenance-exporter-v0.1.0.zip`. Temporary ZIPs were generated only in controlled local output directories for packager validation; no release assets are committed and no release or upload was performed.
+
+The canonical Node packager uses only built-in modules and runs on this Windows checkout as well as CI. The legacy Bash wrapper's stored Git blob also passes `bash -n`; on this checkout, `core.autocrlf=true` makes direct `bash -n scripts/package-extensions.sh` see CRLF, which is checkout-local.
+
+Local verification on 2026-09-20: all four registered suites passed (103 tests total); registry/manifest version checks passed; JSON parsing passed; release coverage checks passed after metadata alignment; `bash -n scripts/package-extensions.sh` passed after the line-ending fix.
+
+The new cross-platform packager was also verified locally with `node --check scripts/package-extensions.mjs`, `node scripts/package-extensions.mjs --help`, and two independent `--out` runs. Both runs produced the four expected ZIPs with identical SHA-256 values; checksum recomputation passed; every archive had `manifest.json` at its root and excluded `tests/` and `specs/`. The temporary output directories were removed after verification. After this change, `node scripts/test-all.mjs` returned exit `0` with all registered extension suites passed (`103` tests total, including `57` provenance tests). Release metadata is now validated/emitted by `scripts/read-release-metadata.mjs`, removing the workflow's `jq` dependency.
+
+Remaining release risks: the GitHub Actions workflow has not been run on this branch, no release assets are committed or published, and the generated-response observer saw a real `text/event-stream` request whose body was unavailable to the page-level hook. Local packaging, checksum, archive-invariant, and metadata validation passed. The required unpacked-MV3 smoke and authorized observer smokes are recorded as passed.
 
 ### Implemented and merged
 
@@ -26,7 +38,7 @@ Observed results:
 - LinkedIn Connection Exporter: **16/16 passed**;
 - ChatGPT Transcript Exporter: **18/18 passed**, including randomized dedupe/order coverage;
 - collection runner: **all registered extension test suites passed**;
-- all three versioned ZIPs packaged successfully;
+- all four versioned ZIPs packaged successfully;
 - release metadata validation passed;
 - GitHub Release publication passed;
 - Actions artifact upload passed.
@@ -44,11 +56,25 @@ GitHub Release `extensions-2026.09.03` / `Custom Extensions — 2026-09-03` was 
 
 Packaging/release success does not change live-site verification status.
 
-## Content-system preview — branch-local
+## ChatGPT Provenance Exporter — current state
 
-The branch `task/TASK-0016-content-system-preview` contains a non-destructive story, responsive HTML review page, and two repository-specific raster assets. It pins `content-generation-modules` v0.1.2 at `cb8c18fa7789e4b651e1f963892bf056b0d3276d`.
+The PROV-0001 single-conversation pilot and PROV-0002 independent holdout both passed and are frozen. Aggregate-only evidence showed source conservation, lineage and pointer validity, raw-backed tool records, citations, integrity hashes, rendered-stability checks, pause/resume/reset behavior, and scroll restoration. Private transcript contents, raw IDs, bundles, and live event bodies are not stored in Git.
 
-Narrative raster assets use a repeatable **short title + short subtitle** contract. SVGs, logos, and tiny helper graphics remain text-free. The canonical README now uses the reviewed story and images on this branch; release metadata is unchanged. The preview has been checked at desktop, tablet, and mobile widths and rendered to a local PDF packet; GitHub/Brave live-site evidence is not claimed by this content preview.
+For a captured bundle, use the normalized indexes for evidence review:
+
+- `normalized/tool-events.jsonl` contains the source-backed tool-call and tool-result records;
+- `normalized/citations.jsonl` contains source-backed citation records where exposed;
+- `rendered/transcript.md` is the readable rendered transcript and is not the complete raw-backed tool/source view.
+
+Capture controls support pause, resume, and reset. Pause freezes the active run and its displayed progress; resume continues the same run; reset cancels the active run, clears persisted progress, and prevents stale progress from being written afterward.
+
+The deterministic ontology, account-export design, official-import design, client-event observer, and portable trace adapter gates are green. The built-in-browser full-CDP pilot now passes the aggregate source/tool/citation/hash/rendered/pause-reset/scroll checks, the required unpacked-MV3 smoke is recorded as passed, and the authorized observer smokes captured persisted conversation activity plus one generated-response `text/event-stream` request with credential filtering and hook restoration. The page-level hook could not read the stream body, so no SSE frames are claimed; account-wide export and real official-export import remain deferred.
+
+## Content-system contract
+
+The repository contains the reviewed non-destructive story, responsive HTML review page, and two repository-specific raster assets from `content-generation-modules` v0.1.2 at `cb8c18fa7789e4b651e1f963892bf056b0d3276d`.
+
+Narrative raster assets use a repeatable **short title + short subtitle** contract. SVGs, logos, and tiny helper graphics remain text-free. The canonical README uses the reviewed story and images; the preview has been checked at desktop, tablet, and mobile widths and rendered to a local PDF packet. This content review does not claim GitHub or Brave live-site evidence.
 
 ## Collection bootstrap — 2026-09-01
 
@@ -59,7 +85,8 @@ Narrative raster assets use a repeatable **short title + short subtitle** contra
 - machine-readable extension registry;
 - imported ChatGPT 10-Day Cleaner v2 source;
 - imported LinkedIn Connection Exporter v1.1 source;
-- ChatGPT Transcript Exporter v0.1 implementation/spec/tests.
+- ChatGPT Transcript Exporter v0.1 implementation/spec/tests;
+- ChatGPT Provenance Exporter v0.1 implementation/spec/tests and aggregate-only pilot/holdout evidence.
 
 ### Prior observed local verification
 

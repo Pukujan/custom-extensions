@@ -1,0 +1,44 @@
+# Current Checkpoint — ChatGPT Provenance Exporter
+
+## Program state
+
+Phase: 8 — Controlled live-validation backlog.
+
+Current P0 task: `TASK-PROV-0004-incremental-export.md` (the authorized account run is paused after six valid per-conversation bundles; final account-level manifest/catalog/SHA-256 validation remains).
+
+## Main objective
+
+Build and validate a read-only provenance bundle for one currently open, large, tool-heavy ChatGPT conversation before attempting bulk account export.
+
+## Decisions already made
+
+- this is a separate extension from `chatgpt-transcript-exporter`;
+- raw authenticated conversation data is primary archival evidence;
+- DOM scrolling is an independent rendered verifier;
+- unknown node/content types must be preserved rather than dropped;
+- classification is versioned interpretation over immutable raw evidence;
+- v0.1 does not claim complete knowledge of OpenAI-internal execution;
+- pilot live validation may use ChatGPT desktop's built-in browser only when the approved development-only full-CDP/evaluate surface is enabled; installed-extension controls still require one unpacked MV3 smoke check;
+- active captures and account exports expose pause/resume/reset controls and reset is cancellation-safe;
+- bulk account export was deferred until two-chat validation passed; both pilot and holdout are now accepted, and the user has explicitly authorized the remaining live account run.
+
+## Active
+
+- PROV-0008 controlled live-validation backlog and evidence checkpoint (pilot, holdout, required MV3 smoke, and authorized observer smoke accepted; account-live execution is environment-blocked, and official-import still needs a supplied ZIP).
+- Deterministic implementation maintenance and controlled live account-export execution when a connected MV3 browser surface is available.
+
+## Queued
+
+1. Native external Eval Lab compatibility, only after a pinned target schema and validator are supplied.
+
+## Current verification state
+
+The PROV-0001 pilot and PROV-0002 independent holdout are both accepted and frozen. The pilot preserved `465` nodes, `363` tool events, and `328` citations; the holdout preserved `984` nodes, `862` tools, and `740` citations. Both passed source conservation, lineage, pointer, raw-backed tool, hash, rendered-stability, pause/resume/reset, and scroll-restoration checks with raw/rendered discrepancies preserved. The built-in ChatGPT full-CDP pilot was subsequently executed against the same selected pilot and independently passed with `465` nodes, `363` tools, `328` citations, `0` pointer failures, `0` edge mismatches, `0` tool-raw mismatches, `0` hash failures, stable rendered sweeps, and exact scroll restoration. The required unpacked-MV3 popup/service-worker/download smoke is also recorded as passed in the fresh Brave pilot checkpoint. The popup names the raw, tool-event, citation, and reconciliation files after completion so separate evidence indexes are discoverable. PROV-0003 ontology v0.1.0 is implemented and its deterministic/full-suite gates are green. PROV-0004's design and deterministic implementation gate is green; the popup exposes account-wide start/pause/resume/reset controls, and the authorized Brave run has written six valid per-conversation bundles. The run is paused, so account-level `manifest.json`, catalog, and SHA-256 index are not expected until resume/completion. PROV-0005's deterministic official-export importer/reconciliation gate is green, but no real private ZIP has been imported. PROV-0006's deterministic client-event observer gate and authorized live smoke are complete: `6` eligible events were observed during one generated response, including one HTTP `200` `text/event-stream` POST; the streaming body was unavailable and no frames were parsed, while credential filtering and hook restoration passed. PROV-0007's deterministic portable trace-adapter gate is green; no native external Eval Lab schema is claimed. Official-import validation still awaits a user-supplied ZIP.
+
+The latest repository-wide verification is green: `node tests/test.js` returned exit `0` with `57 tests passed`; `node scripts/test-all.mjs` returned exit `0` with all `103` registered tests passed; `node tools/validate-capture-bundle.mjs --help` returned exit `0`; `git diff --check` returned exit `0` with only normal LF/CRLF conversion warnings. The cross-platform `node scripts/package-extensions.mjs` packager was syntax-checked, help-checked, run twice into controlled temporary directories with identical ZIP SHA-256 values, and checked for recomputable checksums, root `manifest.json`, and excluded `tests/`/`specs/`; its cleanup was separately checked to preserve unrelated nested files while removing stale generated ZIPs. `node scripts/read-release-metadata.mjs` was syntax-checked and returned the prepared tag/title pair. Temporary outputs were removed. No private transcript contents, live event bodies, bundles, or raw IDs are in Git.
+
+The committed aggregate validator also passed against both controlled real bundles: pilot `465` nodes / `363` tools / `328` citations / `0` pointer failures / `0` tool-raw mismatches / `0` hash failures; holdout `984` nodes / `862` tools / `740` citations / `0` pointer failures / `0` tool-raw mismatches / `0` hash failures. Both rendered reconciliations remain explicitly `differences_observed` rather than being hidden.
+
+## Next atomic action
+
+Next atomic action: resume the existing paused Brave account export, wait for final account-level files, then validate the controlled account manifest/catalog/per-conversation reports and SHA-256 index. Run official-import validation only if the user supplies a ZIP. Do not reset the paused run or claim account-wide acceptance before finalization validation.

@@ -2,32 +2,33 @@
 
 <!-- continuity:current {"active_task":null,"active_task_file":null,"protocol_version":"0.1.0-draft","schema":"project-continuity.current.v1"} -->
 
-> Continuity v1: this file remains the canonical mutable repository checkpoint. On `main`, no root continuity task is active; the ChatGPT Provenance Exporter work described below remains intentionally branch-local on `feature/chatgpt-provenance-exporter` with its own canonical task/checkpoint.
+> Continuity v1: this file remains the canonical mutable repository checkpoint. No root continuity task is active; the ChatGPT Provenance Exporter retains its own extension-level project/checkpoint files for follow-up work.
 
 ## Checkpoint
 
-- Date: 2026-09-03
+- Date: 2026-09-21
 - Repository: `Pukujan/custom-extensions`
 - Purpose: durable collection of small independently loadable Brave/Chromium extensions
 - Bootstrap PR #1: merged to `main`
 - Packaged-release PR #3: merged to `main`
+- Content-system PR #9: merged to `main`
 - Release commit: `7ba4f8e54d6e7b1c383cade76916cb746b1271c6`
 - Published release: `extensions-2026.09.03` — `Custom Extensions — 2026-09-03`
+- Release descriptor awaiting publication: `extensions-2026.09.20` — `Custom Extensions — 2026-09-20`
 - Release workflow run: `33825192190` — success
 
-## Active project — ChatGPT Provenance Exporter
+## Follow-on project — ChatGPT Provenance Exporter
 
-A new high-value project is active but intentionally **not merged to main yet** because its deterministic/local and live-browser validation gates have not been observed.
+The v0.1 extension is now part of the collection. Its single-conversation pilot, independent holdout, required MV3 smoke, and approved built-in-browser validation are recorded as passed; account-wide export, official-import validation, and streaming/SSE body observation remain separately gated.
 
 - project: ChatGPT Provenance Exporter
-- branch: `feature/chatgpt-provenance-exporter`
 - GitHub issue: #6 — `PROV-0001: Validate single-conversation ChatGPT provenance capture`
-- draft PR: #7 — `PROV-0001: add single-conversation ChatGPT provenance exporter`
-- registry state on feature branch: `IMPLEMENTED_UNVERIFIED / LIVE_SMOKE_REQUIRED / HOLDOUT_REQUIRED`
+- merged PR: #7 — `PROV-0001: add single-conversation ChatGPT provenance exporter`
+- registry state: `LOCAL_TESTED / LIVE_SMOKE_PASSED / HOLDOUT_PASSED`
 
 ### Fresh-session read order
 
-A new agent continuing this project should switch/read the feature branch and then read:
+A new agent continuing follow-up work should read:
 
 1. `extensions/chatgpt-provenance-exporter/PROJECT.md`
 2. `extensions/chatgpt-provenance-exporter/AGENTS.md`
@@ -36,13 +37,27 @@ A new agent continuing this project should switch/read the feature branch and th
 5. `extensions/chatgpt-provenance-exporter/docs/LOCAL_VALIDATION_LUNA.md`
 6. only the relevant PDD/SDD/TDD section needed for the next action.
 
-The exact next action is local deterministic test execution followed by one large, tool-heavy Brave/ChatGPT pilot capture. Do **not** begin bulk account export or ontology tuning until PROV-0001 and the independent PROV-0002 holdout gate are satisfied.
+The accepted v0.1 baseline is frozen. Do **not** reset the controlled run, start a second bulk run, or claim official-import/SSE coverage without the corresponding user-supplied input and validation gate.
 
 The task file and checkpoint are canonical execution state. Issue #6 and PR #7 are coordination mirrors.
 
 ---
 
 ## Current extension inventory
+
+### ChatGPT Provenance Exporter — current validation state
+
+- directory: `extensions/chatgpt-provenance-exporter/`
+- risk class: read-export
+- PROV-0001 pilot: **passed**
+- PROV-0002 independent holdout: **passed**
+- aggregate-only evidence remains outside Git; no private transcript contents are included here
+- the source-backed tool index is `normalized/tool-events.jsonl`
+- the source-backed citation/source index is `normalized/citations.jsonl`
+- `rendered/transcript.md` is a readable rendered transcript, not the complete raw-backed tool/source view
+- pause, resume, and reset are supported for active capture; reset cancels the active run and clears its persisted progress
+- built-in-browser full-CDP pilot validation: **passed** through the approved `cdp` capability; one authorized persisted-fetch observer smoke also passed, with streaming/SSE observation separately gated
+- packaging readiness: registry and manifest are aligned; the prepared release descriptor includes this extension
 
 ### ChatGPT 10-Day Cleaner v2.0.0
 
@@ -71,11 +86,11 @@ The task file and checkpoint are canonical execution state. Issue #6 and PR #7 a
 
 ## Packaged release design
 
-`release/current.json` defines the active collection bundle tag/title.
+`release/current.json` defines the prepared collection bundle tag/title.
 
-`scripts/package-extensions.sh` packages every registry entry, requires registry/manifest version agreement, excludes conventional repository-only tests/specs/reports, verifies `manifest.json` is at ZIP root, and writes `SHA256SUMS.txt`.
+`scripts/package-extensions.mjs` is the canonical cross-platform packager for every registry entry. It requires registry/manifest version agreement, excludes conventional repository-only tests/specs/reports, verifies `manifest.json` is at ZIP root, and writes `SHA256SUMS.txt`. `scripts/package-extensions.sh` remains a legacy Unix wrapper.
 
-`.github/workflows/package-release.yml` runs the collection tests before packaging and publishing the GitHub Release. A change to `release/current.json` on `main` publishes a new bundle; manual reruns refresh the named release idempotently.
+`.github/workflows/package-release.yml` runs the collection tests, Node packager, and Node release-metadata validator before publishing the GitHub Release. A change to `release/current.json` on `main` publishes a new bundle; manual reruns refresh the named release idempotently.
 
 ## Observed release evidence
 
@@ -87,13 +102,17 @@ Observed test results:
 - LinkedIn Connection Exporter: 16/16 passed;
 - ChatGPT Transcript Exporter: 18/18 passed;
 - total: 46 tests passed;
-- all three ZIPs packaged successfully;
+- all four ZIPs packaged successfully;
 - GitHub Release publication succeeded;
 - workflow artifact upload succeeded.
 
-The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.txt`.
+The published GitHub Release contains the four versioned ZIPs plus `SHA256SUMS.txt` once the `extensions-2026.09.20` workflow completes.
 
-## Exact next actions
+## Active provenance next action
+
+The active project is the ChatGPT Provenance Exporter. The v0.1 pilot/holdout baseline is frozen and accepted. The user has explicitly authorized the controlled account run, which is currently paused after six valid per-conversation bundles were written under the controlled account folder. The canonical next action is to resume that same run, wait for account-level `manifest.json`, catalog, and SHA-256 index finalization, and then validate them. Do not reset the run or start a second bulk run unless the existing checkpoint is intentionally discarded. Official-import work still waits for a user-supplied ZIP.
+
+## Other collection maintenance (not the active provenance task)
 
 1. Download `chatgpt-transcript-exporter-v0.1.0.zip` from release `extensions-2026.09.03`.
 2. Optionally verify SHA-256 against `SHA256SUMS.txt`.
@@ -101,7 +120,7 @@ The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.
 4. Smoke-test a short ChatGPT thread and a genuinely long/virtualized thread.
 5. Verify Markdown and JSON downloads, beginning/middle/end ordering, code blocks, links, roles, filename, scroll restoration, and partial-warning behavior.
 6. Only after observed live browser evidence should the transcript exporter move from `LIVE_SMOKE_REQUIRED` to `LIVE_SMOKE_PASSED`.
-7. For a future bundle, update extension/registry versions as needed and change `release/current.json` to a new unique collection tag/title.
+7. Before publishing, review the prepared `release/current.json` and `release/RELEASE_NOTES.md`; then merge to `main` or run the workflow manually.
 
 ## Do not repeat
 
@@ -112,12 +131,11 @@ The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.
 - do not treat successful packaging as a live-site smoke test;
 - do not reuse a collection release tag for materially different source; bump `release/current.json` instead.
 
-## Content-system preview — branch-local
+## Content-system contract
 
-- branch: `task/TASK-0016-content-system-preview`
+- source: `content-generation-modules` v0.1.2 at `cb8c18fa7789e4b651e1f963892bf056b0d3276d`
 - helper: `content-generation-modules` v0.1.2 at commit `cb8c18fa7789e4b651e1f963892bf056b0d3276d`
 - review files: `docs/content-system-preview.md`, `docs/content-system-preview.html`
 - generated assets: `docs/content-system-assets/hero.png`, `docs/content-system-assets/supporting-square.png`
 - visual rule: narrative raster assets carry one short title and subtitle; SVGs and tiny helper graphics remain text-free
-- validation: existing collection tests plus responsive desktop/tablet/mobile screenshots and PDF packet rendered locally; README promotion is staged on the same branch
-- next action: inspect the updated README in PR #9, then merge only after human review
+- validation: existing collection tests plus responsive desktop/tablet/mobile screenshots and PDF packet rendered locally; README promotion is merged in PR #9

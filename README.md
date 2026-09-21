@@ -16,13 +16,14 @@ Small browser tools are easy to make and easy to lose. **One lives in a chat, an
 
 GitHub Releases contains a separate versioned ZIP for every extension currently registered on `main`.
 
-Current bundle: **Custom Extensions — 2026-09-03** (`extensions-2026.09.03`).
+Release bundle: **Custom Extensions — 2026-09-20** (`extensions-2026.09.20`). The release workflow publishes it when this descriptor reaches `main`.
 
 | Extension | Release asset |
 | --- | --- |
 | ChatGPT 10-Day Cleaner v2.0.0 | `chatgpt-10-day-cleaner-v2.0.0.zip` |
 | ChatGPT Transcript Exporter v0.1.0 | `chatgpt-transcript-exporter-v0.1.0.zip` |
 | Connection List Exporter v1.1.0 | `linkedin-connection-exporter-v1.1.0.zip` |
+| ChatGPT Provenance Exporter v0.1.0 | `chatgpt-provenance-exporter-v0.1.0.zip` |
 
 Open the repository **Releases** page, download the ZIP you want, extract it, then load the extracted folder in Brave. See `docs/RELEASES.md` for checksums, exact install steps, packaging rules, and the release workflow.
 
@@ -67,13 +68,16 @@ custom-extensions/
 │   ├── PDD.md
 │   └── SDD.md
 ├── scripts/
+│   ├── package-extensions.mjs
 │   ├── package-extensions.sh
+│   ├── read-release-metadata.mjs
 │   └── test-all.mjs
 └── extensions/
     ├── registry.json
     ├── chatgpt-10-day-cleaner/
     ├── linkedin-connection-exporter/
-    └── chatgpt-transcript-exporter/
+    ├── chatgpt-transcript-exporter/
+    └── chatgpt-provenance-exporter/
 ```
 
 ## Current extensions
@@ -83,6 +87,7 @@ custom-extensions/
 | `chatgpt-10-day-cleaner` | Dry-run and delete old ChatGPT conversations | destructive | imported + local tests passed |
 | `linkedin-connection-exporter` | Export visible LinkedIn connection rows to CSV/TSV | read/export | imported + local tests passed |
 | `chatgpt-transcript-exporter` | Export the active ChatGPT thread to Markdown or JSON, including long virtualized threads | read/export | local deterministic/property tests passed; live Brave smoke test required |
+| `chatgpt-provenance-exporter` | Capture a source-preserving provenance bundle for the current ChatGPT conversation | read/export | PROV-0001 pilot and PROV-0002 holdout passed; built-in-browser full-CDP and authorized persisted-fetch validation passed; streaming/SSE and account-wide export remain gated |
 
 Machine-readable details live in `extensions/registry.json`.
 
@@ -106,7 +111,13 @@ Run all available local tests with:
 node scripts/test-all.mjs
 ```
 
-Build release ZIPs locally with:
+Build release ZIPs locally with Node.js on any supported desktop OS:
+
+```bash
+node scripts/package-extensions.mjs
+```
+
+The legacy Bash packager is also available on Unix-like environments:
 
 ```bash
 bash scripts/package-extensions.sh

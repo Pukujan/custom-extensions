@@ -8,7 +8,7 @@
   "evidence": [
     {"claim": "Each extension is independently loadable and does not depend on sibling runtime directories.", "source": "AGENTS.md; specs/SDD.md; README.md", "status": "shipped"},
     {"claim": "The collection uses local-first privacy and least-privilege permission rules.", "source": "AGENTS.md; docs/POLICIES.md; specs/PDD.md", "status": "shipped"},
-    {"claim": "The collection has three registered extensions with deterministic test evidence and one live-smoke-required state.", "source": "extensions/registry.json; docs/STATUS.md; HANDOFF.md", "status": "shipped"},
+    {"claim": "The collection has four registered extensions with deterministic test evidence and one live-smoke-required state.", "source": "extensions/registry.json; docs/STATUS.md; HANDOFF.md", "status": "shipped"},
     {"claim": "GitHub Releases publish separate versioned ZIPs with checksums.", "source": "README.md; docs/RELEASES.md; HANDOFF.md", "status": "shipped"}
   ],
   "boundaries": ["This is a collection, not one monolithic extension.", "Load one extension directory, never the repository root.", "Do not add credentials, telemetry, CAPTCHA bypass, anti-detection, or access-control circumvention.", "Deterministic tests do not prove live-site behavior.", "Shared runtime code needs repeated demonstrated reuse."],

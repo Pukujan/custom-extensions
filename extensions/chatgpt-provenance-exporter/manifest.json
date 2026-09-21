@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT Provenance Exporter",
+  "version": "0.1.0",
+  "description": "Capture one ChatGPT conversation as raw provenance evidence plus derived graph, tool, rendered, reconciliation, and integrity indexes.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "core.js",
+        "content.js",
+        "account-core.js",
+        "account-runner.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "ChatGPT Provenance Exporter"
+  }
+}

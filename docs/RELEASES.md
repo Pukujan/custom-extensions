@@ -14,13 +14,21 @@ The repository keeps each extension independently loadable under `extensions/<sl
 
 For ChatGPT Transcript Exporter v0.1.0, the asset is `chatgpt-transcript-exporter-v0.1.0.zip`.
 
+For ChatGPT Provenance Exporter v0.1.0, the asset is `chatgpt-provenance-exporter-v0.1.0.zip`. Its pilot, independent holdout, required MV3 smoke, built-in-browser full-CDP validation, and authorized persisted/generated-response observer smokes are recorded in the extension handoff; account-wide export remains separately gated, and the generated streaming body is explicitly unavailable through the page-level hook.
+
 ## Release contents
 
-`scripts/package-extensions.sh` reads `extensions/registry.json`, checks that each registry version matches its `manifest.json`, and creates one ZIP per registered extension. Runtime files are packaged with `manifest.json` at archive root. Conventional repository-only material (`README.md`, `TEST_REPORT.txt`, `tests/`, `specs/`, and `tests.js`) is excluded from release ZIPs.
+`scripts/package-extensions.mjs` reads `extensions/registry.json`, checks that each registry version matches its `manifest.json`, and creates one ZIP per registered extension. Runtime files are packaged with `manifest.json` at archive root. Conventional repository-only material (`README.md`, `TEST_REPORT.txt`, `tests/`, `specs/`, and `tests.js`) is excluded from release ZIPs. The Node implementation uses only built-in modules and is the canonical local/CI packager; the older Bash wrapper remains available for environments that already provide its Unix ZIP tools.
 
 The script also writes `dist/SHA256SUMS.txt`.
 
-Run locally on a system with Bash, `jq`, `zip`, `unzip`, and `sha256sum`:
+Run locally on Windows, macOS, or Linux with Node.js:
+
+```text
+node scripts/package-extensions.mjs
+```
+
+The legacy Bash wrapper still works on a system with Bash, `jq`, `zip`, `unzip`, and `sha256sum`:
 
 ```bash
 bash scripts/package-extensions.sh
