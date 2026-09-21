@@ -16,7 +16,7 @@ Small browser tools are easy to make and easy to lose. **One lives in a chat, an
 
 GitHub Releases contains a separate versioned ZIP for every extension currently registered on `main`.
 
-Release bundle: **Custom Extensions — 2026-09-20** (`extensions-2026.09.20`). The release workflow publishes it when this descriptor reaches `main`.
+Current bundle: **Custom Extensions — 2026-09-20** (`extensions-2026.09.20`).
 
 | Extension | Release asset |
 | --- | --- |

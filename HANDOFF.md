@@ -13,9 +13,10 @@
 - Packaged-release PR #3: merged to `main`
 - Content-system PR #9: merged to `main`
 - Release commit: `7ba4f8e54d6e7b1c383cade76916cb746b1271c6`
-- Published release: `extensions-2026.09.03` — `Custom Extensions — 2026-09-03`
-- Release descriptor awaiting publication: `extensions-2026.09.20` — `Custom Extensions — 2026-09-20`
+- Previous published release: `extensions-2026.09.03` — `Custom Extensions — 2026-09-03`
+- Current published release: `extensions-2026.09.20` — `Custom Extensions — 2026-09-20`
 - Release workflow run: `33825192190` — success
+- Current release workflow run: `35568497252` — success
 
 ## Follow-on project — ChatGPT Provenance Exporter
 
@@ -57,7 +58,7 @@ The task file and checkpoint are canonical execution state. Issue #6 and PR #7 a
 - `rendered/transcript.md` is a readable rendered transcript, not the complete raw-backed tool/source view
 - pause, resume, and reset are supported for active capture; reset cancels the active run and clears its persisted progress
 - built-in-browser full-CDP pilot validation: **passed** through the approved `cdp` capability; one authorized persisted-fetch observer smoke also passed, with streaming/SSE observation separately gated
-- packaging readiness: registry and manifest are aligned; the prepared release descriptor includes this extension
+- packaging readiness: registry and manifest are aligned; the published release descriptor includes this extension
 
 ### ChatGPT 10-Day Cleaner v2.0.0
 
@@ -86,7 +87,7 @@ The task file and checkpoint are canonical execution state. Issue #6 and PR #7 a
 
 ## Packaged release design
 
-`release/current.json` defines the prepared collection bundle tag/title.
+`release/current.json` defines the current collection bundle tag/title.
 
 `scripts/package-extensions.mjs` is the canonical cross-platform packager for every registry entry. It requires registry/manifest version agreement, excludes conventional repository-only tests/specs/reports, verifies `manifest.json` is at ZIP root, and writes `SHA256SUMS.txt`. `scripts/package-extensions.sh` remains a legacy Unix wrapper.
 
@@ -102,11 +103,29 @@ Observed test results:
 - LinkedIn Connection Exporter: 16/16 passed;
 - ChatGPT Transcript Exporter: 18/18 passed;
 - total: 46 tests passed;
-- all four ZIPs packaged successfully;
+- all three ZIPs packaged successfully;
 - GitHub Release publication succeeded;
 - workflow artifact upload succeeded.
 
-The published GitHub Release contains the four versioned ZIPs plus `SHA256SUMS.txt` once the `extensions-2026.09.20` workflow completes.
+The previous published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.txt`.
+
+## Current release evidence — 2026-09-20
+
+GitHub Actions run `35568497252` executed from `main` at merge commit `758614cab6f809832d5033fee2ab124b05f96142` and completed successfully.
+
+Observed results:
+
+- all four registered extension suites passed: **103 tests total**;
+- registry/manifest version checks and release metadata validation passed;
+- all four versioned ZIPs packaged successfully;
+- GitHub Release publication and workflow artifact upload passed.
+
+Published ZIP checksums:
+
+- `chatgpt-10-day-cleaner-v2.0.0.zip` — `75be9bfd162e7f3d11ab9c0f6a0094e560e113e50a088a720bb38191d0028962`;
+- `chatgpt-provenance-exporter-v0.1.0.zip` — `6b63e6e33af8607b5cff56f1549e97dca3a6ffbc3ff894cca914435cd1aa7bd6`;
+- `chatgpt-transcript-exporter-v0.1.0.zip` — `694f7bfb3d44582569aaed49aafd974b4979df9cd32e4dd6306da2ab31c5725b`;
+- `linkedin-connection-exporter-v1.1.0.zip` — `c388964774ff08e8d13790c5027cb106237fefcb1e475adaaec3c88f2c92c90e`.
 
 ## Active provenance next action
 
@@ -120,7 +139,7 @@ The active project is the ChatGPT Provenance Exporter. The v0.1 pilot/holdout ba
 4. Smoke-test a short ChatGPT thread and a genuinely long/virtualized thread.
 5. Verify Markdown and JSON downloads, beginning/middle/end ordering, code blocks, links, roles, filename, scroll restoration, and partial-warning behavior.
 6. Only after observed live browser evidence should the transcript exporter move from `LIVE_SMOKE_REQUIRED` to `LIVE_SMOKE_PASSED`.
-7. Before publishing, review the prepared `release/current.json` and `release/RELEASE_NOTES.md`; then merge to `main` or run the workflow manually.
+7. For a future bundle, review the updated `release/current.json` and `release/RELEASE_NOTES.md`; then merge to `main` or run the workflow manually.
 
 ## Do not repeat
 

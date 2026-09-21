@@ -1,10 +1,10 @@
 # Status
 
-## Release packaging — 2026-09-20 readiness audit
+## Release packaging — 2026-09-20
 
-### Prepared for publication
+### Published and verified
 
-The registry now has four extensions, and the prepared descriptor in `release/current.json` is `extensions-2026.09.20` / `Custom Extensions — 2026-09-20`. It includes `chatgpt-provenance-exporter-v0.1.0.zip`. Temporary ZIPs were generated only in controlled local output directories for packager validation; no release assets are committed and no release or upload was performed.
+The registry has four extensions, and `release/current.json` identifies the published bundle `extensions-2026.09.20` / `Custom Extensions — 2026-09-20`. The release was published from merge commit `758614cab6f809832d5033fee2ab124b05f96142` by workflow run `35568497252`.
 
 The canonical Node packager uses only built-in modules and runs on this Windows checkout as well as CI. The legacy Bash wrapper's stored Git blob also passes `bash -n`; on this checkout, `core.autocrlf=true` makes direct `bash -n scripts/package-extensions.sh` see CRLF, which is checkout-local.
 
@@ -12,7 +12,15 @@ Local verification on 2026-09-20: all four registered suites passed (103 tests t
 
 The new cross-platform packager was also verified locally with `node --check scripts/package-extensions.mjs`, `node scripts/package-extensions.mjs --help`, and two independent `--out` runs. Both runs produced the four expected ZIPs with identical SHA-256 values; checksum recomputation passed; every archive had `manifest.json` at its root and excluded `tests/` and `specs/`. The temporary output directories were removed after verification. After this change, `node scripts/test-all.mjs` returned exit `0` with all registered extension suites passed (`103` tests total, including `57` provenance tests). Release metadata is now validated/emitted by `scripts/read-release-metadata.mjs`, removing the workflow's `jq` dependency.
 
-Remaining release risks: the GitHub Actions workflow has not been run on this branch, no release assets are committed or published, and the generated-response observer saw a real `text/event-stream` request whose body was unavailable to the page-level hook. Local packaging, checksum, archive-invariant, and metadata validation passed. The required unpacked-MV3 smoke and authorized observer smokes are recorded as passed.
+The GitHub Release contains four versioned ZIPs and `SHA256SUMS.txt`; release assets are not committed to the Git tree. The generated-response observer saw a real `text/event-stream` request whose body was unavailable to the page-level hook, so no SSE frames are claimed. The required unpacked-MV3 smoke and authorized observer smokes are recorded as passed.
+
+Published asset checksums:
+
+- `chatgpt-10-day-cleaner-v2.0.0.zip` — SHA-256 `75be9bfd162e7f3d11ab9c0f6a0094e560e113e50a088a720bb38191d0028962`;
+- `chatgpt-provenance-exporter-v0.1.0.zip` — SHA-256 `6b63e6e33af8607b5cff56f1549e97dca3a6ffbc3ff894cca914435cd1aa7bd6`;
+- `chatgpt-transcript-exporter-v0.1.0.zip` — SHA-256 `694f7bfb3d44582569aaed49aafd974b4979df9cd32e4dd6306da2ab31c5725b`;
+- `linkedin-connection-exporter-v1.1.0.zip` — SHA-256 `c388964774ff08e8d13790c5027cb106237fefcb1e475adaaec3c88f2c92c90e`;
+- `SHA256SUMS.txt` — published with the release.
 
 ### Implemented and merged
 
@@ -38,7 +46,7 @@ Observed results:
 - LinkedIn Connection Exporter: **16/16 passed**;
 - ChatGPT Transcript Exporter: **18/18 passed**, including randomized dedupe/order coverage;
 - collection runner: **all registered extension test suites passed**;
-- all four versioned ZIPs packaged successfully;
+- all three versioned ZIPs packaged successfully;
 - release metadata validation passed;
 - GitHub Release publication passed;
 - Actions artifact upload passed.
