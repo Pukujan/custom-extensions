@@ -340,3 +340,31 @@ Decision:
 
 Next atomic action:
 - wait for a user-supplied official ZIP or a separate authorization for account-wide/streaming validation; otherwise the accepted v0.1 provenance baseline remains frozen.
+
+### 2026-09-21 00:17:05 UTC — Codex — CDP capability recheck
+
+Completed:
+- rechecked the user-selected built-in ChatGPT browser tab at the pilot URL through the current Browser Use connection;
+- confirmed that the tab exposes the approved optional `cdp` capability even though the convenience property `tab.cdp` is undefined;
+- loaded the development-only live observer through direct CDP evaluation using the page's existing script nonce after the loopback payload-fetch path was rejected by the page/browser policy;
+- started and stopped the observer successfully; stopping restored the page's original `fetch`/XHR hooks.
+
+Exact evidence:
+- tab: `https://chatgpt.com/c/6ab01034-f144-83ea-bae2-1e71588ccae5`;
+- capability inventory included `cdp` with raw `Runtime.evaluate` support;
+- `node dev/build-live-browser-payload.mjs` → exit `0`; generated payload length `12,246` bytes;
+- loopback `fetch` and script-tag transfer attempts did not load the payload (`Failed to fetch` / `script_load_error`); no page or transcript data was sent to the loopback server;
+- nonce-authorized CDP load returned `loaded:true`, `hasObserver:true`;
+- observer start returned `status:"running", event_count:0, next_sequence:1`;
+- observer stop returned `status:"stopped", event_count:0, next_sequence:1`; hooks were restored;
+- no message was submitted, no live event body was retained, and no private transcript content was written to Git.
+
+Decision:
+- the earlier CDP blocker is definitively resolved; the remaining optional SSE gap is not caused by unavailable CDP;
+- the next live action, if authorized, is one user-visible test response so the observer can determine whether the current page emits a streaming/SSE event; account-wide export remains out of scope.
+
+Blocker/confirmation gate:
+- submitting that test response is an external representational action and requires action-time user confirmation; no such message was sent in this checkpoint.
+
+Next atomic action:
+- after explicit confirmation to submit the single live test prompt, start the observer, submit the prompt, collect aggregate-only event counts/classifications/hashes, stop/reset the observer, and append the result; otherwise keep the accepted baseline frozen and do not start bulk export.
