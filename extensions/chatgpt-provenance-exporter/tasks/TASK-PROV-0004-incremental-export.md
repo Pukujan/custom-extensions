@@ -196,6 +196,10 @@ Assessment:
 Next atomic action:
 - resume or rerun the authorized account export in the connected MV3 surface until the final manifest, catalog, and account-level SHA-256 index appear, then repeat the aggregate validation; do not start bulk export beyond this controlled account run.
 
+### 2026-09-21 — user clarification
+
+The user confirmed that the account export was intentionally paused for inspection. Therefore the absent account-level manifest, catalog, and SHA-256 index are expected paused-run state, not evidence that the six completed per-conversation bundles failed. The next action is to use the existing `Resume export` control and allow the same run to finish; do not press `Reset export` unless intentionally discarding the checkpoint.
+
 ## Handoff
 
 Read `PROJECT.md → checkpoints/CURRENT.md → this task → specs/SDD.md → specs/ACCOUNT_EXPORT_DESIGN.md` before continuing. Do not start a live account-wide export without a later explicit checkpoint.

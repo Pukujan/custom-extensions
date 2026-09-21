@@ -79,7 +79,7 @@ The published GitHub Release contains the three versioned ZIPs plus `SHA256SUMS.
 
 ## Active provenance next action
 
-The active project is the ChatGPT Provenance Exporter. Its canonical next action is recorded in `extensions/chatgpt-provenance-exporter/HANDOFF.md` and `extensions/chatgpt-provenance-exporter/checkpoints/CURRENT.md`: keep the accepted v0.1 pilot/holdout baseline frozen; wait for a user-supplied official export ZIP or a separate explicit authorization for account-wide/live-stream validation; do not start bulk export automatically.
+The active project is the ChatGPT Provenance Exporter. The v0.1 pilot/holdout baseline is frozen and accepted. The user has explicitly authorized the controlled account run, which is currently paused after six valid per-conversation bundles were written under the controlled account folder. The canonical next action is to resume that same run, wait for account-level `manifest.json`, catalog, and SHA-256 index finalization, and then validate them. Do not reset the run or start a second bulk run unless the existing checkpoint is intentionally discarded. Official-import work still waits for a user-supplied ZIP.
 
 ## Other collection maintenance (not the active provenance task)
 
