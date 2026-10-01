@@ -1,6 +1,6 @@
 {
   "schema_version": "custom-extensions.registry.v1",
-  "updated_at": "2026-09-20",
+  "updated_at": "2026-10-01",
   "extensions": [
     {
       "id": "chatgpt-10-day-cleaner",
@@ -81,6 +81,27 @@
       "provenance": {
         "source": "designed from existing ChatGPT transcript exporter, cleaner auth patterns, and Eval Lab continuity protocol",
         "date": "2026-09-20"
+      }
+    },
+    {
+      "id": "dark-mode-control",
+      "name": "Dark Mode Control",
+      "directory": "extensions/dark-mode-control",
+      "version": "1.0.0",
+      "risk_class": "stateful",
+      "hosts": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "purpose": "Apply dynamic dark mode with per-hostname contrast, brightness and warmth controls.",
+      "test_command": "node tests/test.js",
+      "status": [
+        "LOCAL_TESTED",
+        "LIVE_SMOKE_PASSED"
+      ],
+      "provenance": {
+        "source": "New Brave extension with bundled MIT Dark Reader API 4.9.133",
+        "date": "2026-10-01"
       }
     }
   ]

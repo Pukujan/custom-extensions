@@ -82,8 +82,14 @@ custom-extensions/
 
 ## Current extensions
 
+Dark Mode Control adds automatic dark styling and per-site contrast, brightness and
+warmth controls. See [`extensions/dark-mode-control/README.md`](extensions/dark-mode-control/README.md)
+for installation and scope. It is included by the repository packager; the published
+2026-09-20 bundle predates this addition.
+
 | Extension | Purpose | Risk class | Status |
 | --- | --- | --- | --- |
+| `dark-mode-control` | Dark mode with per-site contrast, brightness and warmth | stateful | local tests passed; see extension test report for browser evidence |
 | `chatgpt-10-day-cleaner` | Dry-run and delete old ChatGPT conversations | destructive | imported + local tests passed |
 | `linkedin-connection-exporter` | Export visible LinkedIn connection rows to CSV/TSV | read/export | imported + local tests passed |
 | `chatgpt-transcript-exporter` | Export the active ChatGPT thread to Markdown or JSON, including long virtualized threads | read/export | local deterministic/property tests passed; live Brave smoke test required |

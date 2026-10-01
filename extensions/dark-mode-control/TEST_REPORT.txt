@@ -1,0 +1,26 @@
+Dark Mode Control v1.0.0 — 2026-10-01
+
+LOCAL_TESTED: 9/9 extension tests passed, including 10,000 bounded-input cases,
+prototype rejection, hostname isolation, master precedence, worker top-site
+selection/failure, stale content responses, exact upstream vendor integrity,
+permission checks and JS syntax. Collection: 112 tests passed across 5 suites.
+
+LIVE_SMOKE_PASSED: actual unpacked MV3 extension in isolated desktop Brave
+(Chromium 154.0.8037.93), HTTP fixture at 127.0.0.1 with localhost subframe.
+Observed dark background rgb(24, 26, 27); dynamic content and open shadow root
+styled; matching cross-origin frame obeyed top-host override; persisted settings
+survived reload; site disable restored white background and removed frame styles;
+master disable/enable restored original/dark appearances. No page errors.
+
+Popup document loaded as an extension page: contrast slider updated local storage,
+site toggle changed actual fixture styling, and reset restored defaults. The active
+tab descriptor was supplied by the test because native toolbar popup targets were
+not exposed by headless automation. Native toolbar opening and user-gesture activeTab
+permission granting remain manual smoke checks; no native toolbar-popup result claimed.
+
+PACKAGING: collection Node packager generated independently loadable ZIPs; new
+archive has manifest at root, includes MIT license and icons, excludes tests/specs.
+
+Not verified: arbitrary third-party websites, closed shadow roots, CORS-restricted
+resource compatibility, strict page CSP compatibility, native toolbar popup interaction.
+Browser pages, extension stores, local files and built-in PDF viewers are excluded.
