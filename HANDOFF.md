@@ -1,5 +1,24 @@
 # HANDOFF.md — Custom Extensions
 
+## Dark Mode Control — 2026-10-01
+
+Added independently loadable `extensions/dark-mode-control/` v1.0.0, stateful,
+with bundled MIT Dark Reader API 4.9.133. Automatic HTTP/HTTPS dark styling, global
+and site switches, and per-hostname contrast/brightness/warmth controls. Permissions:
+`storage` and `activeTab`; HTTP/HTTPS content scripts in matching frames.
+
+Verification: 112 collection tests passed; actual isolated Brave MV3 fixture smoke
+passed dynamic/shadow/frame styling, settings reload persistence, disable restoration
+and master precedence. Popup document controls passed with a controlled active-tab
+descriptor; native toolbar popup/user-gesture permission flow remains a manual check.
+See extension `TEST_REPORT.txt`, README and specs for exact scope/evidence.
+
+Repository Node packaging includes the new extension with manifest at archive root;
+published bundle `extensions-2026.09.20` is unchanged and predates it. Next release:
+bump the collection descriptor/tag, add this asset and publish through the workflow.
+To install now, use the extension directory or the locally generated ZIP.
+
+
 <!-- continuity:current {"active_task":null,"active_task_file":null,"protocol_version":"0.1.0-draft","schema":"project-continuity.current.v1"} -->
 
 > Continuity v1: this file remains the canonical mutable repository checkpoint. No root continuity task is active; the ChatGPT Provenance Exporter retains its own extension-level project/checkpoint files for follow-up work.
