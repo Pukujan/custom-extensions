@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChatGPT History Organizer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>History Organizer</h1>
+      <p>Organize the chats that already exist when you start. Future chats are not watched.</p>
+    </header>
+
+    <section class="card">
+      <div class="status-row">
+        <span id="phase" class="badge">idle</span>
+        <span id="progress"></span>
+      </div>
+      <p id="message">Ready to scan existing chats.</p>
+      <p id="detail" class="muted"></p>
+      <div class="actions">
+        <button id="startBtn" class="primary">Scan existing chats</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="resumeBtn">Resume</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+      <button id="libraryBtn" class="wide">Open organized library</button>
+    </section>
+
+    <details class="card" id="byokCard">
+      <summary>Optional BYOK refinement</summary>
+      <p class="muted">The model sees proposed folder metadata and representative titles, not full transcripts.</p>
+      <label class="check"><input type="checkbox" id="byokEnabled"> Enable BYOK</label>
+      <label>Provider
+        <select id="provider"></select>
+      </label>
+      <label>Model
+        <input id="model" autocomplete="off" placeholder="model name">
+      </label>
+      <label>API key
+        <input id="apiKey" type="password" autocomplete="off" placeholder="leave blank to keep saved key">
+      </label>
+      <div class="actions">
+        <button id="saveByokBtn">Save BYOK</button>
+        <button id="refineBtn">Refine folders now</button>
+      </div>
+      <p id="byokStatus" class="muted"></p>
+    </details>
+  </main>
+  <script src="core.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

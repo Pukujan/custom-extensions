@@ -1,6 +1,6 @@
 {
   "schema_version": "custom-extensions.registry.v1",
-  "updated_at": "2026-09-20",
+  "updated_at": "2026-10-02",
   "extensions": [
     {
       "id": "chatgpt-10-day-cleaner",
@@ -81,6 +81,28 @@
       "provenance": {
         "source": "designed from existing ChatGPT transcript exporter, cleaner auth patterns, and Eval Lab continuity protocol",
         "date": "2026-09-20"
+      }
+    },
+    {
+      "id": "chatgpt-history-organizer",
+      "name": "ChatGPT History Organizer",
+      "directory": "extensions/chatgpt-history-organizer",
+      "version": "0.1.0",
+      "risk_class": "stateful",
+      "hosts": [
+        "https://chatgpt.com/*"
+      ],
+      "purpose": "Retroactively organize the ChatGPT conversations that exist at scan start into extension-local smart folders, with optional BYOK group refinement.",
+      "test_command": "node tests/test.js",
+      "status": [
+        "LOCAL_TESTED",
+        "HOLDOUT_PASSED",
+        "LIVE_SMOKE_REQUIRED"
+      ],
+      "provenance": {
+        "source": "designed from existing ChatGPT account-export lifecycle patterns plus a deterministic organizer and optional BYOK refinement",
+        "date": "2026-10-02",
+        "issue": "#11"
       }
     }
   ]

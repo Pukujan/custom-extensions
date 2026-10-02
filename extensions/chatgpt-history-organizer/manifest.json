@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT History Organizer",
+  "version": "0.1.0",
+  "description": "Retroactively organize existing ChatGPT conversations into local smart folders, with optional BYOK refinement.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*"
+  ],
+  "optional_host_permissions": [
+    "https://api.openai.com/*",
+    "https://openrouter.ai/*",
+    "https://api.groq.com/*",
+    "https://api.together.xyz/*",
+    "https://api.mistral.ai/*",
+    "https://api.deepseek.com/*",
+    "https://api.x.ai/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["session-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ChatGPT History Organizer"
+  }
+}

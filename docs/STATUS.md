@@ -1,5 +1,23 @@
 # Status
 
+## ChatGPT History Organizer — 2026-10-02
+
+Issue #11 implementation is on branch `issue-11-chat-history-organizer` as a new independently loadable MV3 module under `extensions/chatgpt-history-organizer/`.
+
+Current evidence:
+
+- risk class: `stateful`;
+- retroactive-only snapshot boundary: conversations created after Start are excluded;
+- durable pause/resume/reset lifecycle uses `chrome.storage.local`, generation guards, bounded work slices, and `chrome.alarms` recovery;
+- switching tabs or closing the popup does not own/cancel the job; a missing ChatGPT tab moves the run to a recoverable waiting state;
+- raw conversation bodies are processed in memory and not persisted by the organizer;
+- deterministic grouping is available without an LLM;
+- optional BYOK refinement sends only proposed group metadata and representative titles and may rename/merge known groups after validation;
+- normal deterministic/property/metamorphic suite: **23/23 passed** locally;
+- independent generated holdout: initial run exposed redundant-anchor crowding; after a general anchor-diversity fix and regression test, a fresh holdout passed with 54 generated profiles, 25 permutation trials, purity 1.000, 180 frozen old IDs, and 0 post-snapshot IDs admitted;
+- live Brave/ChatGPT account scan and live BYOK provider requests have **not** been claimed; status remains `LIVE_SMOKE_REQUIRED`.
+
+
 ## Release packaging — 2026-09-20
 
 ### Published and verified
