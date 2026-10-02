@@ -4,9 +4,20 @@
 
 > Continuity v1: this file remains the canonical mutable repository checkpoint. No root continuity task is active; the ChatGPT Provenance Exporter retains its own extension-level project/checkpoint files for follow-up work.
 
+## Active task — ChatGPT History Organizer
+
+- issue: #11 — `Build retroactive ChatGPT smart history organizer extension`;
+- branch: `issue-11-chat-history-organizer`;
+- directory: `extensions/chatgpt-history-organizer/`;
+- state: `LOCAL_TESTED / HOLDOUT_PASSED / LIVE_SMOKE_REQUIRED`;
+- normal suite: 23/23 passed;
+- fresh independent holdout passed after one prior holdout found and drove a general anchor-diversity fix;
+- pause/resume/reset, MV3 alarm recovery, stale-generation guards, post-snapshot exclusion, optional BYOK refinement, and extension-local library are implemented;
+- next action after PR review: load unpacked in Brave against a signed-in ChatGPT account, exercise a controlled existing-history scan including background-tab/popup-close/reload cases, and separately smoke a chosen BYOK provider if desired.
+
 ## Checkpoint
 
-- Date: 2026-09-21
+- Date: 2026-10-02
 - Repository: `Pukujan/custom-extensions`
 - Purpose: durable collection of small independently loadable Brave/Chromium extensions
 - Bootstrap PR #1: merged to `main`
