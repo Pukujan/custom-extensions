@@ -1,0 +1,53 @@
+ChatGPT History Organizer v0.1.0
+Validation date: 2026-10-02
+
+NORMAL SUITE
+Command: node tests/test.js
+Result: PASS — 23/23 tests
+
+Covered properties:
+- MV3 / least-privilege manifest assertions
+- JavaScript syntax checks
+- retroactive snapshot exclusion
+- overlapping-page dedupe
+- malformed enumeration fail-closed behavior
+- compact derived profiling (no persisted raw transcript field)
+- title-only fallback for malformed individual detail
+- deterministic folder coverage and duplicate suppression
+- anchor-diversity regression
+- input-order metamorphic stability
+- pause/resume/reset and generation invalidation
+- non-idle Start protection
+- BYOK rename/merge validation and invented-ID rejection
+- no raw transcript body in LLM refinement payload
+- explicit-only ChatGPT session bridge
+- durable storage + alarm recovery primitives
+- read-only ChatGPT adapter source policy
+- bounded HTTPS BYOK provider list
+- future-chat noise metamorphic exclusion
+
+HIDDEN / INDEPENDENT HOLDOUT
+The holdout harness and generated fixtures were executed outside the extension directory and are not committed.
+
+Initial holdout result: FAIL
+Finding: redundant co-occurring anchor keywords could consume multiple folder slots and push distinct topics into a mixed Other bucket.
+Action: changed deterministic anchor selection to reject near-duplicate anchors by posting-list overlap and added a normal regression test.
+
+Fresh post-fix holdout result: PASS
+Fresh seed: f6b32eb03cee97d9
+Generated profiles: 54
+Deterministic folders: 6
+Permutation trials: 25
+Topic purity: 1.000
+Frozen old IDs under pagination overlap/drift: 180
+Post-snapshot IDs admitted: 0
+Lifecycle checkpoint restored at profile index: 73
+Malformed/invented LLM source IDs: rejected
+
+EVIDENCE STATE
+LOCAL_TESTED: yes
+HOLDOUT_PASSED: yes (aggregate result only; harness not committed)
+LIVE_SMOKE_REQUIRED: yes
+LIVE_SMOKE_PASSED: no claim
+
+No real ChatGPT account-wide scan or BYOK provider request was executed as part of this deterministic/holdout validation.
